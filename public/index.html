@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Human Design Chart Generator</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main>
+    <h1>Human Design Chart Generator</h1>
+    <p class="subtitle">Swiss Ephemeris-based bodygraph calculation and report.</p>
+
+    <form id="birth-form">
+      <label>
+        Name (optional)
+        <input type="text" id="name" placeholder="For your report header" />
+      </label>
+      <label>
+        Birth date
+        <input type="date" id="date" required />
+      </label>
+      <label>
+        Birth time <span class="hint">(as exact as possible — even a few minutes shifts gates)</span>
+        <input type="time" id="time" required step="60" />
+      </label>
+      <label>
+        Birth timezone
+        <input type="text" id="tz-search" placeholder="Type to search, e.g. America/New_York" autocomplete="off" />
+        <select id="timeZone" size="6" style="display:none"></select>
+      </label>
+      <button type="submit">Generate Chart</button>
+    </form>
+
+    <div id="status"></div>
+    <div id="result" hidden></div>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
