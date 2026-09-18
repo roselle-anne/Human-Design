@@ -140,6 +140,7 @@ function renderReport(name, birthInputs, data) {
 
   const actions = el(`<div class="report-actions">
     <button type="button" class="btn btn-outline" id="download-pdf-btn">Download Report (PDF)</button>
+    <span class="actions-hint">Opens the print dialog — choose "Save as PDF" as the destination.</span>
   </div>`);
   result.appendChild(actions);
 
@@ -433,23 +434,8 @@ function buildPdfDetailsPage(chart) {
 }
 
 function downloadReportPDF(name, birthInputs, chart, content, structure) {
-  const btn = document.getElementById('download-pdf-btn');
-  const originalLabel = btn.textContent;
-  btn.textContent = 'Preparing PDF...';
-  btn.disabled = true;
-
-  const filename = `Human-Design-Report${name ? '-' + name.replace(/\s+/g, '-') : ''}.pdf`;
-
-  // Build the paginated PDF layout in a detached container, off-screen but
-  // still laid out in the document (html2canvas needs real layout), so the
-  // visible on-screen report is completely unaffected.
-  const pdfRoot = document.createElement('div');
-  pdfRoot.id = 'pdf-export-root';
-  // `opacity:0` (not position:fixed/absolute) keeps it in normal document
-  // flow — html2canvas's internal clone measures flow height, and a
-  // fixed/absolute element contributes nothing to that, which silently
-  // produced a 0-height render.
-  pdfRoot.style.cssText = 'width:800px; opacity:0; pointer-events:none;';
+  const printRoot = document.getElementById('print-root');
+  printRoot.innerHTML = '';
 
   const pages = [
     buildPdfCoverPage(name, birthInputs),
@@ -491,26 +477,17 @@ function downloadReportPDF(name, birthInputs, chart, content, structure) {
     buildPdfCrossPage(chart, content),
     buildPdfDetailsPage(chart),
   ];
-  for (const html of pages) pdfRoot.appendChild(el(html));
-  document.body.appendChild(pdfRoot);
-  void pdfRoot.offsetHeight; // force layout before html2canvas measures it
+  for (const html of pages) printRoot.appendChild(el(html));
 
-  window.html2pdf()
-    .set({
-      margin: 10,
-      filename,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: ['css', 'avoid-all'] },
-    })
-    .from(pdfRoot)
-    .save()
-    .finally(() => {
-      btn.textContent = originalLabel;
-      btn.disabled = false;
-      pdfRoot.remove();
-    });
+  // Give the printed document a sensible default filename in "Save as PDF".
+  const originalTitle = document.title;
+  document.title = `Human Design Report${name ? ' - ' + name : ''}`;
+
+  window.print();
+
+  // restore right away; most browsers block script execution while the
+  // print dialog is open, so this runs once it closes either way.
+  document.title = originalTitle;
 }
 
 document.getElementById('birth-form').addEventListener('submit', async (e) => {

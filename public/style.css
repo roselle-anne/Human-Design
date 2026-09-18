@@ -215,13 +215,19 @@ p { line-height: 1.6; }
 }
 
 /* --- PDF-only pages: one topic per page, echoing a printed report's pacing.
-   Built into a detached, off-screen container fed to html2pdf; never shown
-   in the on-screen report. --- */
+   Built into #print-root and shown only via window.print(); never
+   part of the on-screen report. --- */
 .report-actions {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   gap: 12px;
   margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.actions-hint {
+  color: var(--muted);
+  font-size: 13px;
 }
 
 .report-page {
@@ -235,12 +241,11 @@ p { line-height: 1.6; }
   display: flex;
   flex-direction: column;
   justify-content: center;
-  /* Unconditional (not @media print): html2pdf renders the live screen DOM
-     via html2canvas, so print-only rules never apply during PDF export. */
   break-after: page;
   page-break-after: always;
 }
 .report-page.last-page { break-after: auto; page-break-after: auto; }
+.report-page { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .report-page.center-text { text-align: center; align-items: center; }
 
 .report-page .page-eyebrow {
@@ -314,12 +319,18 @@ p { line-height: 1.6; }
 
 .gate-page .page-title { font-size: 42px; }
 
-/* --- Print / PDF export --- */
+/* --- Print / PDF export ---
+   #print-root holds the paginated report and is only ever populated right
+   before window.print() is called. It's hidden on screen and shown only
+   in print, with everything else on the page hidden during print. This
+   uses the browser's own native print/PDF rendering rather than a DOM-to-
+   canvas approximation, which proved unreliable for this report's length
+   and layout. */
+#print-root { display: none; }
+
 @media print {
-  .site-header, .site-footer, form, #status, .report-actions { display: none !important; }
+  body > *:not(#print-root) { display: none !important; }
+  #print-root { display: block !important; }
   body { background: var(--white); }
-  .report-page {
-    box-shadow: none;
-    break-inside: avoid;
-  }
+  .report-page { box-shadow: none; break-inside: avoid; }
 }
