@@ -126,8 +126,27 @@ app.post('/api/chart', async (req, res) => {
 // ever has to follow a link to a file.
 const styleCssPath = path.join(__dirname, '..', 'public', 'style.css');
 
+// Launching a fresh Chromium process per request measured at ~60s on
+// Render's free tier (0.5 CPU) — most of that is browser startup, not
+// actual rendering (56 pages renders in ~7s locally). Keeping one browser
+// alive across requests and only opening/closing a page per request
+// avoids paying that startup cost every single time.
+let browserPromise = null;
+async function getBrowser() {
+  if (browserPromise) {
+    const existing = await browserPromise;
+    if (existing.connected) return existing;
+    browserPromise = null; // crashed or was closed; relaunch below
+  }
+  browserPromise = puppeteer.launch({
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    protocolTimeout: 120000,
+  });
+  return browserPromise;
+}
+
 app.get('/api/report.pdf', async (req, res) => {
-  let browser;
+  let page;
   try {
     const { date, time, timeZone, name } = req.query;
     if (!date || !time || !timeZone) {
@@ -153,16 +172,13 @@ app.get('/api/report.pdf', async (req, res) => {
       logoUrl
     );
 
-    browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      protocolTimeout: 120000,
-    });
-    const page = await browser.newPage();
+    const browser = await getBrowser();
+    page = await browser.newPage();
     // Puppeteer's default per-operation timeout is 30s, which a 56-page
     // document with gradients and web fonts can exceed on Render's free
-    // tier (0.5 CPU) — especially right after a cold start. Give both the
-    // content load and the PDF render generous headroom rather than
-    // failing a request that just needed more time.
+    // tier under load. Give both the content load and the PDF render
+    // generous headroom rather than failing a request that just needed
+    // more time.
     page.setDefaultTimeout(90000);
     // 'domcontentloaded' resolves as soon as our own inline HTML/CSS is
     // parsed — it doesn't wait on the external Google Fonts request, which
@@ -181,14 +197,14 @@ app.get('/api/report.pdf', async (req, res) => {
       margin: { top: '10mm', bottom: '10mm', left: '10mm', right: '10mm' },
       timeout: 90000,
     });
-    await browser.close();
+    await page.close();
 
     const safeName = name ? `-${String(name).replace(/[^a-z0-9]+/gi, '-')}` : '';
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="Human-Design-Report${safeName}.pdf"`);
     res.send(pdfBuffer);
   } catch (err) {
-    if (browser) await browser.close().catch(() => {});
+    if (page) await page.close().catch(() => {});
     console.error(err);
     res.status(500).json({ error: 'Failed to generate PDF', detail: String(err) });
   }
