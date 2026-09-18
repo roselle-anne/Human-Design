@@ -3,5 +3,18 @@ services:
     name: human-design-chart
     runtime: node
     plan: free
-    buildCommand: npm install
+    # The `npx puppeteer browsers install chrome` step is required even
+    # though `npm install` runs puppeteer's postinstall too: Render can
+    # restore a cached node_modules snapshot from a previous build without
+    # re-running postinstall scripts, silently leaving Chrome missing.
+    # Running this explicitly makes every build self-healing regardless of
+    # cache state (it's a fast no-op if Chrome is already present).
+    buildCommand: npm install && npx puppeteer browsers install chrome
     startCommand: npm start
+    envVars:
+      # Without this, puppeteer's postinstall downloads Chrome to a cache
+      # path outside the deployed project directory, so it's present during
+      # the build but missing at runtime. This path persists into the
+      # running container.
+      - key: PUPPETEER_CACHE_DIR
+        value: /opt/render/project/.cache/puppeteer
