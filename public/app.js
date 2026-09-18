@@ -140,7 +140,7 @@ function renderReport(name, birthInputs, data) {
 
   const actions = el(`<div class="report-actions">
     <button type="button" class="btn btn-outline" id="download-pdf-btn">Download Report (PDF)</button>
-    <span class="actions-hint">Opens the print dialog — choose "Save as PDF" as the destination.</span>
+    <span class="actions-hint">Takes a few seconds to generate the full report.</span>
   </div>`);
   result.appendChild(actions);
 
@@ -248,246 +248,25 @@ function renderReport(name, birthInputs, data) {
   reportContent.appendChild(timesSection);
 
   document.getElementById('download-pdf-btn').addEventListener('click', () => {
-    downloadReportPDF(name, birthInputs, chart, content, structure);
+    downloadReportPDF(name, birthInputs);
   });
 
   result.scrollIntoView({ behavior: 'smooth' });
 }
 
-// ---- PDF-only rendering: a paginated, one-topic-per-page layout used just
-// for the downloadable PDF. The on-screen report above stays a single
-// continuous page; this builds a separate, detached tree fed to html2pdf. ----
-function buildPdfCoverPage(name, birthInputs) {
-  const preparedDate = new Date().toLocaleDateString(undefined, {
-    year: 'numeric', month: 'long', day: 'numeric',
+// The paginated PDF is rendered server-side by a real headless Chromium
+// (see server/hd/pdfTemplate.js) and served as a plain file download —
+// this just points the browser at that URL. No client-side rendering
+// (canvas rasterization, window.print()) involved, so it isn't subject to
+// browser quirks or iframe-embedding permission restrictions.
+function downloadReportPDF(name, birthInputs) {
+  const params = new URLSearchParams({
+    date: birthInputs.date,
+    time: birthInputs.time,
+    timeZone: birthInputs.timeZone,
   });
-  const birthDateFormatted = new Date(`${birthInputs.date}T00:00:00`).toLocaleDateString(undefined, {
-    year: 'numeric', month: 'long', day: 'numeric',
-  });
-  return `<div class="report-page cover-page">
-    <img src="assets/logo-horizontal-color.png" alt="Embodiance" class="title-logo" />
-    <div class="page-eyebrow">Human Design Report</div>
-    <h1 class="report-title">Your Bodygraph &amp; Chart Analysis</h1>
-    ${name ? `<p class="report-subject">Prepared for ${name}</p>` : ''}
-    <div class="title-meta">
-      <span><strong>Birth date:</strong> ${birthDateFormatted} at ${birthInputs.time}</span>
-      <span><strong>Timezone:</strong> ${birthInputs.timeZone}</span>
-      <span><strong>Report prepared:</strong> ${preparedDate}</span>
-    </div>
-  </div>`;
-}
-
-function buildPdfSummaryPage(chart, content) {
-  return `<div class="report-page center-text">
-    <div class="page-eyebrow">At a Glance</div>
-    <h1 class="page-title">Your Chart Summary</h1>
-    <div class="summary-grid">
-      ${['Type', 'Profile', 'Authority', 'Definition'].map((label) => `
-        <div class="summary-card">
-          <div class="label">${label}</div>
-          <div class="value">${chart[label.toLowerCase()]}</div>
-        </div>`).join('')}
-      <div class="summary-card"><div class="label">Strategy</div><div class="value">${content.typeInfo.strategy}</div></div>
-      <div class="summary-card"><div class="label">Signature / Not-Self</div><div class="value">${content.typeInfo.signature} / ${content.typeInfo.notSelf}</div></div>
-    </div>
-  </div>`;
-}
-
-function buildPdfBodygraphPage(chart, structure) {
-  return `<div class="report-page center-text">
-    <div class="page-eyebrow">Your Bodygraph</div>
-    <h1 class="page-title">The Chart</h1>
-    <div class="bodygraph-wrap centered">
-      <div>${buildBodygraph(chart, structure)}</div>
-    </div>
-    <div class="legend centered">
-      <div><span class="dot" style="background:#158EA4"></span>Defined</div>
-      <div><span class="dot" style="background:#E4D6CE"></span>Undefined</div>
-    </div>
-    <p class="page-footnote">Centers and connecting channels are colored by definition. Exact gate numbers and channel names follow in this report.</p>
-  </div>`;
-}
-
-function buildPdfChapterPage(eyebrow, title, body) {
-  return `<div class="report-page center-text">
-    <div class="page-eyebrow">${eyebrow}</div>
-    <h1 class="page-title">${title}</h1>
-    <p class="page-body">${body}</p>
-  </div>`;
-}
-
-function buildPdfTypeOverviewPage(chart, content) {
-  return `<div class="report-page center-text">
-    <div class="page-eyebrow">Type &middot; ${content.typeInfo.population} of people</div>
-    <h1 class="page-title">${chart.type}</h1>
-    <p class="page-stats">Aura: ${content.typeInfo.aura}</p>
-    <p class="page-body">${content.typeInfo.summary}</p>
-  </div>`;
-}
-
-function buildPdfStrategyPage(content) {
-  return `<div class="report-page center-text">
-    <div class="page-eyebrow">Your Strategy</div>
-    <h1 class="page-title">${content.typeInfo.strategy}</h1>
-    <p class="page-body">Living by your strategy is what moves you toward your <strong>Signature</strong> feeling of ${content.typeInfo.signature.toLowerCase()}, rather than the <strong>Not-Self</strong> theme of ${content.typeInfo.notSelf.toLowerCase()} that shows up when it's overridden.</p>
-  </div>`;
-}
-
-function buildPdfSignatureQuotePage(content) {
-  return `<div class="report-page center-text quote-page">
-    <div class="quote-mark">&ldquo;</div>
-    <div class="page-eyebrow">Signature vs. Not-Self</div>
-    <h1 class="page-title">${content.typeInfo.signature} / ${content.typeInfo.notSelf}</h1>
-    <p class="page-body">${content.typeInfo.signature} is the feeling that lets you know you're living correctly for your type; ${content.typeInfo.notSelf.toLowerCase()} is the signal that something was overridden along the way.</p>
-  </div>`;
-}
-
-function buildPdfAuthorityPage(content) {
-  return `<div class="report-page center-text">
-    <div class="page-eyebrow">Inner Authority</div>
-    <h1 class="page-title">${content.authorityInfo.title}</h1>
-    <p class="page-body">${content.authorityInfo.description}</p>
-  </div>`;
-}
-
-function buildPdfProfilePage(chart, content) {
-  return `<div class="report-page center-text">
-    <div class="page-eyebrow">Profile</div>
-    <h1 class="page-title">${chart.profile}</h1>
-    <p class="page-body">${content.profileNarrative}</p>
-  </div>`;
-}
-
-function buildPdfProfileLinePage(lineNumber, roleLabel, content) {
-  const line = content.profileLines[lineNumber];
-  return `<div class="report-page center-text">
-    <div class="page-eyebrow">${roleLabel}</div>
-    <h1 class="page-title">Line ${lineNumber}: The ${line.keyword}</h1>
-    <p class="page-body">This ${roleLabel.toLowerCase()} line ${line.summary}</p>
-  </div>`;
-}
-
-function buildPdfDefinitionPage(chart, content) {
-  const info = content.definitionInfoForChart;
-  return `<div class="report-page center-text">
-    <div class="page-eyebrow">Definition</div>
-    <h1 class="page-title">${chart.definition}</h1>
-    <p class="page-body">${info ? info.summary : ''}</p>
-  </div>`;
-}
-
-function buildPdfCenterPage(info, defined) {
-  return `<div class="report-page center-text">
-    <div class="page-eyebrow">${defined ? 'Defined Center' : 'Undefined / Open Center'}</div>
-    <h1 class="page-title">${info.label}</h1>
-    <p class="page-stats">${info.theme}</p>
-    <p class="page-body">${defined ? info.defined : info.undefined}</p>
-  </div>`;
-}
-
-function buildPdfChannelPage(ch, content) {
-  const theme = content.channelThemes[`${ch.gates[0]}-${ch.gates[1]}`] || '';
-  return `<div class="report-page center-text quote-page">
-    <div class="quote-mark">&ldquo;</div>
-    <div class="page-eyebrow">Channel ${ch.gates[0]}&ndash;${ch.gates[1]}</div>
-    <h1 class="page-title">${ch.name}</h1>
-    <p class="page-stats">${ch.centers[0]} &harr; ${ch.centers[1]}</p>
-    <p class="page-body">${theme}</p>
-  </div>`;
-}
-
-function buildPdfGatePage(g, content) {
-  const info = content.gates[g.gate];
-  return `<div class="report-page center-text gate-page">
-    <div class="page-eyebrow">Gate ${g.gate} &middot; ${g.center}</div>
-    <h1 class="page-title">${info.name}</h1>
-    <p class="page-stats">
-      ${g.sides.map((s) => `<span class="side-badge ${s}">${s === 'personality' ? 'Personality' : 'Design'}</span>`).join(' ')}
-    </p>
-    <p class="page-body">${info.keynote}</p>
-  </div>`;
-}
-
-function buildPdfCrossPage(chart, content) {
-  return `<div class="report-page center-text">
-    <div class="page-eyebrow">Incarnation Cross</div>
-    <h1 class="page-title">Your Life's Work</h1>
-    <p class="page-body">Formed by the Sun and Earth gates of your Personality and Design, shaped by your ${chart.profile} profile.</p>
-    <table class="gates-table centered-table">
-      <tr><th></th><th>Sun Gate</th><th>Earth Gate</th></tr>
-      <tr><td>Personality (conscious)</td><td>${chart.incarnationCross.personalitySunGate} — ${content.gates[chart.incarnationCross.personalitySunGate].name}</td><td>${chart.incarnationCross.personalityEarthGate} — ${content.gates[chart.incarnationCross.personalityEarthGate].name}</td></tr>
-      <tr><td>Design (unconscious)</td><td>${chart.incarnationCross.designSunGate} — ${content.gates[chart.incarnationCross.designSunGate].name}</td><td>${chart.incarnationCross.designEarthGate} — ${content.gates[chart.incarnationCross.designEarthGate].name}</td></tr>
-    </table>
-  </div>`;
-}
-
-function buildPdfDetailsPage(chart) {
-  return `<div class="report-page center-text last-page">
-    <div class="page-eyebrow">Calculation Details</div>
-    <h1 class="page-title">Thank You</h1>
-    <p class="page-body">
-      Personality (birth) moment, UTC: ${chart.birth.utc}<br />
-      Design moment, UTC: ${chart.design.utc} (88° of solar arc before birth)
-    </p>
-    <p class="page-footnote">Planetary positions computed via Swiss Ephemeris. Gate boundaries verified against the standard 5.625°-per-gate mandala.</p>
-  </div>`;
-}
-
-function downloadReportPDF(name, birthInputs, chart, content, structure) {
-  const printRoot = document.getElementById('print-root');
-  printRoot.innerHTML = '';
-
-  const pages = [
-    buildPdfCoverPage(name, birthInputs),
-    buildPdfSummaryPage(chart, content),
-    buildPdfBodygraphPage(chart, structure),
-    buildPdfTypeOverviewPage(chart, content),
-    buildPdfStrategyPage(content),
-    buildPdfSignatureQuotePage(content),
-    buildPdfAuthorityPage(content),
-    buildPdfProfilePage(chart, content),
-    buildPdfProfileLinePage(Number(chart.profile.split('/')[0]), 'Conscious Line', content),
-    buildPdfProfileLinePage(Number(chart.profile.split('/')[1]), 'Unconscious Line', content),
-    buildPdfDefinitionPage(chart, content),
-    buildPdfChapterPage(
-      'Your Centers',
-      'Understanding the Centers',
-      'The bodygraph is made up of 9 centers. A defined center is a consistent, reliable part of who you are — always "on," regardless of who you\'re with. An undefined center is where you take in and amplify the energy of others, which can be a source of wisdom or of conditioning depending on how aware of it you are. The following pages walk through each of your 9 centers.'
-    ),
-    ...Object.entries(content.centers).map(([key, info]) =>
-      buildPdfCenterPage(info, chart.centers[key])
-    ),
-    buildPdfChapterPage(
-      'Your Channels',
-      'Understanding the Channels',
-      'A channel forms when both gates at its two ends are activated, connecting two centers into a single, consistently defined circuit. Each channel carries its own theme — a fixed life-force current running through your design. The following pages cover each channel currently defined in your chart.'
-    ),
-    ...chart.definedChannels.map((ch) => buildPdfChannelPage(ch, content)),
-    buildPdfChapterPage(
-      'Your Gates',
-      'Understanding the Gates',
-      "The 64 gates are the building blocks beneath every center and channel — each one a specific theme activated by a planet's position at your exact birth moment (conscious/Personality) or roughly 88 days earlier (unconscious/Design). The following pages cover every gate activated anywhere in your chart."
-    ),
-    ...chart.activeGates.map((g) => buildPdfGatePage(g, content)),
-    buildPdfChapterPage(
-      'Your Incarnation Cross',
-      'The Cross of Your Life\'s Work',
-      'Your Incarnation Cross is formed by four gates: the Sun and Earth of your conscious Personality, and the Sun and Earth of your unconscious Design. Together, shaped by your profile, they describe a purpose that runs through your entire life — the role you are here to play.'
-    ),
-    buildPdfCrossPage(chart, content),
-    buildPdfDetailsPage(chart),
-  ];
-  for (const html of pages) printRoot.appendChild(el(html));
-
-  // Give the printed document a sensible default filename in "Save as PDF".
-  const originalTitle = document.title;
-  document.title = `Human Design Report${name ? ' - ' + name : ''}`;
-
-  window.print();
-
-  // restore right away; most browsers block script execution while the
-  // print dialog is open, so this runs once it closes either way.
-  document.title = originalTitle;
+  if (name) params.set('name', name);
+  window.location.href = `/api/report.pdf?${params.toString()}`;
 }
 
 document.getElementById('birth-form').addEventListener('submit', async (e) => {

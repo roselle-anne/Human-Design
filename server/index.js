@@ -1,9 +1,12 @@
 import express from 'express';
 import path from 'node:path';
+import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import puppeteer from 'puppeteer';
 import { calculateChart } from './hd/calculate.js';
 import { CENTERS, CHANNELS } from './hd/structure.js';
 import { TYPES, AUTHORITIES, CENTERS_INFO, GATES, CHANNEL_THEMES, DEFINITION_INFO, PROFILE_LINES, profileDescription } from './hd/content.js';
+import { buildReportHtml } from './hd/pdfTemplate.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -66,6 +69,27 @@ function localToUTC(dateStr, timeStr, timeZone) {
   return new Date(guess);
 }
 
+async function buildChartAndContent(birthUTC) {
+  const chart = await calculateChart(birthUTC);
+  const content = {
+    types: TYPES,
+    authorities: AUTHORITIES,
+    centers: CENTERS_INFO,
+    gates: GATES,
+    channelThemes: CHANNEL_THEMES,
+    definitionInfo: DEFINITION_INFO,
+    profileLines: PROFILE_LINES,
+    typeInfo: TYPES[chart.type],
+    authorityInfo: AUTHORITIES[chart.authority],
+    definitionInfoForChart: DEFINITION_INFO[chart.definition],
+    profileNarrative: profileDescription(
+      chart.personality.find((a) => a.body === 'Sun').line,
+      chart.designActivations.find((a) => a.body === 'Sun').line
+    ),
+  };
+  return { chart, content };
+}
+
 app.post('/api/chart', async (req, res) => {
   try {
     const { date, time, timeZone } = req.body;
@@ -77,31 +101,74 @@ app.post('/api/chart', async (req, res) => {
       return res.status(400).json({ error: 'Invalid date/time/timeZone' });
     }
 
-    const chart = await calculateChart(birthUTC);
+    const { chart, content } = await buildChartAndContent(birthUTC);
 
     res.json({
       chart,
-      content: {
-        types: TYPES,
-        authorities: AUTHORITIES,
-        centers: CENTERS_INFO,
-        gates: GATES,
-        channelThemes: CHANNEL_THEMES,
-        definitionInfo: DEFINITION_INFO,
-        profileLines: PROFILE_LINES,
-        typeInfo: TYPES[chart.type],
-        authorityInfo: AUTHORITIES[chart.authority],
-        definitionInfoForChart: DEFINITION_INFO[chart.definition],
-        profileNarrative: profileDescription(
-          chart.personality.find((a) => a.body === 'Sun').line,
-          chart.designActivations.find((a) => a.body === 'Sun').line
-        ),
-      },
+      content,
       structure: { centers: CENTERS, channels: CHANNELS },
     });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to calculate chart', detail: String(err) });
+  }
+});
+
+// Server-rendered PDF: a real headless Chromium (Puppeteer) renders the
+// same paginated report HTML and produces an actual PDF file, served as a
+// normal download. This sidesteps every client-side quirk we hit with
+// html2canvas rasterization and window.print() (browser support, iframe
+// embedding permissions, etc.) — the browser on the visitor's end only
+// ever has to follow a link to a file.
+const styleCssPath = path.join(__dirname, '..', 'public', 'style.css');
+
+app.get('/api/report.pdf', async (req, res) => {
+  let browser;
+  try {
+    const { date, time, timeZone, name } = req.query;
+    if (!date || !time || !timeZone) {
+      return res.status(400).json({ error: 'date, time, and timeZone are required' });
+    }
+    const birthUTC = localToUTC(String(date), String(time), String(timeZone));
+    if (Number.isNaN(birthUTC.getTime())) {
+      return res.status(400).json({ error: 'Invalid date/time/timeZone' });
+    }
+
+    const { chart, content } = await buildChartAndContent(birthUTC);
+    const structure = { centers: CENTERS, channels: CHANNELS };
+    const inlineCss = fs.readFileSync(styleCssPath, 'utf8');
+    const logoUrl = `${req.protocol}://${req.get('host')}/assets/logo-horizontal-color.png`;
+
+    const html = buildReportHtml(
+      chart,
+      content,
+      structure,
+      name ? String(name) : '',
+      { date: String(date), time: String(time), timeZone: String(timeZone) },
+      inlineCss,
+      logoUrl
+    );
+
+    browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+    const pdfBuffer = await page.pdf({
+      format: 'a4',
+      printBackground: true,
+      margin: { top: '10mm', bottom: '10mm', left: '10mm', right: '10mm' },
+    });
+    await browser.close();
+
+    const safeName = name ? `-${String(name).replace(/[^a-z0-9]+/gi, '-')}` : '';
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="Human-Design-Report${safeName}.pdf"`);
+    res.send(pdfBuffer);
+  } catch (err) {
+    if (browser) await browser.close().catch(() => {});
+    console.error(err);
+    res.status(500).json({ error: 'Failed to generate PDF', detail: String(err) });
   }
 });
 

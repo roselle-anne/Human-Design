@@ -215,8 +215,9 @@ p { line-height: 1.6; }
 }
 
 /* --- PDF-only pages: one topic per page, echoing a printed report's pacing.
-   Built into #print-root and shown only via window.print(); never
-   part of the on-screen report. --- */
+   This CSS is also embedded verbatim into the server-rendered PDF
+   (server/hd/pdfTemplate.js) — these classes never appear in the on-screen
+   report, only in the document Puppeteer renders into a PDF file. --- */
 .report-actions {
   display: flex;
   align-items: center;
@@ -318,19 +319,3 @@ p { line-height: 1.6; }
 }
 
 .gate-page .page-title { font-size: 42px; }
-
-/* --- Print / PDF export ---
-   #print-root holds the paginated report and is only ever populated right
-   before window.print() is called. It's hidden on screen and shown only
-   in print, with everything else on the page hidden during print. This
-   uses the browser's own native print/PDF rendering rather than a DOM-to-
-   canvas approximation, which proved unreliable for this report's length
-   and layout. */
-#print-root { display: none; }
-
-@media print {
-  body > *:not(#print-root) { display: none !important; }
-  #print-root { display: block !important; }
-  body { background: var(--white); }
-  .report-page { box-shadow: none; break-inside: avoid; }
-}
