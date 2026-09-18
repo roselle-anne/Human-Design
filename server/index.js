@@ -172,7 +172,14 @@ app.get('/api/report.pdf', async (req, res) => {
       logoUrl
     );
 
+    // Temporary timing instrumentation: two "warm" production requests
+    // showed no improvement from browser reuse (~53-58s both), meaning
+    // browser launch isn't the actual bottleneck as assumed — this will
+    // show exactly which stage (browser acquisition, content load, or PDF
+    // rendering) is actually slow on Render's hardware.
+    const t0 = Date.now();
     const browser = await getBrowser();
+    const t1 = Date.now();
     page = await browser.newPage();
     // Puppeteer's default per-operation timeout is 30s, which a 56-page
     // document with gradients and web fonts can exceed on Render's free
@@ -187,17 +194,23 @@ app.get('/api/report.pdf', async (req, res) => {
     // to-have: the fallback serif font is perfectly readable if Google
     // Fonts is ever slow or unreachable from Render's network).
     await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 90000 });
+    const t2 = Date.now();
     await Promise.race([
       page.evaluateHandle('document.fonts.ready'),
       new Promise((resolve) => setTimeout(resolve, 5000)),
     ]);
+    const t3 = Date.now();
     const pdfBuffer = await page.pdf({
       format: 'a4',
       printBackground: true,
       margin: { top: '10mm', bottom: '10mm', left: '10mm', right: '10mm' },
       timeout: 90000,
     });
+    const t4 = Date.now();
     await page.close();
+    console.log(
+      `[report.pdf timing] getBrowser=${t1 - t0}ms setContent=${t2 - t1}ms fontsWait=${t3 - t2}ms pdfRender=${t4 - t3}ms total=${t4 - t0}ms`
+    );
 
     const safeName = name ? `-${String(name).replace(/[^a-z0-9]+/gi, '-')}` : '';
     res.setHeader('Content-Type', 'application/pdf');
