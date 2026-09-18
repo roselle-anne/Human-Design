@@ -6,12 +6,9 @@ let chosenZone = null;
 async function loadZones() {
   const res = await fetch('/api/timezones');
   allZones = await res.json();
-  // Default to the browser's own timezone as a friendly starting point.
-  const guess = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  if (allZones.includes(guess)) {
-    chosenZone = guess;
-    tzSearch.value = guess;
-  }
+  // Deliberately no pre-filled default: this app supports all 400+ IANA
+  // timezones worldwide, and pre-filling one (even the visitor's own) risked
+  // looking like the tool was limited to a single region.
 }
 loadZones();
 
@@ -310,12 +307,37 @@ function buildPdfBodygraphPage(chart, structure) {
   </div>`;
 }
 
-function buildPdfTypePage(chart, content) {
+function buildPdfChapterPage(eyebrow, title, body) {
   return `<div class="report-page center-text">
-    <div class="page-eyebrow">Type</div>
+    <div class="page-eyebrow">${eyebrow}</div>
+    <h1 class="page-title">${title}</h1>
+    <p class="page-body">${body}</p>
+  </div>`;
+}
+
+function buildPdfTypeOverviewPage(chart, content) {
+  return `<div class="report-page center-text">
+    <div class="page-eyebrow">Type &middot; ${content.typeInfo.population} of people</div>
     <h1 class="page-title">${chart.type}</h1>
-    <p class="page-stats"><strong>Strategy:</strong> ${content.typeInfo.strategy} &nbsp;·&nbsp; <strong>Signature:</strong> ${content.typeInfo.signature} &nbsp;·&nbsp; <strong>Not-Self:</strong> ${content.typeInfo.notSelf} &nbsp;·&nbsp; <strong>Population:</strong> ${content.typeInfo.population}</p>
+    <p class="page-stats">Aura: ${content.typeInfo.aura}</p>
     <p class="page-body">${content.typeInfo.summary}</p>
+  </div>`;
+}
+
+function buildPdfStrategyPage(content) {
+  return `<div class="report-page center-text">
+    <div class="page-eyebrow">Your Strategy</div>
+    <h1 class="page-title">${content.typeInfo.strategy}</h1>
+    <p class="page-body">Living by your strategy is what moves you toward your <strong>Signature</strong> feeling of ${content.typeInfo.signature.toLowerCase()}, rather than the <strong>Not-Self</strong> theme of ${content.typeInfo.notSelf.toLowerCase()} that shows up when it's overridden.</p>
+  </div>`;
+}
+
+function buildPdfSignatureQuotePage(content) {
+  return `<div class="report-page center-text quote-page">
+    <div class="quote-mark">&ldquo;</div>
+    <div class="page-eyebrow">Signature vs. Not-Self</div>
+    <h1 class="page-title">${content.typeInfo.signature} / ${content.typeInfo.notSelf}</h1>
+    <p class="page-body">${content.typeInfo.signature} is the feeling that lets you know you're living correctly for your type; ${content.typeInfo.notSelf.toLowerCase()} is the signal that something was overridden along the way.</p>
   </div>`;
 }
 
@@ -332,6 +354,15 @@ function buildPdfProfilePage(chart, content) {
     <div class="page-eyebrow">Profile</div>
     <h1 class="page-title">${chart.profile}</h1>
     <p class="page-body">${content.profileNarrative}</p>
+  </div>`;
+}
+
+function buildPdfProfileLinePage(lineNumber, roleLabel, content) {
+  const line = content.profileLines[lineNumber];
+  return `<div class="report-page center-text">
+    <div class="page-eyebrow">${roleLabel}</div>
+    <h1 class="page-title">Line ${lineNumber}: The ${line.keyword}</h1>
+    <p class="page-body">This ${roleLabel.toLowerCase()} line ${line.summary}</p>
   </div>`;
 }
 
@@ -424,15 +455,39 @@ function downloadReportPDF(name, birthInputs, chart, content, structure) {
     buildPdfCoverPage(name, birthInputs),
     buildPdfSummaryPage(chart, content),
     buildPdfBodygraphPage(chart, structure),
-    buildPdfTypePage(chart, content),
+    buildPdfTypeOverviewPage(chart, content),
+    buildPdfStrategyPage(content),
+    buildPdfSignatureQuotePage(content),
     buildPdfAuthorityPage(content),
     buildPdfProfilePage(chart, content),
+    buildPdfProfileLinePage(Number(chart.profile.split('/')[0]), 'Conscious Line', content),
+    buildPdfProfileLinePage(Number(chart.profile.split('/')[1]), 'Unconscious Line', content),
     buildPdfDefinitionPage(chart, content),
+    buildPdfChapterPage(
+      'Your Centers',
+      'Understanding the Centers',
+      'The bodygraph is made up of 9 centers. A defined center is a consistent, reliable part of who you are — always "on," regardless of who you\'re with. An undefined center is where you take in and amplify the energy of others, which can be a source of wisdom or of conditioning depending on how aware of it you are. The following pages walk through each of your 9 centers.'
+    ),
     ...Object.entries(content.centers).map(([key, info]) =>
       buildPdfCenterPage(info, chart.centers[key])
     ),
+    buildPdfChapterPage(
+      'Your Channels',
+      'Understanding the Channels',
+      'A channel forms when both gates at its two ends are activated, connecting two centers into a single, consistently defined circuit. Each channel carries its own theme — a fixed life-force current running through your design. The following pages cover each channel currently defined in your chart.'
+    ),
     ...chart.definedChannels.map((ch) => buildPdfChannelPage(ch, content)),
+    buildPdfChapterPage(
+      'Your Gates',
+      'Understanding the Gates',
+      "The 64 gates are the building blocks beneath every center and channel — each one a specific theme activated by a planet's position at your exact birth moment (conscious/Personality) or roughly 88 days earlier (unconscious/Design). The following pages cover every gate activated anywhere in your chart."
+    ),
     ...chart.activeGates.map((g) => buildPdfGatePage(g, content)),
+    buildPdfChapterPage(
+      'Your Incarnation Cross',
+      'The Cross of Your Life\'s Work',
+      'Your Incarnation Cross is formed by four gates: the Sun and Earth of your conscious Personality, and the Sun and Earth of your unconscious Design. Together, shaped by your profile, they describe a purpose that runs through your entire life — the role you are here to play.'
+    ),
     buildPdfCrossPage(chart, content),
     buildPdfDetailsPage(chart),
   ];

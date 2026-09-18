@@ -3,12 +3,23 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { calculateChart } from './hd/calculate.js';
 import { CENTERS, CHANNELS } from './hd/structure.js';
-import { TYPES, AUTHORITIES, CENTERS_INFO, GATES, CHANNEL_THEMES, DEFINITION_INFO, profileDescription } from './hd/content.js';
+import { TYPES, AUTHORITIES, CENTERS_INFO, GATES, CHANNEL_THEMES, DEFINITION_INFO, PROFILE_LINES, profileDescription } from './hd/content.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '..', 'public')));
+app.use(
+  express.static(path.join(__dirname, '..', 'public'), {
+    // This app changes frequently during development; never let a stale
+    // cached copy of the HTML/JS/CSS mask a deployed fix. Images can still
+    // cache normally.
+    setHeaders: (res, filePath) => {
+      if (/\.(html|js|css)$/.test(filePath)) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      }
+    },
+  })
+);
 
 app.get('/api/timezones', (req, res) => {
   res.json(Intl.supportedValuesOf('timeZone'));
@@ -77,6 +88,7 @@ app.post('/api/chart', async (req, res) => {
         gates: GATES,
         channelThemes: CHANNEL_THEMES,
         definitionInfo: DEFINITION_INFO,
+        profileLines: PROFILE_LINES,
         typeInfo: TYPES[chart.type],
         authorityInfo: AUTHORITIES[chart.authority],
         definitionInfoForChart: DEFINITION_INFO[chart.definition],
