@@ -319,3 +319,33 @@ p { line-height: 1.6; }
 }
 
 .gate-page .page-title { font-size: 42px; }
+
+/* Center deep-dive: Challenges / Potentials / Affirmations */
+.deep-dive {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  max-width: 620px;
+  text-align: left;
+}
+.deep-dive-block { margin-bottom: 18px; }
+.deep-dive-block:last-child { margin-bottom: 0; }
+.deep-dive-label {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  color: var(--ocean-teal);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+.deep-dive-block p { margin: 0; }
+.affirmations {
+  margin: 0;
+  padding-left: 20px;
+}
+.affirmations li {
+  font-style: italic;
+  color: var(--dusty-peach);
+  margin-bottom: 4px;
+}

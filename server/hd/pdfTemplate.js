@@ -185,12 +185,31 @@ function buildDefinitionPage(chart, content) {
   </div>`;
 }
 
-function buildCenterPage(info, defined) {
+function buildCenterPage(key, info, defined, content) {
+  const state = defined ? 'defined' : 'undefined';
+  const deepDive = content.centerDeepDive[key]?.[state];
   return `<div class="report-page center-text">
     <div class="page-eyebrow">${defined ? 'Defined Center' : 'Undefined / Open Center'}</div>
     <h1 class="page-title">${info.label}</h1>
     <p class="page-stats">${info.theme}</p>
     <p class="page-body">${defined ? info.defined : info.undefined}</p>
+    ${deepDive ? `
+    <div class="deep-dive">
+      <div class="deep-dive-block">
+        <div class="deep-dive-label">Challenges</div>
+        <p>${deepDive.challenges}</p>
+      </div>
+      <div class="deep-dive-block">
+        <div class="deep-dive-label">Potentials</div>
+        <p>${deepDive.potentials}</p>
+      </div>
+      <div class="deep-dive-block">
+        <div class="deep-dive-label">Affirmations</div>
+        <ul class="affirmations">
+          ${deepDive.affirmations.map((a) => `<li>${a}</li>`).join('')}
+        </ul>
+      </div>
+    </div>` : ''}
   </div>`;
 }
 
@@ -207,13 +226,15 @@ function buildChannelPage(ch, content) {
 
 function buildGatePage(g, content) {
   const info = content.gates[g.gate];
+  const deepDive = content.gateDeepDive[g.gate];
   return `<div class="report-page center-text gate-page">
     <div class="page-eyebrow">Gate ${g.gate} &middot; ${g.center}</div>
     <h1 class="page-title">${info.name}</h1>
     <p class="page-stats">
       ${g.sides.map((s) => `<span class="side-badge ${s}">${s === 'personality' ? 'Personality' : 'Design'}</span>`).join(' ')}
     </p>
-    <p class="page-body">${info.keynote}</p>
+    <p class="page-body"><strong>${info.keynote}</strong></p>
+    ${deepDive ? `<p class="page-body">${deepDive}</p>` : ''}
   </div>`;
 }
 
@@ -266,7 +287,7 @@ export function buildReportHtml(chart, content, structure, name, birthInputs, in
       'Understanding the Centers',
       'The bodygraph is made up of 9 centers. A defined center is a consistent, reliable part of who you are — always "on," regardless of who you\'re with. An undefined center is where you take in and amplify the energy of others, which can be a source of wisdom or of conditioning depending on how aware of it you are. The following pages walk through each of your 9 centers.'
     ),
-    ...Object.entries(content.centers).map(([key, info]) => buildCenterPage(info, chart.centers[key])),
+    ...Object.entries(content.centers).map(([key, info]) => buildCenterPage(key, info, chart.centers[key], content)),
     buildChapterPage(
       'Your Channels',
       'Understanding the Channels',

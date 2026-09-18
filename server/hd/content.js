@@ -164,6 +164,227 @@ export const CENTERS_INFO = {
   },
 };
 
+// Deep-dive content for each center's defined/undefined state: original
+// Challenges/Potentials/Affirmations, written independently for this tool.
+export const CENTER_DEEP_DIVE = {
+  Head: {
+    defined: {
+      challenges:
+        'Can fixate on the same handful of questions or worries on repeat, sometimes pressuring yourself — or the people around you — to have answers before they\'re actually ready.',
+      potentials:
+        'A steady, reliable source of inspiration and mental drive that others can lean on, and a genuine ability to hold a question open until real clarity arrives.',
+      affirmations: [
+        "My mind's pressure is fuel, not an emergency.",
+        "I don't owe anyone an instant answer.",
+        'My curiosity is a gift I can trust.',
+      ],
+    },
+    undefined: {
+      challenges:
+        "Can pick up and run with questions, worries, or \"shoulds\" that were never actually yours, mistaking someone else's mental pressure for your own.",
+      potentials:
+        "A flexible, amplifying mind that can hold many people's inspiration and curiosity at once, and knows how to set down a question that isn't its own.",
+      affirmations: [
+        'Not every question in the room is mine to answer.',
+        'I can enjoy inspiration without needing to hold onto it.',
+        "My peace of mind doesn't depend on having it all figured out.",
+      ],
+    },
+  },
+  Ajna: {
+    defined: {
+      challenges:
+        'Can get attached to its own conclusions and struggle to update them, even once new information arrives.',
+      potentials:
+        'A dependable, confident way of processing information that others can trust as a fixed, reliable point of view.',
+      affirmations: [
+        'My opinions are useful, not unchangeable.',
+        'I can hold my perspective and still stay curious.',
+        'Certainty is one of my gifts, not a cage.',
+      ],
+    },
+    undefined: {
+      challenges:
+        'Can feel pressure to sound certain or "figured out" in order to be taken seriously, even when genuinely unsure.',
+      potentials:
+        'A naturally open, multi-perspective mind that can see an issue from many angles and adapt its thinking with real ease.',
+      affirmations: [
+        '"I don\'t know" is a complete and honest answer.',
+        'My flexibility of mind is a strength.',
+        "I don't need certainty to be credible.",
+      ],
+    },
+  },
+  Throat: {
+    defined: {
+      challenges:
+        'Can talk or act just to fill space, or feel pressure to always be the one who speaks or does.',
+      potentials:
+        'A consistent, recognizable voice and way of getting things done that people can genuinely count on.',
+      affirmations: [
+        "I don't have to fill every silence.",
+        'My way of expressing myself is reliable and enough.',
+        'I can act from readiness, not obligation.',
+      ],
+    },
+    undefined: {
+      challenges:
+        "Can feel a persistent pull to speak or perform in order to be seen, adapting expression to whoever's around.",
+      potentials:
+        'A genuinely versatile communicator who can meet many different people and contexts, and who knows the power of well-timed words.',
+      affirmations: [
+        "I don't need to be seen to be worthy.",
+        'The right moment to speak will come.',
+        'My silence is not disappearing.',
+      ],
+    },
+  },
+  G: {
+    defined: {
+      challenges:
+        'Can feel resistant to change, even change that would genuinely serve growth, because identity feels fixed.',
+      potentials:
+        "A stable, unwavering sense of self and direction that holds steady no matter who's around or what's happening.",
+      affirmations: [
+        'I know who I am, independent of circumstance.',
+        'My direction is mine to trust.',
+        'Stability is one of my quiet strengths.',
+      ],
+    },
+    undefined: {
+      challenges:
+        'Can feel lost, rootless, or unsure "who am I really" when moving between different people and environments.',
+      potentials:
+        'A rich, adaptable sense of identity that can take on real depth and range across relationships and settings.',
+      affirmations: [
+        'The right people and places reveal my direction.',
+        "I don't need a fixed identity to know my worth.",
+        'My adaptability is not the same as being lost.',
+      ],
+    },
+  },
+  Heart: {
+    defined: {
+      challenges:
+        'Can over-compete or over-promise, trying to prove worth through output, willpower, or winning.',
+      potentials:
+        'Genuinely reliable willpower and a natural skill for negotiating, providing, and following through on commitments.',
+      affirmations: [
+        'My worth was never up for negotiation.',
+        'I keep my word because I choose to, not to prove myself.',
+        "Rest doesn't cancel my value.",
+      ],
+    },
+    undefined: {
+      challenges:
+        'Can feel a need to prove self-worth through achievement, competition, or promises made under pressure.',
+      potentials:
+        'Freedom from needing to constantly perform value — the quiet knowing that worth was never tied to winning.',
+      affirmations: [
+        "I don't have to earn my worth.",
+        "I can say no to a promise that isn't mine to make.",
+        "My value isn't measured in output.",
+      ],
+    },
+  },
+  SolarPlexus: {
+    defined: {
+      challenges:
+        'Can act or decide at an emotional peak or trough, and regret it once the wave has passed.',
+      potentials:
+        'A built-in emotional depth and honesty that, given time, produces real clarity nothing else can offer.',
+      affirmations: [
+        'Nothing is true in this exact moment of feeling.',
+        'Clarity is worth waiting for.',
+        'My emotions are information, not instructions.',
+      ],
+    },
+    undefined: {
+      challenges:
+        "Can absorb and get swept up in other people's moods and emotional intensity as if they were its own.",
+      potentials:
+        "A finely tuned emotional awareness of others, and the ability to step back from intensity that isn't personally its own.",
+      affirmations: [
+        'Not every feeling in the room belongs to me.',
+        'I can care about someone\'s emotion without absorbing it.',
+        'My own calm is available to me.',
+      ],
+    },
+  },
+  Sacral: {
+    defined: {
+      challenges:
+        "Can push past its own limits, since the engine rarely announces when it's had enough.",
+      potentials:
+        'A genuinely sustainable, renewable source of life-force energy for work that lights it up.',
+      affirmations: [
+        'My energy for this is real, and so is my limit.',
+        'Stopping when I\'m done is not failure.',
+        'My gut response is trustworthy.',
+      ],
+    },
+    undefined: {
+      challenges:
+        "Can borrow and run on other people's energy without a built-in signal for when to stop.",
+      potentials:
+        "An amplifying presence that reflects and energizes the work and life-force of the Sacral-defined people around it.",
+      affirmations: [
+        'Knowing when to stop is wisdom, not weakness.',
+        "I don't have to keep pace with everyone else's energy.",
+        'Rest is always mine to take.',
+      ],
+    },
+  },
+  Spleen: {
+    defined: {
+      challenges:
+        "Can dismiss its own instinctive knowing, because it arrives quietly, without drama or repetition.",
+      potentials:
+        'A steady, reliable stream of in-the-moment instinct about health, safety, and what truly belongs.',
+      affirmations: [
+        "My instinct doesn't need to repeat itself to be true.",
+        'I trust the quiet knowing.',
+        'My well-being is generally sound.',
+      ],
+    },
+    undefined: {
+      challenges:
+        'Can hold onto fears, health worries, or warnings that were never really its own to carry.',
+      potentials:
+        'A sensitivity that can pick up real, useful signals from others and the environment once it learns to sort the noise.',
+      affirmations: [
+        'Not every fear I feel is mine to keep.',
+        "I can let go of a worry that isn't really mine.",
+        "My safety doesn't depend on constant vigilance.",
+      ],
+    },
+  },
+  Root: {
+    defined: {
+      challenges:
+        "Can mistake its own steady hum of pressure for urgency that needs to be acted on immediately.",
+      potentials:
+        'A consistent, manageable drive that fuels action without needing outside pressure to get moving.',
+      affirmations: [
+        'Pressure is fuel, not an emergency.',
+        'I move at a pace I can sustain.',
+        'My drive is steady and mine to trust.',
+      ],
+    },
+    undefined: {
+      challenges:
+        "Can feel rushed, stressed, or under deadline pressure that actually belongs to the environment, not to it.",
+      potentials:
+        'A sensitivity to timing and urgency that, once sorted from noise, can be a genuinely useful read on when to act.',
+      affirmations: [
+        'Not every deadline in the room is mine to carry.',
+        'I can release pressure that was never really mine.',
+        "I'm allowed to move at my own pace.",
+      ],
+    },
+  },
+};
+
 export const PROFILE_LINES = {
   1: {
     keyword: 'Investigator',
@@ -278,6 +499,75 @@ export const GATES = {
   62: { name: 'Details', keynote: 'A talent for organizing facts and details into precise, expressible form.' },
   63: { name: 'Doubt', keynote: 'A questioning mind that doubts patterns until they are logically proven.' },
   64: { name: 'Confusion', keynote: 'A mind full of unprocessed impressions, seeking the patterns that will make sense of the past.' },
+};
+
+// Paragraph-length deep dives for each of the 64 gates, expanding on the
+// one-line keynotes above. Original writing for this tool.
+export const GATE_DEEP_DIVE = {
+  1: "Gate 1 carries a need for genuine self-expression — not performance for approval, but putting something real and personally authored into the world. When this gate is active, creative output, in whatever form that takes, isn't optional self-indulgence; it's how identity actually gets metabolized and shared. Left unexpressed, it can curdle into a quiet frustration of feeling unseen; expressed, it becomes a magnetic, original signature that others recognize as unmistakably yours.",
+  2: "This gate doesn't need to see the whole road to know it's headed the right way; it has a quiet, receptive certainty about direction that arrives before logic can explain it. That knowing works best when it isn't second-guessed into a five-year plan — direction here reveals itself one step at a time, trusted rather than mapped out in advance.",
+  3: "Gate 3 thrives at the messy start of something new, where nothing is settled yet and old structures no longer fit. It's genuinely good at innovating through that chaos rather than avoiding it, though it benefits from patience — real order takes several attempts to find, and the first form rarely survives contact with reality.",
+  4: "This is a mind that wants an answer, and trusts logic to eventually produce one, even when the question is genuinely unanswerable in the moment. Its gift is confident, structured problem-solving; its trap is treating \"I don't know yet\" as a personal failure instead of an honest, temporary state.",
+  5: "Gate 5 finds real strength in rhythm — consistent sleep, consistent pacing, a predictable cadence to the day — and tends to feel destabilized when that rhythm is interrupted by other people's urgency. Waiting, for this gate, isn't passive; it's an active, disciplined patience that trusts the right timing will arrive.",
+  6: "This gate governs the emotional gate-keeping of closeness: when to open up, when to hold back, when friction is actually the necessary clearing-of-the-air before real intimacy can happen. It isn't about avoiding conflict, but about sensing the right moment for it — timing that, when honored, deepens connection rather than damaging it.",
+  7: "Gate 7 leads by the quality of its example and the role it steps into, not by asserting authority. Its influence is real but understated — a steadying presence that shapes direction for others without needing to be loudly in charge of it.",
+  8: "This gate wants its individual way of doing things to matter to the group — to be a genuine contribution, not a copy of what's already been done. It's most alive when its particular style of expression gives other people something real to follow or build on.",
+  9: "Gate 9 has the patience to stay with the small, unglamorous details that most people skip past, and the discipline to keep at them until they resolve into something larger. Its power is in the follow-through others often lack.",
+  10: "This gate treats authentic behavior as an act of self-respect: living according to your own nature, even when it doesn't match what's expected. Its deepest lesson is that self-love isn't a feeling to wait for — it's a way of behaving, moment to moment.",
+  11: "Gate 11 generates ideas prolifically, more as material for reflection than as a queue of things that must be acted on. Not every idea needs a follow-through; some are simply meant to be thought, felt, and let go.",
+  12: "This gate is discerning about when to speak, waiting for the right emotional mood rather than forcing words out on schedule. What looks like hesitation from the outside is often exactly the caution that keeps its expression meaningful when it finally arrives.",
+  13: "People confide in Gate 13 — it has a genuine gift for listening without judgment and holding what's shared with real discretion. Over time, that gathered store of human experience often becomes wisdom worth passing on, once the right moment and audience arrive.",
+  14: "This gate brings real, sacral-fueled competence and resourcefulness to whatever it's aimed at, generating the material means to support a larger sense of direction. Its skill is genuine, but works best in service of something bigger than skill for its own sake.",
+  15: "Gate 15 has room for the full range of human extremes — different rhythms, different paces, different ways of living — without needing to judge which is right. That breadth of acceptance is a genuine gift, though it can look inconsistent to people expecting one fixed way of doing things.",
+  16: "Enthusiasm alone isn't enough for this gate — it wants to practice a talent repeatedly until it becomes real, demonstrable skill. That combination of passion and repetition is what turns natural aptitude into something masterful.",
+  17: "This gate forms opinions quickly, spotting logical patterns in available information almost automatically. Those opinions are genuinely useful when offered as one perspective among others, not necessarily when treated as final verdicts.",
+  18: "Gate 18 has a sharp eye for what's flawed or not working, and a real drive to correct it toward something better. Used well, this is invaluable quality-control; used carelessly, it can tip into criticism that lands harder than intended.",
+  19: "This gate is attuned to what people need in order to feel like they belong and have enough — practically and emotionally. Its gift is genuine attentiveness to others' basic needs, best offered without over-extending its own.",
+  20: "Gate 20 lives and speaks from exactly what's happening right now, without needing to reference the past or plan for the future to make sense of the moment. Its clarity is immediate — sometimes uncomfortably so for anyone still processing what already happened.",
+  21: "This gate wants a firm, capable hand on its own domain — its resources, its territory, its decisions. That will to control is healthy when it stays within what's actually its to manage, and strained when it reaches for control over things, or people, beyond that.",
+  22: "Gate 22 has real social grace — an emotional attunement that can open a room and make people feel comfortable being open in return. That grace moves in cycles though, and isn't always available on demand; forcing it when the mood isn't right tends to fall flat.",
+  23: "This gate often arrives at genuinely individual insight, but that insight only lands if it's translated simply and offered at the right moment — otherwise it reads as strange or gets dismissed. Patience with the translation is what makes the insight usable to anyone else.",
+  24: "Gate 24 doesn't let an idea go until it's been turned over enough times to finally make rational sense. That circling can look repetitive from outside, but it's the actual mechanism by which this mind reaches real, settled understanding.",
+  25: "This gate carries a kind of universal, unconditional love that isn't really about any one person or thing — closer to a spiritual orientation than a personal attachment. It's most itself when that love is allowed to be broad rather than narrowed into obligation.",
+  26: "Gate 26 is a natural at persuading others of the value of what's already been accomplished — marketing, negotiating, making the case. Its edge is in confident salesmanship; its shadow is overselling or reshaping the story past what actually happened.",
+  27: "This gate's instinct is to care for and nourish the people, and resources, around it, often before its own needs. That caring is a genuine strength as long as it includes caring for itself too, rather than running on empty in service of everyone else.",
+  28: "Gate 28 finds meaning through risk — not risk for its own sake, but the kind worth struggling for because the stakes actually matter. A life with nothing worth risking tends to feel meaningless to this gate, regardless of how safe or comfortable it looks.",
+  29: "Once this gate says yes, it commits completely — perseverance is its real strength. The catch is upstream: without a genuine sacral yes to begin with, that same persistence gets poured into commitments that were never actually right, at real cost.",
+  30: "Gate 30 feels desire deeply and restlessly, always reaching toward the next meaningful experience. That intensity is fuel for a rich, felt life, but benefits from the Solar Plexus wave's patience — desire in the moment isn't always desire that holds up over time.",
+  31: "This gate has real leadership presence, but its influence only lands cleanly when it's actually been recognized and elected by others — not simply claimed. Waiting for that genuine mandate, rather than assuming it, is what makes the leadership land as welcome rather than imposed.",
+  32: "Gate 32 has an instinctive read on what will actually last — which ventures, relationships, or traditions are worth preserving versus letting go. That foresight can also tip into a fear of failure or change if it isn't given room to trust its own read.",
+  33: "This gate needs real, unhurried privacy to process experience before it's ready to be shared — retreat isn't avoidance, it's preparation. What eventually gets shared, once that reflection has happened, tends to carry real, earned depth.",
+  34: "Gate 34 carries enormous raw power and momentum, but that power is meant to be a response to what's already in motion, not a launch point of its own. Used as a response, it's an unstoppable force; used to initiate, it tends to overpower situations that weren't ready for it.",
+  35: "This gate is hungry for new experience and restless with anything that's gone stale, always pulled toward the next stage of progress. Its challenge is staying present long enough to actually integrate one experience before chasing the next.",
+  36: "Gate 36 has real appetite for new, even turbulent, experience — the kind that comes with emotional weather attached. Those crises aren't a design flaw; they're often exactly how this gate grows, once the emotional wave is allowed to move through rather than being rushed.",
+  37: "This gate's currency is loyalty and warmth — the reciprocal give-and-take that holds a family or community together over time. Its gift is genuine belonging; its risk is transactional resentment when the give-and-take feels one-sided.",
+  38: "Gate 38 has real tenacity, and it activates fully once there's something genuinely worth the fight — a value, a person, a principle. Without a worthy cause, that same fighting energy can turn into stubbornness over things that don't actually matter.",
+  39: "This gate provokes — sometimes lightly, sometimes sharply — as a way of testing whether someone's spirit is really available and ready to engage. It's not provocation for cruelty's sake; it's a probe for genuine connection, even if it can land as irritating in the moment.",
+  40: "Gate 40 works hard and delivers on its commitments, but that willpower depletes and genuinely needs real aloneness to recover, not performative rest, actual solitude. Skipping that recovery tends to show up later as resentment toward the very commitments it chose.",
+  41: "This gate is the first pressure of a new cycle — imagination and desire compressing into a spark before anything has actually happened yet. That pressure can feel like restlessness or vague longing until it finds a real experience to move toward.",
+  42: "Gate 42 is built to see a cycle through to its natural completion, growing whatever's been started toward full maturity. Its discomfort is with things left unfinished — closure matters here more than most.",
+  43: "This gate's insight arrives suddenly and completely formed, often without a clear step-by-step explanation for how it got there. That can be genuinely disorienting for others until they catch up — patience with the gap is part of using this gift well.",
+  44: "Gate 44 has a near-instant instinctive read on whether a pattern, a person, a situation, a way of doing things, is worth continuing or should be avoided, based on what's worked or failed before. That alertness is most useful when it's checked against present reality, not just old history.",
+  45: "This gate has a natural authority when it comes to resources and gathering people around a shared table, literally or figuratively. Used generously, it builds real community; used possessively, it can tip into hoarding what should be shared.",
+  46: "Gate 46 has a genuine love of embodiment — being physically present, in the right place, at the right time, often through what looks like good luck but is really a body-led sense of timing. Trusting that physical instinct tends to put it exactly where it needs to be.",
+  47: "This gate gathers dense, seemingly unrelated information and mental impressions, trusting that they'll eventually resolve into real understanding. The realization can't be rushed — it needs the backlog of gathered material before the pattern actually becomes clear.",
+  48: "Gate 48 holds a genuinely deep well of talent and wisdom, but often doubts whether that depth is actually adequate for what's being asked of it. The fear rarely matches reality — the depth is usually already there, waiting to be trusted.",
+  49: "This gate feels strongly about the principles that hold a relationship or group together, and is quick to sense when those principles have been violated. That clarity can support real reform, or tip into rejecting a bond too quickly if the emotional wave hasn't been given time to settle.",
+  50: "Gate 50 instinctively senses the values and unwritten rules that keep a group functioning responsibly, and often ends up in the role of upholding them. That sense of responsibility is a real strength, best balanced with compassion for people still learning the values it already holds clearly.",
+  51: "This gate is stirred by shocks and competition — jolts that push it out of complacency and into genuine, individual initiative. What looks like chaos-seeking is often this gate's way of finding out what it's actually capable of.",
+  52: "Gate 52 can drop into real stillness and concentration, and that quiet isn't idleness — it's the necessary precursor to genuinely focused action. Rushing past the stillness tends to produce scattered effort instead of the depth this gate is actually capable of.",
+  53: "This gate is genuinely gifted at starting new cycles and ventures, though it isn't always built to see them through to the end — that part often needs a partner. Recognizing that starting is its real strength, rather than a personal failure to finish, frees it to keep starting well.",
+  54: "Gate 54 has real, driving ambition to rise and improve its circumstances, materially and spiritually both. That drive works best when it's transparent about what it's climbing toward, rather than pursued through backdoor maneuvering.",
+  55: "This gate's felt sense of abundance moves with its emotional wave, not with actual circumstance — plenty can feel like scarcity on a low day, and vice versa. Recognizing that the feeling is a mood, not a fact, is what keeps this gate from making decisions based on a temporary low.",
+  56: "Gate 56 has a natural storyteller's gift, stimulating others through narrative, travel, and shared experience. Its restlessness for new material to tell is part of what makes the stories worth listening to.",
+  57: "This gate's clarity arrives instantly, in the moment, through a finely tuned awareness that doesn't need to reason its way there. It rarely repeats itself, so trusting the first, quiet hit of clarity, rather than waiting for confirmation, is the real skill.",
+  58: "Gate 58 has a genuinely joyful vitality that fuels ongoing correction and improvement — it doesn't see \"good enough\" as the end point. That same critical eye needs to include real joy in the process, or the drive to improve can curdle into perpetual dissatisfaction.",
+  59: "This gate's sacral energy is aimed at breaking down the barriers between people, in service of real bonding and intimacy. That drive is at its healthiest in relationships that actually want the closeness being offered, rather than pursued indiscriminately.",
+  60: "Gate 60 understands that limitation isn't the enemy of innovation — it's the actual condition that makes real mutation possible, the way a scale gives music its structure. Working within real limits, rather than resenting them, is where this gate's creativity actually gets sharpened.",
+  61: "This gate carries a restless inner certainty that there's something worth understanding beneath the surface of things, even when it can't yet be explained. That pursuit of inner truth is genuine, though it benefits from patience with mysteries that may never fully resolve into words.",
+  62: "Gate 62 excels at organizing facts and details into precise, communicable form, turning something vague into something that can actually be said clearly. That precision is a real gift, best offered without losing sight of the larger meaning the details are in service of.",
+  63: "This gate's mind doubts by default, testing patterns against logic until they've genuinely earned trust. That skepticism is a real safeguard against false certainty, though it works best when it eventually allows some conclusions to actually be settled.",
+  64: "Gate 64 holds a head full of unprocessed impressions from the past, waiting for the pattern that will finally make sense of them. That confusion isn't a malfunction — it's the raw material this gate needs before genuine understanding can click into place.",
 };
 
 // Short original themes for the 36 channels, keyed "gateA-gateB" matching
