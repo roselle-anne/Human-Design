@@ -138,12 +138,6 @@ function renderReport(name, birthInputs, data) {
   result.innerHTML = '';
   result.hidden = false;
 
-  const actions = el(`<div class="report-actions">
-    <button type="button" class="btn btn-outline" id="download-pdf-btn">Download Report (PDF)</button>
-    <span class="actions-hint">Takes a few seconds to generate the full report.</span>
-  </div>`);
-  result.appendChild(actions);
-
   const reportContent = el(`<div id="report-content"></div>`);
   result.appendChild(reportContent);
 
@@ -239,6 +233,18 @@ function renderReport(name, birthInputs, data) {
   </section>`);
   reportContent.appendChild(gatesSection);
 
+  const downloadSection = el(`<section class="panel download-section">
+    <button type="button" class="btn-download" id="download-pdf-btn">
+      <span class="btn-download-icon">&#8595;</span>
+      <span class="btn-download-label">Download Report (PDF)</span>
+    </button>
+    <div class="download-progress-track" id="download-progress-track" hidden>
+      <div class="download-progress-fill" id="download-progress-fill"></div>
+    </div>
+    <p class="actions-hint" id="download-hint">Takes a few seconds to generate the full report.</p>
+  </section>`);
+  reportContent.appendChild(downloadSection);
+
   const timesSection = el(`<section class="panel">
     <h2>Calculation Details</h2>
     <p><strong>Personality (birth) moment, UTC:</strong> ${chart.birth.utc}</p>
@@ -255,18 +261,78 @@ function renderReport(name, birthInputs, data) {
 }
 
 // The paginated PDF is rendered server-side by a real headless Chromium
-// (see server/hd/pdfTemplate.js) and served as a plain file download —
-// this just points the browser at that URL. No client-side rendering
-// (canvas rasterization, window.print()) involved, so it isn't subject to
-// browser quirks or iframe-embedding permission restrictions.
-function downloadReportPDF(name, birthInputs) {
-  const params = new URLSearchParams({
-    date: birthInputs.date,
-    time: birthInputs.time,
-    timeZone: birthInputs.timeZone,
-  });
-  if (name) params.set('name', name);
-  window.location.href = `/api/report.pdf?${params.toString()}`;
+// (see server/hd/pdfTemplate.js). We fetch it (rather than a plain
+// navigation) so we can show a progress indicator while the ~56-page
+// document is generated, then hand the browser the finished file as a
+// Blob download once it arrives. No client-side rendering (canvas
+// rasterization, window.print()) involved, so it isn't subject to browser
+// quirks or iframe-embedding permission restrictions.
+const DEFAULT_HINT = 'Takes a few seconds to generate the full report.';
+
+async function downloadReportPDF(name, birthInputs) {
+  const btn = document.getElementById('download-pdf-btn');
+  const track = document.getElementById('download-progress-track');
+  const fill = document.getElementById('download-progress-fill');
+  const hint = document.getElementById('download-hint');
+
+  btn.disabled = true;
+  btn.classList.add('is-loading');
+  track.hidden = false;
+  fill.style.width = '0%';
+  hint.textContent = 'Generating your report…';
+
+  // There's no real progress feed from a server-rendered PDF, so this
+  // eases toward — but never quite reaches — 90%, then snaps to 100% the
+  // moment the actual response arrives.
+  let pct = 0;
+  const ticker = setInterval(() => {
+    pct += (90 - pct) * 0.08;
+    fill.style.width = `${Math.min(pct, 90)}%`;
+  }, 200);
+
+  try {
+    const params = new URLSearchParams({
+      date: birthInputs.date,
+      time: birthInputs.time,
+      timeZone: birthInputs.timeZone,
+    });
+    if (name) params.set('name', name);
+
+    const res = await fetch(`/api/report.pdf?${params.toString()}`);
+    if (!res.ok) throw new Error('Failed to generate the report.');
+    const blob = await res.blob();
+
+    clearInterval(ticker);
+    fill.style.width = '100%';
+
+    const disposition = res.headers.get('Content-Disposition') || '';
+    const match = disposition.match(/filename="?([^"]+)"?/);
+    const filename = match ? match[1] : 'Human-Design-Report.pdf';
+
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(blobUrl);
+
+    setTimeout(() => {
+      track.hidden = true;
+      fill.style.width = '0%';
+      btn.disabled = false;
+      btn.classList.remove('is-loading');
+      hint.textContent = DEFAULT_HINT;
+    }, 700);
+  } catch (err) {
+    clearInterval(ticker);
+    track.hidden = true;
+    fill.style.width = '0%';
+    btn.disabled = false;
+    btn.classList.remove('is-loading');
+    hint.textContent = 'Something went wrong generating the report — please try again.';
+  }
 }
 
 document.getElementById('birth-form').addEventListener('submit', async (e) => {

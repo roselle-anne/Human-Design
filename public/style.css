@@ -114,6 +114,72 @@ button[type="submit"]:hover, .btn-primary:hover { filter: brightness(1.05); }
 }
 .btn-outline:hover { background: var(--panel-2); }
 
+/* Luxurious download button */
+.download-section {
+  text-align: center;
+  padding: 40px 20px;
+  background: var(--white);
+}
+
+.btn-download {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--white);
+  background: linear-gradient(135deg, var(--dusty-peach) 0%, #b8735c 100%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  padding: 16px 36px;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(184, 115, 92, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+.btn-download:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(184, 115, 92, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  filter: brightness(1.04);
+}
+.btn-download:active:not(:disabled) { transform: translateY(0); }
+.btn-download:disabled { cursor: default; opacity: 0.85; }
+.btn-download-icon {
+  display: inline-flex;
+  font-size: 15px;
+  transition: transform 0.2s ease;
+}
+.btn-download.is-loading .btn-download-icon { animation: btn-download-bounce 0.9s ease-in-out infinite; }
+@keyframes btn-download-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(3px); }
+}
+
+.download-progress-track {
+  width: 260px;
+  max-width: 80%;
+  height: 6px;
+  margin: 18px auto 0;
+  border-radius: 999px;
+  background: var(--panel-2);
+  overflow: hidden;
+}
+.download-progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--dusty-peach), var(--ocean-teal));
+  transition: width 0.25s ease;
+}
+
+.download-section .actions-hint {
+  display: block;
+  margin-top: 14px;
+}
+
 #status { color: var(--muted); min-height: 20px; }
 
 .summary-grid {
@@ -214,22 +280,15 @@ p { line-height: 1.6; }
   margin-top: 8px;
 }
 
-/* --- PDF-only pages: one topic per page, echoing a printed report's pacing.
-   This CSS is also embedded verbatim into the server-rendered PDF
-   (server/hd/pdfTemplate.js) — these classes never appear in the on-screen
-   report, only in the document Puppeteer renders into a PDF file. --- */
-.report-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-}
 .actions-hint {
   color: var(--muted);
   font-size: 13px;
 }
+
+/* --- PDF-only pages: one topic per page, echoing a printed report's pacing.
+   This CSS is also embedded verbatim into the server-rendered PDF
+   (server/hd/pdfTemplate.js) — these classes never appear in the on-screen
+   report, only in the document Puppeteer renders into a PDF file. --- */
 
 .report-page {
   background: var(--panel);
