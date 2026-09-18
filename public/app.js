@@ -22,6 +22,9 @@ function renderZoneOptions(filter) {
   tzSelect.innerHTML = matches
     .map((z) => `<option value="${z}">${z}</option>`)
     .join('');
+  // Size the listbox to the actual match count (capped at 6) so it never
+  // reserves empty rows that visually overlap the elements below it.
+  tzSelect.size = Math.max(1, Math.min(matches.length, 6));
   tzSelect.style.display = matches.length && document.activeElement === tzSearch ? 'block' : 'none';
 }
 
@@ -33,12 +36,10 @@ tzSearch.addEventListener('focus', () => {
   tzSearch.select();
   renderZoneOptions(tzSearch.value);
 });
-tzSelect.addEventListener('mousedown', (e) => {
-  if (e.target.tagName === 'OPTION') {
-    chosenZone = e.target.value;
-    tzSearch.value = chosenZone;
-    tzSelect.style.display = 'none';
-  }
+tzSelect.addEventListener('change', () => {
+  chosenZone = tzSelect.value;
+  tzSearch.value = chosenZone;
+  tzSelect.style.display = 'none';
 });
 document.addEventListener('click', (e) => {
   if (e.target !== tzSearch && e.target !== tzSelect) tzSelect.style.display = 'none';
@@ -91,14 +92,14 @@ function buildBodygraph(chart, structure) {
   const lines = CENTER_PAIRS.map(([a, b]) => {
     const A = CENTER_POS[a], B = CENTER_POS[b];
     const defined = definedGatePairKeys.has([a, b].sort().join('|'));
-    return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${defined ? '#4fd1a5' : '#3a3f55'}" stroke-width="${defined ? 4 : 2}" />`;
+    return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${defined ? '#158EA4' : '#E4D6CE'}" stroke-width="${defined ? 4 : 2}" />`;
   }).join('\n');
 
   const shapes = Object.entries(CENTER_POS).map(([name, pos]) => {
     const defined = chart.centers[name];
     const label = name === 'SolarPlexus' ? 'Solar Plexus' : name;
-    return `<path d="${shapePath(pos)}" fill="${defined ? '#4fd1a5' : '#232739'}" stroke="#7c9eff" stroke-width="1.5" opacity="${defined ? 0.9 : 0.6}" />
-      <text x="${pos.x}" y="${pos.y + 3}" text-anchor="middle" font-size="${label.length > 6 ? 8 : 10}" fill="${defined ? '#10121a' : '#9498ad'}">${label}</text>`;
+    return `<path d="${shapePath(pos)}" fill="${defined ? '#158EA4' : '#FBF3EF'}" stroke="#E6B1A1" stroke-width="1.5" opacity="${defined ? 0.95 : 0.9}" />
+      <text x="${pos.x}" y="${pos.y + 3}" text-anchor="middle" font-size="${label.length > 6 ? 8 : 10}" fill="${defined ? '#FFFFFF' : '#8A7A72'}">${label}</text>`;
   }).join('\n');
 
   return `<svg viewBox="0 0 400 540" width="380" height="513">
@@ -114,14 +115,41 @@ function el(html) {
   return t.content.firstChild;
 }
 
-function renderReport(name, data) {
+function buildTitlePage(name, birthInputs) {
+  const preparedDate = new Date().toLocaleDateString(undefined, {
+    year: 'numeric', month: 'long', day: 'numeric',
+  });
+  const birthDateFormatted = new Date(`${birthInputs.date}T00:00:00`).toLocaleDateString(undefined, {
+    year: 'numeric', month: 'long', day: 'numeric',
+  });
+  return `<div class="title-page">
+    <img src="assets/logo-horizontal-color.png" alt="Embodiance" class="title-logo" />
+    <div class="title-eyebrow">Human Design Report</div>
+    <h1 class="report-title">Your Bodygraph &amp; Chart Analysis</h1>
+    ${name ? `<p class="report-subject">Prepared for ${name}</p>` : ''}
+    <div class="title-meta">
+      <span><strong>Birth date:</strong> ${birthDateFormatted} at ${birthInputs.time}</span>
+      <span><strong>Timezone:</strong> ${birthInputs.timeZone}</span>
+      <span><strong>Report prepared:</strong> ${preparedDate}</span>
+    </div>
+  </div>`;
+}
+
+function renderReport(name, birthInputs, data) {
   const { chart, content, structure } = data;
   const result = document.getElementById('result');
   result.innerHTML = '';
   result.hidden = false;
 
-  const header = el(`<h2>${name ? name + "'s" : 'Your'} Human Design Chart</h2>`);
-  result.appendChild(header);
+  const actions = el(`<div class="report-actions">
+    <button type="button" class="btn btn-outline" id="download-pdf-btn">Download Report (PDF)</button>
+  </div>`);
+  result.appendChild(actions);
+
+  const reportContent = el(`<div id="report-content"></div>`);
+  result.appendChild(reportContent);
+
+  reportContent.appendChild(el(buildTitlePage(name, birthInputs)));
 
   const summary = el(`<div class="summary-grid">
     ${['Type', 'Profile', 'Authority', 'Definition'].map((label) => `
@@ -132,7 +160,7 @@ function renderReport(name, data) {
     <div class="summary-card"><div class="label">Strategy</div><div class="value">${content.typeInfo.strategy}</div></div>
     <div class="summary-card"><div class="label">Signature / Not-Self</div><div class="value">${content.typeInfo.signature} / ${content.typeInfo.notSelf}</div></div>
   </div>`);
-  result.appendChild(summary);
+  reportContent.appendChild(summary);
 
   const bodygraphSection = el(`<section class="panel">
     <h2>Bodygraph</h2>
@@ -140,33 +168,33 @@ function renderReport(name, data) {
       <div>${buildBodygraph(chart, structure)}</div>
       <div>
         <div class="legend">
-          <div><span class="dot" style="background:#4fd1a5"></span>Defined</div>
-          <div><span class="dot" style="background:#3a3f55"></span>Undefined</div>
+          <div><span class="dot" style="background:#158EA4"></span>Defined</div>
+          <div><span class="dot" style="background:#E4D6CE"></span>Undefined</div>
         </div>
         <p style="max-width:280px">Schematic bodygraph: centers and connecting channels colored by definition. Exact gate numbers and which specific channel(s) connect each pair are listed in the tables below.</p>
       </div>
     </div>
   </section>`);
-  result.appendChild(bodygraphSection);
+  reportContent.appendChild(bodygraphSection);
 
   const typeSection = el(`<section class="panel">
     <h2>${chart.type}</h2>
     <p><strong>Strategy:</strong> ${content.typeInfo.strategy} &nbsp; | &nbsp; <strong>Signature:</strong> ${content.typeInfo.signature} &nbsp; | &nbsp; <strong>Not-Self Theme:</strong> ${content.typeInfo.notSelf} &nbsp; | &nbsp; <strong>Population:</strong> ${content.typeInfo.population}</p>
     <p>${content.typeInfo.summary}</p>
   </section>`);
-  result.appendChild(typeSection);
+  reportContent.appendChild(typeSection);
 
   const authoritySection = el(`<section class="panel">
     <h2>${content.authorityInfo.title}</h2>
     <p>${content.authorityInfo.description}</p>
   </section>`);
-  result.appendChild(authoritySection);
+  reportContent.appendChild(authoritySection);
 
   const profileSection = el(`<section class="panel">
     <h2>Profile ${chart.profile}</h2>
     <p>${content.profileNarrative}</p>
   </section>`);
-  result.appendChild(profileSection);
+  reportContent.appendChild(profileSection);
 
   const crossSection = el(`<section class="panel">
     <h2>Incarnation Cross</h2>
@@ -177,7 +205,7 @@ function renderReport(name, data) {
       <tr><td>Design (unconscious)</td><td>${chart.incarnationCross.designSunGate} — ${content.gates[chart.incarnationCross.designSunGate].name}</td><td>${chart.incarnationCross.designEarthGate} — ${content.gates[chart.incarnationCross.designEarthGate].name}</td></tr>
     </table>
   </section>`);
-  result.appendChild(crossSection);
+  reportContent.appendChild(crossSection);
 
   const centersSection = el(`<section class="panel">
     <h2>Centers</h2>
@@ -192,7 +220,7 @@ function renderReport(name, data) {
       }).join('')}
     </div>
   </section>`);
-  result.appendChild(centersSection);
+  reportContent.appendChild(centersSection);
 
   const gatesSection = el(`<section class="panel">
     <h2>Activated Gates</h2>
@@ -211,7 +239,7 @@ function renderReport(name, data) {
       }).join('')}
     </table>
   </section>`);
-  result.appendChild(gatesSection);
+  reportContent.appendChild(gatesSection);
 
   const timesSection = el(`<section class="panel">
     <h2>Calculation Details</h2>
@@ -219,9 +247,38 @@ function renderReport(name, data) {
     <p><strong>Design moment, UTC:</strong> ${chart.design.utc} (88° of solar arc before birth)</p>
     <p style="color:var(--muted); font-size: 13px;">Planetary positions computed via Swiss Ephemeris. Gate boundaries verified against the standard 5.625°-per-gate mandala (e.g. Gate 41 begins at exactly 302.000° tropical longitude).</p>
   </section>`);
-  result.appendChild(timesSection);
+  reportContent.appendChild(timesSection);
+
+  document.getElementById('download-pdf-btn').addEventListener('click', () => {
+    downloadReportPDF(reportContent, name);
+  });
 
   result.scrollIntoView({ behavior: 'smooth' });
+}
+
+function downloadReportPDF(reportContent, name) {
+  const btn = document.getElementById('download-pdf-btn');
+  const originalLabel = btn.textContent;
+  btn.textContent = 'Preparing PDF...';
+  btn.disabled = true;
+
+  const filename = `Human-Design-Report${name ? '-' + name.replace(/\s+/g, '-') : ''}.pdf`;
+
+  window.html2pdf()
+    .set({
+      margin: 10,
+      filename,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['css', 'avoid-all'] },
+    })
+    .from(reportContent)
+    .save()
+    .finally(() => {
+      btn.textContent = originalLabel;
+      btn.disabled = false;
+    });
 }
 
 document.getElementById('birth-form').addEventListener('submit', async (e) => {
@@ -249,7 +306,7 @@ document.getElementById('birth-form').addEventListener('submit', async (e) => {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Failed to calculate chart');
     status.textContent = '';
-    renderReport(name, data);
+    renderReport(name, { date, time, timeZone }, data);
   } catch (err) {
     status.textContent = 'Error: ' + err.message;
   }
