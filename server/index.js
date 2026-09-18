@@ -155,15 +155,22 @@ app.get('/api/report.pdf', async (req, res) => {
 
     browser = await puppeteer.launch({
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      protocolTimeout: 120000,
     });
     const page = await browser.newPage();
+    // Puppeteer's default per-operation timeout is 30s, which a 56-page
+    // document with gradients and web fonts can exceed on Render's free
+    // tier (0.5 CPU) — especially right after a cold start. Give both the
+    // content load and the PDF render generous headroom rather than
+    // failing a request that just needed more time.
+    page.setDefaultTimeout(90000);
     // 'domcontentloaded' resolves as soon as our own inline HTML/CSS is
     // parsed — it doesn't wait on the external Google Fonts request, which
     // was timing out 'networkidle0' entirely. Instead, wait specifically
     // for font loading (with its own short timeout, since this is a nice-
     // to-have: the fallback serif font is perfectly readable if Google
     // Fonts is ever slow or unreachable from Render's network).
-    await page.setContent(html, { waitUntil: 'domcontentloaded' });
+    await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 90000 });
     await Promise.race([
       page.evaluateHandle('document.fonts.ready'),
       new Promise((resolve) => setTimeout(resolve, 5000)),
@@ -172,6 +179,7 @@ app.get('/api/report.pdf', async (req, res) => {
       format: 'a4',
       printBackground: true,
       margin: { top: '10mm', bottom: '10mm', left: '10mm', right: '10mm' },
+      timeout: 90000,
     });
     await browser.close();
 
