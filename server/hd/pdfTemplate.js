@@ -232,11 +232,14 @@ function buildFiveTypesOverviewPage(content) {
   </div>`;
 }
 
+// Section title/divider pages reuse the cover page's exact gradient
+// background, title, and subtitle styling (report-title / report-subject),
+// just without the logo — per the requested "same layout and design".
 function buildChapterPage(eyebrow, title, body) {
-  return `<div class="report-page center-text">
+  return `<div class="report-page cover-page">
     <div class="page-eyebrow">${eyebrow}</div>
-    <h1 class="page-title">${title}</h1>
-    <p class="page-body">${body}</p>
+    <h1 class="report-title">${title}</h1>
+    <p class="report-subject">${body}</p>
   </div>`;
 }
 
@@ -390,18 +393,18 @@ export function buildReportHtml(chart, content, structure, name, birthInputs, in
     buildIntroPage(content),
     buildChartPage(chart, structure, name, birthInputs),
     buildUserDetailsPage(chart, content, name, birthInputs),
-    buildChapterPage('', 'Type', content.sectionIntros.Type),
+    buildChapterPage('Section', 'Type', content.sectionIntros.Type),
     buildFiveTypesOverviewPage(content),
     buildTypeOverviewPage(chart, content),
     buildStrategyPage(content),
     buildSignatureQuotePage(content),
-    buildChapterPage('', 'Authority', content.sectionIntros.Authority),
+    buildChapterPage('Section', 'Authority', content.sectionIntros.Authority),
     buildAuthorityPage(content),
-    buildChapterPage('', 'Profile', content.sectionIntros.Profile),
+    buildChapterPage('Section', 'Profile', content.sectionIntros.Profile),
     buildProfilePage(chart, content),
     buildProfileLinePage(Number(chart.profile.split('/')[0]), 'Conscious Line', content),
     buildProfileLinePage(Number(chart.profile.split('/')[1]), 'Unconscious Line', content),
-    buildChapterPage('', 'Definition', content.sectionIntros.Definition),
+    buildChapterPage('Section', 'Definition', content.sectionIntros.Definition),
     buildDefinitionPage(chart, content),
     buildChapterPage(
       'Your Centers',

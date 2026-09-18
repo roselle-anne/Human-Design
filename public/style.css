@@ -297,7 +297,11 @@ p { line-height: 1.6; }
   padding: 56px 40px;
   margin-bottom: 24px;
   box-shadow: 0 8px 24px rgba(230, 177, 161, 0.12);
-  min-height: 380px;
+  /* Matches the PDF's printable page area (A4, 10mm margins, at 96 CSS
+     px/inch: 277mm ~= 1047px), minus this box's own margin-bottom, so
+     flex vertical centering actually centers content on the printed
+     page instead of just within a short, top-anchored card. */
+  min-height: 1000px;
   display: flex;
   flex-direction: column;
   justify-content: center;
