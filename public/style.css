@@ -413,6 +413,71 @@ p { line-height: 1.6; }
   margin-bottom: 4px;
 }
 
+/* Type hero page: oval gradient badge instead of a plain title */
+.type-badge {
+  display: inline-block;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 34px;
+  color: var(--white);
+  background: linear-gradient(135deg, var(--charcoal) 0%, #3a2a26 50%, var(--dusty-peach) 130%);
+  border-radius: 999px;
+  padding: 32px 56px;
+  margin-bottom: 24px;
+  line-height: 1.2;
+}
+.type-subtitle {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 20px;
+  color: var(--dusty-peach);
+  max-width: 480px;
+  margin: 0 auto 28px;
+}
+
+/* Not-Self / Signature two-column comparison + affirmations box */
+.two-col {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin-bottom: 28px;
+}
+.two-col-item { flex: 1; padding: 0 28px; }
+.two-col-item h2 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 14px;
+  color: var(--charcoal);
+}
+.two-col-item p { font-size: 14px; margin-bottom: 12px; }
+.two-col-divider { width: 1px; background: var(--border); flex: 0 0 1px; }
+
+.affirmations-box {
+  background: var(--soft-peach);
+  border-radius: 12px;
+  padding: 24px 32px;
+}
+.affirmations-box h3 {
+  text-align: center;
+  font-family: var(--font-heading);
+  color: var(--charcoal);
+  margin-top: 0;
+}
+.affirmations-box .affirmations { padding-left: 0; list-style: none; }
+.affirmations-box .affirmations li {
+  color: var(--charcoal);
+  font-style: normal;
+  position: relative;
+  padding-left: 18px;
+  margin-bottom: 8px;
+}
+.affirmations-box .affirmations li::before {
+  content: '\2022';
+  color: var(--ocean-teal);
+  position: absolute;
+  left: 0;
+}
+
 /* Intro page */
 .intro-body { text-align: left; max-width: 640px; }
 .intro-body p { margin-bottom: 16px; }

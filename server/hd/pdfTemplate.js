@@ -243,37 +243,71 @@ function buildChapterPage(eyebrow, title, body) {
   </div>`;
 }
 
-function buildTypeOverviewPage(chart, content) {
+function buildTypeHeroPage(chart, content) {
+  const detail = content.typeDetailForChart;
   return `<div class="report-page center-text">
-    <div class="page-eyebrow">Type &middot; ${content.typeInfo.population} of people</div>
-    <h1 class="page-title">${chart.type}</h1>
-    <p class="page-stats">Aura: ${content.typeInfo.aura}</p>
-    <p class="page-body">${content.typeInfo.summary}</p>
+    <div class="type-badge">${chart.type}</div>
+    <p class="type-subtitle">${detail.subtitle}</p>
+    <div class="page-body">
+      ${detail.overview.map((p) => `<p>${p}</p>`).join('')}
+    </div>
   </div>`;
 }
 
-function buildStrategyPage(content) {
+function buildAuraPage(chart, content) {
+  const detail = content.typeDetailForChart;
   return `<div class="report-page center-text">
-    <div class="page-eyebrow">Your Strategy</div>
-    <h1 class="page-title">${content.typeInfo.strategy}</h1>
-    <p class="page-body">Living by your strategy is what moves you toward your <strong>Signature</strong> feeling of ${content.typeInfo.signature.toLowerCase()}, rather than the <strong>Not-Self</strong> theme of ${content.typeInfo.notSelf.toLowerCase()} that shows up when it's overridden.</p>
+    <div class="page-eyebrow">${chart.type}</div>
+    <h1 class="page-title">Your Aura</h1>
+    <div class="page-body">
+      ${detail.aura.map((p) => `<p>${p}</p>`).join('')}
+    </div>
   </div>`;
 }
 
-function buildSignatureQuotePage(content) {
-  return `<div class="report-page center-text quote-page">
-    <div class="quote-mark">&ldquo;</div>
-    <div class="page-eyebrow">Signature vs. Not-Self</div>
-    <h1 class="page-title">${content.typeInfo.signature} / ${content.typeInfo.notSelf}</h1>
-    <p class="page-body">${content.typeInfo.signature} is the feeling that lets you know you're living correctly for your type; ${content.typeInfo.notSelf.toLowerCase()} is the signal that something was overridden along the way.</p>
+function buildStrategyPage(chart, content) {
+  const detail = content.typeDetailForChart;
+  return `<div class="report-page center-text">
+    <div class="page-eyebrow">${chart.type}</div>
+    <h1 class="page-title">Your Strategy</h1>
+    <p class="page-stats">${content.typeInfo.strategy}</p>
+    <div class="page-body">
+      ${detail.strategyParagraphs.map((p) => `<p>${p}</p>`).join('')}
+    </div>
   </div>`;
 }
 
-function buildAuthorityPage(content) {
+function buildNotSelfSignaturePage(chart, content) {
+  const detail = content.typeDetailForChart;
+  return `<div class="report-page">
+    <div class="two-col">
+      <div class="two-col-item">
+        <h2>${content.typeInfo.notSelf}</h2>
+        ${detail.notSelfParagraphs.map((p) => `<p>${p}</p>`).join('')}
+      </div>
+      <div class="two-col-divider"></div>
+      <div class="two-col-item">
+        <h2>${content.typeInfo.signature}</h2>
+        ${detail.signatureParagraphs.map((p) => `<p>${p}</p>`).join('')}
+      </div>
+    </div>
+    <div class="affirmations-box">
+      <h3>Affirmations</h3>
+      <ul class="affirmations">
+        ${detail.affirmations.map((a) => `<li>${a}</li>`).join('')}
+      </ul>
+    </div>
+  </div>`;
+}
+
+function buildAuthorityPage(chart, content) {
+  const detail = content.authorityDetailForChart;
   return `<div class="report-page center-text">
-    <div class="page-eyebrow">Inner Authority</div>
-    <h1 class="page-title">${content.authorityInfo.title}</h1>
-    <p class="page-body">${content.authorityInfo.description}</p>
+    <div class="page-eyebrow">Your Decision Compass</div>
+    <h1 class="page-title">${detail.pageTitle}</h1>
+    <div class="page-body">
+      ${detail.paragraphs.map((p) => `<p>${p}</p>`).join('')}
+    </div>
   </div>`;
 }
 
@@ -395,11 +429,12 @@ export function buildReportHtml(chart, content, structure, name, birthInputs, in
     buildUserDetailsPage(chart, content, name, birthInputs),
     buildChapterPage('Section', 'Type', content.sectionIntros.Type),
     buildFiveTypesOverviewPage(content),
-    buildTypeOverviewPage(chart, content),
-    buildStrategyPage(content),
-    buildSignatureQuotePage(content),
+    buildTypeHeroPage(chart, content),
+    buildAuraPage(chart, content),
+    buildStrategyPage(chart, content),
+    buildNotSelfSignaturePage(chart, content),
     buildChapterPage('Section', 'Authority', content.sectionIntros.Authority),
-    buildAuthorityPage(content),
+    buildAuthorityPage(chart, content),
     buildChapterPage('Section', 'Profile', content.sectionIntros.Profile),
     buildProfilePage(chart, content),
     buildProfileLinePage(Number(chart.profile.split('/')[0]), 'Conscious Line', content),

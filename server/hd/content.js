@@ -61,12 +61,172 @@ export const TYPES = {
   },
 };
 
-// Short one-line descriptions shown on each major section's title/divider
+// Deep-dive content for each type's full-page treatment: a one-line
+// subtitle, three overview paragraphs, two paragraphs each on the aura
+// and strategy, a two-paragraph not-self/signature contrast, and four
+// affirmations. Original writing for this tool.
+export const TYPE_DETAIL = {
+  Generator: {
+    subtitle: 'You build a sustainable life through the work that truly lights you up.',
+    overview: [
+      "As a Generator, you carry a steady, renewable well of life-force energy. When you're doing work that genuinely engages you, that energy seems almost inexhaustible — you can work for hours and come away more energized than when you started. The catch is that this fuel only ignites in response to something real in front of you; it rarely shows up on command for a task you've simply decided you should want.",
+      "Your gift is mastery through repetition. Because you're built to sustain effort over time, you're the one who actually finishes what others start, refining a craft or a role until it becomes genuinely yours. This isn't glamorous, but it's how real skill and real satisfaction are built — slowly, through showing up for the work your body has already said yes to.",
+      "The trap for a Generator is initiating from the head instead of responding from the gut: chasing a goal because it looks right on paper, rather than because your body actually lit up at the invitation. Pushed forward on willpower alone, that same tireless energy turns into frustration and burnout. Followed from a real gut response, it becomes the quiet, durable satisfaction of a life built one honest yes at a time.",
+    ],
+    aura: [
+      "Your aura is open and enveloping — it doesn't broadcast outward so much as draw the world in. People often feel comfortable and unguarded around you without quite knowing why; your energy field absorbs and amplifies whatever's near it, for better or worse.",
+      "Because that openness works both ways, you can just as easily pick up other people's tension or urgency as their warmth. Protecting your energy isn't about closing off — it's about staying selective, letting in what you genuinely want more of, and giving yourself permission to step back from environments that drain rather than feed you.",
+    ],
+    strategyParagraphs: [
+      "Your strategy is to respond — to let the world bring things to you and let your sacral center answer honestly, rather than going out and initiating from an idea of what should happen next. That response is often wordless: a felt pull toward something, or a flat, unmistakable lack of interest.",
+      "In practice, this means resisting the urge to chase or force. When something is presented to you — a question, an opportunity, a person — your body will register a genuine charge or a genuine absence of one, well before your mind has finished building a case for or against it.",
+      "This can feel counterintuitive if you've been taught that success requires relentless self-starting. For you, the opposite is usually true: the more you wait for a real response and act from it, the less resistance you meet, and the more your effort actually lands somewhere satisfying instead of dissipating into busywork.",
+    ],
+    notSelfParagraphs: [
+      "Frustration shows up when you're moving on willpower instead of response — pushing through tasks that never actually got a yes from your body, just because they seemed necessary or expected. Energy spent this way rarely feels like progress, no matter how much of it you produce.",
+      "Left unchecked, this pattern compounds: you feel busy but not fulfilled, tired but not satisfied, and it becomes tempting to blame the work itself rather than the mismatch between the work and your actual response to it.",
+    ],
+    signatureParagraphs: [
+      "Satisfaction is the feeling that tells you you're using your energy correctly — a sense of rightness that shows up when the work you're doing actually came from a genuine sacral yes, not just a good argument for why you should be doing it.",
+      "It doesn't require the work to be easy or without effort; it just needs to be real. When satisfaction is present, even hard, tiring days feel worthwhile, because the energy spent is energy that was actually yours to spend.",
+    ],
+    affirmations: [
+      'I let the right work come to me instead of chasing it.',
+      'My energy is a resource I get to spend on purpose, not on obligation.',
+      "A clear no protects the yes that's actually mine.",
+      "Satisfaction, not exhaustion, is how I know I'm on track.",
+    ],
+  },
+  'Manifesting Generator': {
+    subtitle: 'You move fast, juggle freely, and bring your own shortcuts to everything you touch.',
+    overview: [
+      "As a Manifesting Generator, you carry a Generator's sustainable sacral energy alongside a direct link to action that lets you move at real speed. Once something has your genuine yes, you rarely proceed one careful step at a time — you're often several steps ahead, having already sensed the shortcut past the parts that don't matter.",
+      "This makes you a natural multi-tasker. You can hold several threads at once and switch between them without losing momentum, which can look chaotic to people who work more linearly but is often exactly how you get the most done. Boredom, for you, is a real signal — if a single task stops moving, your attention is right to look for what's next.",
+      "Your particular challenge is that your speed can leave people behind. Skipping steps works beautifully when it's just you, but when others are involved and haven't been told what's changing, your quick pivots read as unpredictable or even inconsiderate. Informing people before you shift direction isn't a formality — it's what turns your speed into an asset instead of a source of friction.",
+    ],
+    aura: [
+      "Like a Generator, your aura is open and enveloping, drawing in the energy of your environment rather than projecting outward. It's warm and easy to be around when you're engaged in something real, and noticeably flatter when you're not.",
+      "Because you move quickly, your aura can also feel like a lot to keep up with — people sense your momentum before they understand where it's headed. Giving others a quick heads-up about your direction lets them enjoy your pace instead of scrambling to catch up to it.",
+    ],
+    strategyParagraphs: [
+      "Your strategy has two parts: respond, then inform. Like any Generator, you need a real sacral response before committing to something — a felt pull, not a good argument. But once you've responded and started moving, the second half matters just as much: telling the people affected what you're doing and where you're headed.",
+      "Informing isn't about asking permission — it's about clearing the path. Because you move fast and skip steps naturally, the people around you are often still catching up to where you were five minutes ago. A quick heads-up before you pivot saves everyone, including you, from unnecessary resistance.",
+      "Skipping the \"inform\" step is the single most common way your speed turns into conflict. It costs you almost nothing to say what you're doing before you do it, and it's often the difference between people experiencing your quickness as exciting rather than disruptive.",
+    ],
+    notSelfParagraphs: [
+      "Frustration hits you the same way it hits any Generator — through energy spent on something that never had a real yes behind it — but it can also show up as impatience when your natural speed gets forced to slow down to match everyone else's pace.",
+      "It can also arrive when you skip the \"inform\" step and meet resistance you didn't expect. What feels to you like simple efficiency can land, to others, as having been left out of the loop — and that friction loops back as your own frustration.",
+    ],
+    signatureParagraphs: [
+      "Satisfaction arrives when your speed and your instincts are actually being used — when you've responded to something real, moved through it efficiently, and kept the people around you in the loop along the way.",
+      "It often comes paired with a sense of having found the shortcut nobody else saw: the fastest real path through a problem, taken because your body said yes and your instincts trusted the quicker route.",
+    ],
+    affirmations: [
+      'My speed is a gift when I let people in on where I\'m headed.',
+      "I don't need to finish one thing before I'm excited about the next.",
+      'A quick word before I pivot saves everyone friction, including me.',
+      "Efficiency isn't corner-cutting when it's the shortcut my body actually found.",
+    ],
+  },
+  Manifestor: {
+    subtitle: "You're built to start things, move independently, and let your impact ripple outward.",
+    overview: [
+      "As a Manifestor, you carry a rare capacity to initiate — to start things from nothing, without waiting for an invitation or a green light from anyone else. Where most people are built to respond to what's already in motion, you're built to be the one who sets things moving in the first place.",
+      "This independence is real, not stylistic. You genuinely think and move best without needing to consult a committee first, and trying to force yourself into a more collaborative, wait-for-consensus mode of operating tends to leave you feeling stifled rather than supported.",
+      "The friction you sometimes meet isn't a flaw in your design — it's a natural response to impact that arrives without warning. People aren't usually upset that you acted; they're startled that they didn't see it coming. That single detail — being told, not asked — is almost always what determines whether your action lands as leadership or as a threat.",
+    ],
+    aura: [
+      "Your aura is closed and naturally repelling — not cold, but self-contained in a way that doesn't invite input the way an open aura does. It's part of what lets you move independently; it's also part of why people can find you hard to read.",
+      "Because your energy doesn't broadcast an invitation the way other types' auras do, people often approach you more cautiously, or not at all, unless you make the first move. That's not something to fix — it's simply the medium you initiate through.",
+    ],
+    strategyParagraphs: [
+      "Your strategy is to inform before you act — not to ask permission, but to give the people your action will touch a moment's notice before it happens. This single habit changes how your impact is received almost every time.",
+      "Without that heads-up, even a good decision can trigger resistance, simply because it arrived as a surprise. People don't need to agree with what you're doing; they mostly need to not be blindsided by it.",
+      "Informing can feel unnecessary to you, since your instinct is simply to act. But it costs little and buys a great deal: the same action, announced a moment ahead of time, tends to land as confident leadership instead of an ambush.",
+    ],
+    notSelfParagraphs: [
+      "Anger tends to surface when your independence is blocked — when you're made to wait for permission you don't actually need, or when someone tries to control a decision that was always going to be yours to make.",
+      "It can also show up as the backlash you receive after acting without informing anyone first: resistance you didn't expect, arriving right when you thought the matter was already settled.",
+    ],
+    signatureParagraphs: [
+      "Peace is the feeling that tells you your impact landed cleanly — that you initiated, informed the right people, and moved forward without triggering the resistance that comes from being misunderstood.",
+      "It's a quieter signature than it might sound: not the absence of action, but the absence of friction around it. When you consistently inform before you act, peace becomes less of an occasional relief and more of a baseline.",
+    ],
+    affirmations: [
+      "A moment's notice turns my impact into leadership, not a surprise.",
+      "I don't need permission to start what's mine to start.",
+      'Resistance I meet is information about timing, not a verdict on the idea.',
+      "Peace is the sign I'm using my independence well.",
+    ],
+  },
+  Projector: {
+    subtitle: 'You see what others miss, and guide best when your insight is actually invited.',
+    overview: [
+      "As a Projector, you're built to see — systems, people, and the gaps between potential and what's actually happening — with a clarity that types built for constant doing simply don't have the bandwidth for. Your value was never meant to come from output; it comes from insight.",
+      "Because you don't have the Sacral's sustainable engine, working like a Generator — grinding through hours of undirected effort — tends to exhaust you far faster than it would someone built for that kind of stamina. Your energy is better spent studying, observing, and directing than producing at volume.",
+      "The piece that makes or breaks a Projector's experience is recognition. Insight offered before anyone has asked for it, however accurate, tends to be resisted; the same insight offered once you've been invited in is often received as exactly what someone needed to hear. Waiting for that invitation isn't passivity — it's how your guidance actually gets heard instead of deflected.",
+    ],
+    aura: [
+      "Your aura is focused and absorbing rather than expansive — it takes in and concentrates the energy of whoever and whatever you're paying attention to, which is part of why you read people and situations so accurately.",
+      "That same focus means you're easily overwhelmed in large groups or unfiltered environments, since you're absorbing far more than most people register consciously. Protecting your energy by curating who and what you spend it on isn't precious — it's necessary.",
+    ],
+    strategyParagraphs: [
+      "Your strategy is to wait for the invitation — not just any invitation, but genuine recognition in the areas that matter most: work, relationships, and important conversations. This isn't about waiting passively for life to happen; you're free to prepare, study, and position yourself the whole time.",
+      "The distinction is subtle but real: pursuing an opportunity uninvited tends to meet quiet resistance, even when your read on the situation is completely correct. The same insight, offered once someone has actually asked for your perspective, tends to open doors instead of closing them.",
+      "This can feel like a strange thing to trust, especially in a culture that rewards self-promotion. For a Projector, the wait is rarely wasted time — it's the difference between insight that lands and insight that bounces off someone who wasn't ready to receive it.",
+    ],
+    notSelfParagraphs: [
+      "Bitterness tends to build when your insight keeps going unrecognized — when you can see clearly what needs to happen but nobody has invited you to say so, or when you've pushed your perspective forward and watched it get brushed aside.",
+      "Over time, uninvited effort that goes unseen can curdle into a quiet resentment toward the people or systems that didn't make room for you, even when the deeper issue was reaching out before being asked.",
+    ],
+    signatureParagraphs: [
+      "Success, for a Projector, isn't about how much you produced — it's the feeling of being truly seen and valued for what you actually offer: your perception, your guidance, your ability to make sense of a system that confuses everyone else.",
+      "It shows up most clearly in moments of genuine recognition — being asked for your take, being invited into the room, being trusted with the kind of decision that only someone with your vantage point could make well.",
+    ],
+    affirmations: [
+      'My value comes from what I see, not how much I produce.',
+      'The right invitation is worth waiting for.',
+      "Rest is part of my strategy, not a departure from it.",
+      'Being truly seen is success, however it arrives.',
+    ],
+  },
+  Reflector: {
+    subtitle: 'You mirror the world around you, and your wisdom unfolds one lunar cycle at a time.',
+    overview: [
+      "As a Reflector, you carry no centers consistently defined, which makes you a uniquely sensitive mirror for whatever community or environment you're part of. What you feel is often less about you personally and more an accurate reading of the health of the people and places around you.",
+      "This makes you rare — roughly one in a hundred people share your design — and often means your experience doesn't map neatly onto advice built for the other four types. You're not meant to have a fixed, consistent way of being; you're meant to sample, reflect, and shift with real discernment.",
+      "Because your entire design moves with the ~28-day lunar cycle, the single most important thing you can do for yourself is give big decisions that much room to breathe before committing. What looks like indecision from the outside is actually the exact process your design needs to arrive at something true.",
+    ],
+    aura: [
+      "Your aura is sampling and resistant — it takes in the qualities of an environment fully, but doesn't easily let any one influence take permanent hold. This is what allows you to move between very different settings and genuinely register what each one is like from the inside.",
+      "Because you absorb so completely, the people and places you spend the most time with matter enormously — you'll tend to feel, quite literally, like a reflection of whatever community surrounds you, for better or worse.",
+    ],
+    strategyParagraphs: [
+      "Your strategy is to wait a full lunar cycle — about 28 days — before committing to anything significant. This isn't caution for its own sake; because your own sense of things shifts as the moon moves through your chart, a decision that feels obviously right on day three can look completely different by day twenty.",
+      "In practice, this means talking a big decision through with several different people, in several different moods and moments, over that stretch of time, rather than locking in an answer from any single one of those moments.",
+      "This pace can feel at odds with a world that expects fast answers, but rushing tends to produce decisions that don't actually hold up once the cycle has finished moving through your design. The wait isn't a workaround — it's the actual mechanism by which your clarity arrives.",
+    ],
+    notSelfParagraphs: [
+      "Disappointment tends to surface when a decision made too quickly turns out to be wrong once the fuller picture — the one your lunar cycle would have eventually revealed — finally comes into view.",
+      "It can also arise from spending prolonged time in an environment or community that isn't actually healthy, since your design will faithfully reflect that back to you as your own felt experience, whether or not it started out as yours.",
+    ],
+    signatureParagraphs: [
+      "Surprise, delightfully, is your signature — the sense of genuine wonder that comes from a life lived with enough openness and enough patience that things keep revealing themselves in ways you didn't (and weren't meant to) predict in advance.",
+      "It tends to show up most when you've given a decision its full cycle and let the answer arrive on its own schedule, rather than forcing a conclusion before your design was actually ready to offer one.",
+    ],
+    affirmations: [
+      'A full month is not too long to wait for the truth of a big decision.',
+      'What I feel often belongs to my environment, not just to me.',
+      'My openness is a form of wisdom, not indecision.',
+      "Surprise is a sign I've let life unfold instead of forcing it.",
+    ],
+  },
+};
 // page, and the general (not chart-specific) intro to Human Design shown
 // before the chart itself. Original writing for this tool.
 export const SECTION_INTROS = {
   Type: 'How you engage with your environment and interact with others, based on your specific energetic signature and strategy.',
-  Authority: 'How you make aligned decisions — the specific inner sense that lets you know what\'s right for you, moment to moment.',
+  Authority: 'How you make good decisions, based on the wisdom of your body.',
   Profile: 'The role you play and the lens you see through, shaped by the two lines that describe your conscious and unconscious approach to life.',
   Definition: 'How the defined parts of your chart connect to each other — and how open you are to being completed by other people.',
 };
@@ -113,6 +273,76 @@ export const AUTHORITIES = {
     title: 'Lunar Authority (Reflectors)',
     description:
       'As a Reflector, no center is consistently defined, so there is no fixed decision-making organ to consult moment to moment. Instead, major decisions are given a full ~28-day lunar cycle to be discussed, revisited, and felt out across the different transits that move through the chart, before acting.',
+  },
+};
+
+// Full-page deep dives for each authority: an eyebrow, a clean page title,
+// and four paragraphs walking through the mechanic, the common way it
+// gets overridden, how to actually trust it, and what following it
+// produces. Original writing for this tool.
+export const AUTHORITY_DETAIL = {
+  Emotional: {
+    pageTitle: 'Emotional Authority',
+    paragraphs: [
+      "With Emotional Authority, there is no true \"now\" for you to decide from — clarity arrives as a wave, rising and falling over time, rather than as a single fixed answer available in the moment. Whatever you feel right now is real, but it isn't yet the whole picture.",
+      "This is why the classic advice for Emotional Authority is to sleep on it: big decisions made at an emotional high or a low tend to be regretted once the wave passes and a fuller, calmer picture comes into view. Neither the peak nor the trough is more \"true\" than the other — the truth is somewhere in the pattern across both.",
+      'Learning to trust this authority means resisting the pressure — your own or other people\'s — to answer immediately. A simple "let me get back to you" is often the most powerful sentence available to you, buying the time your emotional wave needs to actually complete itself.',
+      "When you follow this rhythm consistently, decisions stop feeling like gambles made in a single charged moment and start feeling like conclusions you've genuinely arrived at — settled, considered, and far less likely to be second-guessed once the feeling that prompted them has moved on.",
+    ],
+  },
+  Sacral: {
+    pageTitle: 'Sacral Authority',
+    paragraphs: [
+      'With Sacral Authority, your body answers before your mind has finished forming the question. That response is often wordless — a spontaneous, gut-level charge that shows up as an audible "mmm-hmm" or "uh-uh" as much as it does a thought, telling you plainly whether you have the energy for something right now.',
+      "The most common way people override this authority is by letting the mind step in to explain, justify, or second-guess what the gut already made clear. Your Sacral response isn't looking for permission from your reasoning — it's simply reporting, honestly and immediately, what's true for your energy in this moment.",
+      "Because that response is tied to the present moment, it's allowed to change: something your body said yes to yesterday might get a flat no today, and that isn't inconsistency — it's your energy accurately reporting on itself in real time. Yes/no questions tend to produce the clearest signal, so it often helps to frame a decision that way when you're unsure.",
+      'Following this response consistently means your energy only goes toward things that genuinely have your body\'s yes behind them — which is exactly what keeps a Sacral response sustainable rather than depleting, and what eventually produces the deep, specific satisfaction that comes from work you were actually built to do.',
+    ],
+  },
+  Splenic: {
+    pageTitle: 'Splenic Authority',
+    paragraphs: [
+      "Splenic Authority speaks quietly, instantly, and only once. It doesn't announce itself with drama or repeat itself for emphasis — it's a single, subtle flash of instinctive knowing about health, safety, or timing, gone almost as soon as it arrives.",
+      "The biggest challenge with this authority isn't hearing it — it's trusting it before the moment passes. Because it doesn't repeat or build a case for itself the way an emotional wave does, waiting for a second confirmation usually just means the original, accurate signal gets missed entirely.",
+      'This kind of knowing often shows up as an instinct to move toward or away from something, a subtle unease, or a fleeting sense that this is the moment — arriving in real time, tied to the present, rather than as a conclusion you reasoned your way toward.',
+      "Trusting your Splenic hits, even when you can't fully explain them, tends to keep you a step ahead of situations before they've fully developed — and over time, a track record of those quiet, accurate instincts becomes hard to argue with, even for your own doubting mind.",
+    ],
+  },
+  Ego: {
+    pageTitle: 'Ego Authority',
+    paragraphs: [
+      'Ego Authority makes decisions by testing them against willpower and material worth: is this something you genuinely want enough to commit real effort and resources to, right now? It\'s less about feeling and more about a kind of embodied conviction.',
+      'This authority is famously well-suited to being spoken aloud. Saying a decision out loud, ideally to another person, tends to reveal instantly whether your will is actually behind it — the words either come out with real weight and confidence, or they visibly fall flat, even to your own ear.',
+      "The trap here is making promises or commitments your willpower isn't actually behind, just because they sound reasonable or expected. An Ego \"yes\" that isn't backed by genuine desire tends to become a resentful obligation fairly quickly.",
+      'When you only commit to what your will genuinely stands behind, your word becomes reliably strong — you follow through because you meant it, not because you feel obligated to, and that consistency becomes one of your most trusted qualities.',
+    ],
+  },
+  'Self-Projected': {
+    pageTitle: 'Self-Projected Authority',
+    paragraphs: [
+      "Self-Projected Authority finds clarity through your own spoken voice — specifically, through hearing yourself talk a decision out loud, usually to a trusted listener who isn't there to advise you, just to listen.",
+      "The insight isn't really coming from the other person; it's already inside you, and speaking is simply how it surfaces. You'll often notice your own voice grow more energized and certain as you talk toward the direction that's actually right, and flatter or more hesitant as you talk toward the one that isn't.",
+      "This means the choice of who you talk to matters less than the act of talking itself — though a patient, non-directive listener helps far more than someone eager to jump in with their own opinion, since their input can drown out the very voice you're trying to hear.",
+      "Trusting this process means resisting the urge to think a big decision through silently, in your head, where the clarifying effect of your own voice never gets the chance to work. Said out loud, your direction tends to become obvious to you even when it wasn't a moment before you started speaking.",
+    ],
+  },
+  'Mental (Environmental)': {
+    pageTitle: 'Mental Authority',
+    paragraphs: [
+      'With no defined inner authority to consult, your clarity is meant to be found out loud and out in the world — specifically, through the effect that different environments and different people have on your thinking as you talk a decision through.',
+      "This isn't indecision; it's simply how your particular design processes big choices. The same question can land completely differently depending on where you are and who you're talking to, and that variation is useful information rather than a problem to solve.",
+      'The most effective approach is deliberately varying both: talk the decision through in more than one place, and with more than one kind of person, rather than settling for the first environment or conversation that happens to be convenient.',
+      'Over time, a pattern tends to emerge — certain environments and certain people consistently help your thinking sharpen, while others consistently muddy it. Learning which is which turns "no fixed authority" into one of the more reliable processes available to any type.',
+    ],
+  },
+  Lunar: {
+    pageTitle: 'Lunar Authority',
+    paragraphs: [
+      "As a Reflector, no center is ever consistently defined, so there's no fixed inner organ to consult for a fast answer the way other types have. Instead, your authority is time itself — specifically, a full lunar cycle of roughly 28 days.",
+      'Over that cycle, the moon moves through every gate in your chart, and your felt sense of a decision will genuinely shift along with it — clear on one day, murky on another, energized on a third. No single day in that cycle has more claim to the truth than any other.',
+      'In practice, this means discussing a significant decision with a range of trusted people across the full stretch of the cycle, rather than locking in an answer from any one conversation or any one mood. Journaling your shifting impressions day to day can make the eventual pattern much easier to see.',
+      "Honoring this pace, even when it feels slow next to how quickly other people decide, tends to produce a clarity that actually holds up — because it was given time to be tested against every angle your design has to offer, rather than settled on before the picture was complete.",
+    ],
   },
 };
 
