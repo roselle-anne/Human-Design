@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { calculateChart } from './hd/calculate.js';
 import { CENTERS, CHANNELS } from './hd/structure.js';
-import { TYPES, AUTHORITIES, CENTERS_INFO, GATES, profileDescription } from './hd/content.js';
+import { TYPES, AUTHORITIES, CENTERS_INFO, GATES, CHANNEL_THEMES, DEFINITION_INFO, profileDescription } from './hd/content.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -75,8 +75,11 @@ app.post('/api/chart', async (req, res) => {
         authorities: AUTHORITIES,
         centers: CENTERS_INFO,
         gates: GATES,
+        channelThemes: CHANNEL_THEMES,
+        definitionInfo: DEFINITION_INFO,
         typeInfo: TYPES[chart.type],
         authorityInfo: AUTHORITIES[chart.authority],
+        definitionInfoForChart: DEFINITION_INFO[chart.definition],
         profileNarrative: profileDescription(
           chart.personality.find((a) => a.body === 'Sun').line,
           chart.designActivations.find((a) => a.body === 'Sun').line

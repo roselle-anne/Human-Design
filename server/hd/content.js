@@ -279,3 +279,68 @@ export const GATES = {
   63: { name: 'Doubt', keynote: 'A questioning mind that doubts patterns until they are logically proven.' },
   64: { name: 'Confusion', keynote: 'A mind full of unprocessed impressions, seeking the patterns that will make sense of the past.' },
 };
+
+// Short original themes for the 36 channels, keyed "gateA-gateB" matching
+// the gate order in structure.js's CHANNELS list.
+export const CHANNEL_THEMES = {
+  '1-8': 'A creative individual voice that inspires others by example, not persuasion.',
+  '2-14': 'Direction meets resourcefulness — a keen sense of where to go paired with the drive to get there.',
+  '3-60': 'Innovation born from working within real limits, turning constraint into something new.',
+  '4-63': 'A logical mind that questions patterns until it can answer them with confidence.',
+  '5-15': 'A natural, unforced rhythm that makes room for every kind of pace and season.',
+  '6-59': 'The push and pull of intimacy — friction that clears the way for real bonding.',
+  '7-31': 'Quiet leadership that steps forward only once it has genuinely been chosen.',
+  '9-52': 'Focused stillness — the concentration to stay with small details until they matter.',
+  '10-20': 'Awareness lived out loud, in the present moment, without apology.',
+  '10-34': 'Personal integrity backed by unmistakable power and momentum.',
+  '10-57': 'Survival instinct refined into perfected, authentic form.',
+  '11-56': 'Ideas turned into stories — curiosity shared through narrative.',
+  '12-22': 'Emotional openness expressed with grace, at exactly the right moment.',
+  '13-33': 'Personal experience held in confidence, then released as insight worth sharing.',
+  '16-48': 'Enthusiasm paired with depth — talent practiced until it becomes real skill.',
+  '17-62': 'Opinions organized into precise, well-supported detail.',
+  '18-58': 'A drive to correct what is flawed, fueled by real joy in the process.',
+  '19-49': 'Sensitivity to what others need, tested against principle before it is given.',
+  '20-34': 'Instinctive charisma — power that speaks for itself in the moment.',
+  '20-57': 'Awareness so immediate it borders on premonition.',
+  '21-45': 'Material control paired with the authority to gather and direct resources.',
+  '23-43': 'A flash of individual insight, translated into language others can finally follow.',
+  '24-61': 'A mind that circles a mystery until rational thought can finally land on it.',
+  '25-51': 'Unconditional love tested by the shocks that initiate real growth.',
+  '26-44': 'Trust in what has already worked, marketed with quiet persuasion.',
+  '27-50': 'Care for others held accountable to the values that keep a group well.',
+  '28-38': 'A struggle worth having — purpose found through resistance, not around it.',
+  '29-46': 'Commitment to the experience of being in the body, wherever it leads.',
+  '30-41': 'Desire for new experience recognized and given form.',
+  '32-54': 'Ambition that senses what will last, and transforms to reach it.',
+  '34-57': 'Raw power guided by instinctive, in-the-moment clarity.',
+  '35-36': 'An appetite for new experience, even the turbulent kind, in service of change.',
+  '37-40': 'Loyalty and belonging earned through real, reciprocal work.',
+  '39-55': 'Emotional provocation that tests spirit and awakens genuine feeling.',
+  '42-53': 'Cycles that start, grow, and complete themselves in due time.',
+  '47-64': 'Confusion worked through until it resolves into sudden understanding.',
+};
+
+// Short original blurbs for the 5 definition types.
+export const DEFINITION_INFO = {
+  'No Definition': {
+    summary:
+      'With no centers consistently defined, energy and identity move with whoever and wherever you are, rather than from a fixed internal pattern. This is the Reflector signature — a life built around sampling and reflecting the world, on the timing of the lunar cycle rather than any inner constant.',
+  },
+  'Single Definition': {
+    summary:
+      'All of your defined centers connect into one continuous circuit. There is a consistent, self-contained way you operate — what you feel and know internally is reliably available to you without needing another person present to complete it.',
+  },
+  'Split Definition': {
+    summary:
+      'Your defined centers form two separate circuits that are not directly connected to each other. There can be a felt sense of something missing or a bridge to find — often satisfied by certain other people whose own design happens to connect the gap, which is part of why some relationships feel unusually easy.',
+  },
+  'Triple Split Definition': {
+    summary:
+      'Your defined centers form three separate circuits. More connecting points are open, which can mean more variability in who and what completes you, and a wider range of people who can bridge the gaps between your circuits.',
+  },
+  'Quadruple Split Definition': {
+    summary:
+      'Your defined centers form four separate circuits — the most distributed definition pattern. This tends to come with a wide range of interests and capabilities, along with a real need for a diverse circle of people to bridge the several gaps in the design.',
+  },
+};

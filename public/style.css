@@ -174,9 +174,7 @@ p { line-height: 1.6; }
   color: var(--muted);
   font-size: 13px;
 }
-.footer-mark { height: 20px; opacity: 0.7; }
-
-/* --- Title page (report cover) --- */
+/* --- Title page (on-screen report cover) --- */
 .title-page {
   background: linear-gradient(160deg, var(--white) 0%, var(--soft-peach) 100%);
   border: 1px solid var(--border);
@@ -216,6 +214,9 @@ p { line-height: 1.6; }
   margin-top: 8px;
 }
 
+/* --- PDF-only pages: one topic per page, echoing a printed report's pacing.
+   Built into a detached, off-screen container fed to html2pdf; never shown
+   in the on-screen report. --- */
 .report-actions {
   display: flex;
   justify-content: flex-end;
@@ -223,9 +224,102 @@ p { line-height: 1.6; }
   margin-bottom: 16px;
 }
 
+.report-page {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 56px 40px;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 24px rgba(230, 177, 161, 0.12);
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* Unconditional (not @media print): html2pdf renders the live screen DOM
+     via html2canvas, so print-only rules never apply during PDF export. */
+  break-after: page;
+  page-break-after: always;
+}
+.report-page.last-page { break-after: auto; page-break-after: auto; }
+.report-page.center-text { text-align: center; align-items: center; }
+
+.report-page .page-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ocean-teal);
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+.report-page .page-title {
+  font-size: 36px;
+  margin: 0 0 16px;
+  color: var(--charcoal);
+}
+.report-page .page-stats {
+  color: var(--muted);
+  margin: 0 0 20px;
+}
+.report-page .page-body {
+  font-size: 17px;
+  max-width: 620px;
+  margin: 0 auto;
+}
+.report-page .page-footnote {
+  color: var(--muted);
+  font-size: 13px;
+  max-width: 480px;
+  margin: 16px auto 0;
+}
+
+/* Cover page */
+.cover-page {
+  background: linear-gradient(160deg, var(--white) 0%, var(--soft-peach) 100%);
+  text-align: center;
+  align-items: center;
+  padding: 64px 32px;
+}
+.cover-page img.title-logo { height: 64px; margin-bottom: 28px; }
+.cover-page .report-title { font-size: 38px; margin: 0 0 8px; color: var(--charcoal); }
+.cover-page .report-subject {
+  font-size: 22px;
+  font-style: italic;
+  color: var(--dusty-peach);
+  margin: 0 0 24px;
+}
+.cover-page .title-meta {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 14px;
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+  margin-top: 8px;
+}
+
+.bodygraph-wrap.centered { justify-content: center; width: 100%; }
+.legend.centered { justify-content: center; }
+.centered-table { max-width: 560px; margin: 0 auto; }
+
+/* Channel pages: a decorative quote mark, echoing a printed report's callouts */
+.quote-page { position: relative; }
+.quote-page .quote-mark {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 108px;
+  line-height: 1;
+  color: var(--soft-peach);
+  margin-bottom: -20px;
+}
+
+.gate-page .page-title { font-size: 42px; }
+
 /* --- Print / PDF export --- */
 @media print {
   .site-header, .site-footer, form, #status, .report-actions { display: none !important; }
   body { background: var(--white); }
-  section.panel, .title-page { box-shadow: none; break-inside: avoid; }
+  .report-page {
+    box-shadow: none;
+    break-inside: avoid;
+  }
 }

@@ -250,19 +250,195 @@ function renderReport(name, birthInputs, data) {
   reportContent.appendChild(timesSection);
 
   document.getElementById('download-pdf-btn').addEventListener('click', () => {
-    downloadReportPDF(reportContent, name);
+    downloadReportPDF(name, birthInputs, chart, content, structure);
   });
 
   result.scrollIntoView({ behavior: 'smooth' });
 }
 
-function downloadReportPDF(reportContent, name) {
+// ---- PDF-only rendering: a paginated, one-topic-per-page layout used just
+// for the downloadable PDF. The on-screen report above stays a single
+// continuous page; this builds a separate, detached tree fed to html2pdf. ----
+function buildPdfCoverPage(name, birthInputs) {
+  const preparedDate = new Date().toLocaleDateString(undefined, {
+    year: 'numeric', month: 'long', day: 'numeric',
+  });
+  const birthDateFormatted = new Date(`${birthInputs.date}T00:00:00`).toLocaleDateString(undefined, {
+    year: 'numeric', month: 'long', day: 'numeric',
+  });
+  return `<div class="report-page cover-page">
+    <img src="assets/logo-horizontal-color.png" alt="Embodiance" class="title-logo" />
+    <div class="page-eyebrow">Human Design Report</div>
+    <h1 class="report-title">Your Bodygraph &amp; Chart Analysis</h1>
+    ${name ? `<p class="report-subject">Prepared for ${name}</p>` : ''}
+    <div class="title-meta">
+      <span><strong>Birth date:</strong> ${birthDateFormatted} at ${birthInputs.time}</span>
+      <span><strong>Timezone:</strong> ${birthInputs.timeZone}</span>
+      <span><strong>Report prepared:</strong> ${preparedDate}</span>
+    </div>
+  </div>`;
+}
+
+function buildPdfSummaryPage(chart, content) {
+  return `<div class="report-page center-text">
+    <div class="page-eyebrow">At a Glance</div>
+    <h1 class="page-title">Your Chart Summary</h1>
+    <div class="summary-grid">
+      ${['Type', 'Profile', 'Authority', 'Definition'].map((label) => `
+        <div class="summary-card">
+          <div class="label">${label}</div>
+          <div class="value">${chart[label.toLowerCase()]}</div>
+        </div>`).join('')}
+      <div class="summary-card"><div class="label">Strategy</div><div class="value">${content.typeInfo.strategy}</div></div>
+      <div class="summary-card"><div class="label">Signature / Not-Self</div><div class="value">${content.typeInfo.signature} / ${content.typeInfo.notSelf}</div></div>
+    </div>
+  </div>`;
+}
+
+function buildPdfBodygraphPage(chart, structure) {
+  return `<div class="report-page center-text">
+    <div class="page-eyebrow">Your Bodygraph</div>
+    <h1 class="page-title">The Chart</h1>
+    <div class="bodygraph-wrap centered">
+      <div>${buildBodygraph(chart, structure)}</div>
+    </div>
+    <div class="legend centered">
+      <div><span class="dot" style="background:#158EA4"></span>Defined</div>
+      <div><span class="dot" style="background:#E4D6CE"></span>Undefined</div>
+    </div>
+    <p class="page-footnote">Centers and connecting channels are colored by definition. Exact gate numbers and channel names follow in this report.</p>
+  </div>`;
+}
+
+function buildPdfTypePage(chart, content) {
+  return `<div class="report-page center-text">
+    <div class="page-eyebrow">Type</div>
+    <h1 class="page-title">${chart.type}</h1>
+    <p class="page-stats"><strong>Strategy:</strong> ${content.typeInfo.strategy} &nbsp;·&nbsp; <strong>Signature:</strong> ${content.typeInfo.signature} &nbsp;·&nbsp; <strong>Not-Self:</strong> ${content.typeInfo.notSelf} &nbsp;·&nbsp; <strong>Population:</strong> ${content.typeInfo.population}</p>
+    <p class="page-body">${content.typeInfo.summary}</p>
+  </div>`;
+}
+
+function buildPdfAuthorityPage(content) {
+  return `<div class="report-page center-text">
+    <div class="page-eyebrow">Inner Authority</div>
+    <h1 class="page-title">${content.authorityInfo.title}</h1>
+    <p class="page-body">${content.authorityInfo.description}</p>
+  </div>`;
+}
+
+function buildPdfProfilePage(chart, content) {
+  return `<div class="report-page center-text">
+    <div class="page-eyebrow">Profile</div>
+    <h1 class="page-title">${chart.profile}</h1>
+    <p class="page-body">${content.profileNarrative}</p>
+  </div>`;
+}
+
+function buildPdfDefinitionPage(chart, content) {
+  const info = content.definitionInfoForChart;
+  return `<div class="report-page center-text">
+    <div class="page-eyebrow">Definition</div>
+    <h1 class="page-title">${chart.definition}</h1>
+    <p class="page-body">${info ? info.summary : ''}</p>
+  </div>`;
+}
+
+function buildPdfCenterPage(info, defined) {
+  return `<div class="report-page center-text">
+    <div class="page-eyebrow">${defined ? 'Defined Center' : 'Undefined / Open Center'}</div>
+    <h1 class="page-title">${info.label}</h1>
+    <p class="page-stats">${info.theme}</p>
+    <p class="page-body">${defined ? info.defined : info.undefined}</p>
+  </div>`;
+}
+
+function buildPdfChannelPage(ch, content) {
+  const theme = content.channelThemes[`${ch.gates[0]}-${ch.gates[1]}`] || '';
+  return `<div class="report-page center-text quote-page">
+    <div class="quote-mark">&ldquo;</div>
+    <div class="page-eyebrow">Channel ${ch.gates[0]}&ndash;${ch.gates[1]}</div>
+    <h1 class="page-title">${ch.name}</h1>
+    <p class="page-stats">${ch.centers[0]} &harr; ${ch.centers[1]}</p>
+    <p class="page-body">${theme}</p>
+  </div>`;
+}
+
+function buildPdfGatePage(g, content) {
+  const info = content.gates[g.gate];
+  return `<div class="report-page center-text gate-page">
+    <div class="page-eyebrow">Gate ${g.gate} &middot; ${g.center}</div>
+    <h1 class="page-title">${info.name}</h1>
+    <p class="page-stats">
+      ${g.sides.map((s) => `<span class="side-badge ${s}">${s === 'personality' ? 'Personality' : 'Design'}</span>`).join(' ')}
+    </p>
+    <p class="page-body">${info.keynote}</p>
+  </div>`;
+}
+
+function buildPdfCrossPage(chart, content) {
+  return `<div class="report-page center-text">
+    <div class="page-eyebrow">Incarnation Cross</div>
+    <h1 class="page-title">Your Life's Work</h1>
+    <p class="page-body">Formed by the Sun and Earth gates of your Personality and Design, shaped by your ${chart.profile} profile.</p>
+    <table class="gates-table centered-table">
+      <tr><th></th><th>Sun Gate</th><th>Earth Gate</th></tr>
+      <tr><td>Personality (conscious)</td><td>${chart.incarnationCross.personalitySunGate} — ${content.gates[chart.incarnationCross.personalitySunGate].name}</td><td>${chart.incarnationCross.personalityEarthGate} — ${content.gates[chart.incarnationCross.personalityEarthGate].name}</td></tr>
+      <tr><td>Design (unconscious)</td><td>${chart.incarnationCross.designSunGate} — ${content.gates[chart.incarnationCross.designSunGate].name}</td><td>${chart.incarnationCross.designEarthGate} — ${content.gates[chart.incarnationCross.designEarthGate].name}</td></tr>
+    </table>
+  </div>`;
+}
+
+function buildPdfDetailsPage(chart) {
+  return `<div class="report-page center-text last-page">
+    <div class="page-eyebrow">Calculation Details</div>
+    <h1 class="page-title">Thank You</h1>
+    <p class="page-body">
+      Personality (birth) moment, UTC: ${chart.birth.utc}<br />
+      Design moment, UTC: ${chart.design.utc} (88° of solar arc before birth)
+    </p>
+    <p class="page-footnote">Planetary positions computed via Swiss Ephemeris. Gate boundaries verified against the standard 5.625°-per-gate mandala.</p>
+  </div>`;
+}
+
+function downloadReportPDF(name, birthInputs, chart, content, structure) {
   const btn = document.getElementById('download-pdf-btn');
   const originalLabel = btn.textContent;
   btn.textContent = 'Preparing PDF...';
   btn.disabled = true;
 
   const filename = `Human-Design-Report${name ? '-' + name.replace(/\s+/g, '-') : ''}.pdf`;
+
+  // Build the paginated PDF layout in a detached container, off-screen but
+  // still laid out in the document (html2canvas needs real layout), so the
+  // visible on-screen report is completely unaffected.
+  const pdfRoot = document.createElement('div');
+  pdfRoot.id = 'pdf-export-root';
+  // `opacity:0` (not position:fixed/absolute) keeps it in normal document
+  // flow — html2canvas's internal clone measures flow height, and a
+  // fixed/absolute element contributes nothing to that, which silently
+  // produced a 0-height render.
+  pdfRoot.style.cssText = 'width:800px; opacity:0; pointer-events:none;';
+
+  const pages = [
+    buildPdfCoverPage(name, birthInputs),
+    buildPdfSummaryPage(chart, content),
+    buildPdfBodygraphPage(chart, structure),
+    buildPdfTypePage(chart, content),
+    buildPdfAuthorityPage(content),
+    buildPdfProfilePage(chart, content),
+    buildPdfDefinitionPage(chart, content),
+    ...Object.entries(content.centers).map(([key, info]) =>
+      buildPdfCenterPage(info, chart.centers[key])
+    ),
+    ...chart.definedChannels.map((ch) => buildPdfChannelPage(ch, content)),
+    ...chart.activeGates.map((g) => buildPdfGatePage(g, content)),
+    buildPdfCrossPage(chart, content),
+    buildPdfDetailsPage(chart),
+  ];
+  for (const html of pages) pdfRoot.appendChild(el(html));
+  document.body.appendChild(pdfRoot);
+  void pdfRoot.offsetHeight; // force layout before html2canvas measures it
 
   window.html2pdf()
     .set({
@@ -273,11 +449,12 @@ function downloadReportPDF(reportContent, name) {
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: { mode: ['css', 'avoid-all'] },
     })
-    .from(reportContent)
+    .from(pdfRoot)
     .save()
     .finally(() => {
       btn.textContent = originalLabel;
       btn.disabled = false;
+      pdfRoot.remove();
     });
 }
 
