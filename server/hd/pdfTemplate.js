@@ -446,6 +446,12 @@ export function buildReportHtml(chart, content, structure, name, birthInputs, in
      on-screen chrome (header/form/nav) exists in this document at all. */
   body { padding: 0; }
   .report-page:last-child { break-after: auto; page-break-after: auto; }
+  /* Blurred box-shadows are expensive to rasterize and repeated on every
+     one of 56 pages measurably slowed rendering on Render's constrained
+     CPU (page.pdf() alone took 45 of 54 total seconds) - a shadow also
+     adds nothing meaningful to a printed page the way it does as a
+     screen-UI affordance, so it's dropped here rather than tuned. */
+  .report-page { box-shadow: none !important; }
 </style>
 </head>
 <body>
