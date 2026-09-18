@@ -153,7 +153,17 @@ app.get('/api/report.pdf', async (req, res) => {
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'networkidle0' });
+    // 'domcontentloaded' resolves as soon as our own inline HTML/CSS is
+    // parsed — it doesn't wait on the external Google Fonts request, which
+    // was timing out 'networkidle0' entirely. Instead, wait specifically
+    // for font loading (with its own short timeout, since this is a nice-
+    // to-have: the fallback serif font is perfectly readable if Google
+    // Fonts is ever slow or unreachable from Render's network).
+    await page.setContent(html, { waitUntil: 'domcontentloaded' });
+    await Promise.race([
+      page.evaluateHandle('document.fonts.ready'),
+      new Promise((resolve) => setTimeout(resolve, 5000)),
+    ]);
     const pdfBuffer = await page.pdf({
       format: 'a4',
       printBackground: true,
