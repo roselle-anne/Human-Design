@@ -12,6 +12,8 @@ export const TYPES = {
     aura: 'Open, enveloping',
     summary:
       "Generators carry the life-force energy of the design and are built to do work that lights them up. Rather than initiating from the head, a Generator's sacral center responds — a gut-level yes or no — to what shows up in front of them. Following that response, moment to moment, leads toward satisfying work; overriding it and pushing forward on willpower alone breeds frustration.",
+    shortSummary:
+      'Generators are the sustainable life-force of the population, built to work steadily and see things through once truly engaged. Their strategy is to respond rather than initiate, and their growth edge is learning to trust that response before committing to anything.',
   },
   'Manifesting Generator': {
     population: '~33%',
@@ -21,6 +23,8 @@ export const TYPES = {
     aura: 'Open, enveloping',
     summary:
       'Manifesting Generators are Generators with an additional direct channel from a motor to the throat, giving them a faster, multi-track way of moving through life. They still need to respond before acting, but once they respond they often move quickly, skip steps, and juggle several things at once. Informing the people affected before acting smooths the path, since their speed can otherwise catch others off guard.',
+    shortSummary:
+      "Manifesting Generators combine a Generator's sacral energy with a Manifestor's speed, often moving through multiple things at once. They respond first, then move quickly — and do best when they inform others before changing course.",
   },
   Manifestor: {
     population: '~9%',
@@ -30,6 +34,8 @@ export const TYPES = {
     aura: 'Closed, repelling',
     summary:
       'Manifestors are built to initiate — to start things that ripple out and involve other people, without waiting for an invitation. Their aura is naturally closed and can feel unpredictable to others, which is exactly why informing the people an action will affect, before taking it, is their strategy: it lowers resistance and clears the path for their impact to land as peace rather than conflict.',
+    shortSummary:
+      'Manifestors are here to initiate and act independently, often without waiting for permission. Their edge is learning to inform the people affected before they act, which turns resistance into ease.',
   },
   Projector: {
     population: '~20%',
@@ -39,6 +45,8 @@ export const TYPES = {
     aura: 'Focused, absorbing',
     summary:
       "Projectors are here to guide, direct, and see systems and people clearly — not to generate constant output. Their aura absorbs and focuses the energy of others rather than sustaining its own, so working like a Generator tends to exhaust them. Recognition and invitation — into conversation, work, or relationship — are what let a Projector's insight actually be heard, turning potential bitterness at being overlooked into real success.",
+    shortSummary:
+      "Projectors are natural guides who see systems and people clearly, but aren't built to generate constant output. Their success depends on being recognized and invited, rather than pushing their insight forward uninvited.",
   },
   Reflector: {
     population: '~1%',
@@ -48,8 +56,27 @@ export const TYPES = {
     aura: 'Sampling, resistant',
     summary:
       'Reflectors have no centers consistently defined, so they sample and mirror the energy of whoever and wherever they are, making them uniquely sensitive barometers of the people and environments around them. Because their own sense of self shifts with the ~28-day lunar cycle, decisions deserve that much time to settle before acting, rather than being made in the moment.',
+    shortSummary:
+      'Reflectors mirror the health of whatever environment they\'re in, with no fixed energy type of their own. Their wisdom lies in giving big decisions a full lunar cycle before acting on them.',
   },
 };
+
+// Short one-line descriptions shown on each major section's title/divider
+// page, and the general (not chart-specific) intro to Human Design shown
+// before the chart itself. Original writing for this tool.
+export const SECTION_INTROS = {
+  Type: 'How you engage with your environment and interact with others, based on your specific energetic signature and strategy.',
+  Authority: 'How you make aligned decisions — the specific inner sense that lets you know what\'s right for you, moment to moment.',
+  Profile: 'The role you play and the lens you see through, shaped by the two lines that describe your conscious and unconscious approach to life.',
+  Definition: 'How the defined parts of your chart connect to each other — and how open you are to being completed by other people.',
+};
+
+export const HD_INTRO_PARAGRAPHS = [
+  'Human Design is a synthesis system that combines Western astrology, the I Ching, the Kabbalistic Tree of Life, the Hindu-Brahmin chakra system, and concepts from modern genetics and quantum physics into a single framework for understanding individual difference. It was brought forward by Ra Uru Hu in 1987, and has since grown into a widely used tool for self-knowledge.',
+  'At its center is the idea that each person is born with a unique energetic blueprint, calculated from the exact date, time, and place of birth — the same information astrology uses, read through a different lens. That blueprint, called a bodygraph, maps out a specific Type, Strategy, Authority, Profile, and set of defined and undefined centers unique to that person.',
+  "Rather than offering generic advice, Human Design describes how an individual is specifically built to make decisions, use energy, and interact with others — and where they're prone to picking up conditioning that isn't really their own. Working with a chart is less about following new rules and more about noticing the difference between what comes naturally and what has been learned or absorbed from other people.",
+  'This report walks through your own chart in detail: your Type and Strategy, your decision-making Authority, your Profile, the definition running through your centers, and the specific gates and channels activated in your design.',
+];
 
 export const AUTHORITIES = {
   Emotional: {

@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer';
 import { calculateChart } from './hd/calculate.js';
 import { CENTERS, CHANNELS } from './hd/structure.js';
-import { TYPES, AUTHORITIES, CENTERS_INFO, CENTER_DEEP_DIVE, GATES, GATE_DEEP_DIVE, CHANNEL_THEMES, DEFINITION_INFO, PROFILE_LINES, profileDescription } from './hd/content.js';
+import { TYPES, AUTHORITIES, CENTERS_INFO, CENTER_DEEP_DIVE, GATES, GATE_DEEP_DIVE, CHANNEL_THEMES, DEFINITION_INFO, PROFILE_LINES, SECTION_INTROS, HD_INTRO_PARAGRAPHS, profileDescription } from './hd/content.js';
 import { buildReportHtml } from './hd/pdfTemplate.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -81,6 +81,8 @@ async function buildChartAndContent(birthUTC) {
     channelThemes: CHANNEL_THEMES,
     definitionInfo: DEFINITION_INFO,
     profileLines: PROFILE_LINES,
+    sectionIntros: SECTION_INTROS,
+    hdIntroParagraphs: HD_INTRO_PARAGRAPHS,
     typeInfo: TYPES[chart.type],
     authorityInfo: AUTHORITIES[chart.authority],
     definitionInfoForChart: DEFINITION_INFO[chart.definition],

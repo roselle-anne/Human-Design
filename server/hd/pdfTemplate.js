@@ -42,6 +42,13 @@ function shapePath({ x, y, shape, w, h }) {
   }
 }
 
+// Which side of each center's shape to print its active gate numbers on,
+// chosen per position so the labels point away from neighboring shapes.
+const GATE_LABEL_SIDE = {
+  Head: 'right', Ajna: 'right', Throat: 'right', G: 'right', Sacral: 'right',
+  Root: 'right', Heart: 'right', SolarPlexus: 'right', Spleen: 'left',
+};
+
 function buildBodygraph(chart, structure) {
   const definedGatePairKeys = new Set(
     chart.definedChannels.map((c) => c.centers.slice().sort().join('|'))
@@ -60,10 +67,69 @@ function buildBodygraph(chart, structure) {
       <text x="${pos.x}" y="${pos.y + 3}" text-anchor="middle" font-size="${label.length > 6 ? 8 : 10}" fill="${defined ? '#FFFFFF' : '#8A7A72'}">${label}</text>`;
   }).join('\n');
 
+  // Small active-gate-number labels just outside each center, grouped 3
+  // per line so a busy center (e.g. Root with several active gates)
+  // doesn't overrun its neighbors.
+  const gateLabels = Object.entries(CENTER_POS).map(([name, pos]) => {
+    const activeInCenter = chart.activeGates
+      .filter((g) => g.center === name)
+      .map((g) => g.gate)
+      .sort((a, b) => a - b);
+    if (activeInCenter.length === 0) return '';
+    const side = GATE_LABEL_SIDE[name];
+    const hw = pos.w / 2;
+    const anchorX = side === 'left' ? pos.x - hw - 6 : pos.x + hw + 6;
+    const textAnchor = side === 'left' ? 'end' : 'start';
+    const rows = [];
+    for (let i = 0; i < activeInCenter.length; i += 3) {
+      rows.push(activeInCenter.slice(i, i + 3).join(' '));
+    }
+    const startY = pos.y - ((rows.length - 1) * 7) / 2;
+    const tspans = rows
+      .map((row, i) => `<tspan x="${anchorX}" y="${startY + i * 7}">${row}</tspan>`)
+      .join('');
+    return `<text text-anchor="${textAnchor}" font-size="6.5" fill="#8A7A72">${tspans}</text>`;
+  }).join('\n');
+
   return `<svg viewBox="0 0 400 540" width="380" height="513">
     ${lines}
     ${shapes}
+    ${gateLabels}
   </svg>`;
+}
+
+const PLANET_GLYPHS = {
+  Sun: '☉', Earth: '⊕', Moon: '☽', NorthNode: '☊',
+  SouthNode: '☋', Mercury: '☿', Venus: '♀', Mars: '♂',
+  Jupiter: '♃', Saturn: '♄', Uranus: '♅', Neptune: '♆',
+  Pluto: '♇',
+};
+const PLANET_LABELS = {
+  Sun: 'Sun', Earth: 'Earth', Moon: 'Moon', NorthNode: 'N. Node',
+  SouthNode: 'S. Node', Mercury: 'Mercury', Venus: 'Venus', Mars: 'Mars',
+  Jupiter: 'Jupiter', Saturn: 'Saturn', Uranus: 'Uranus', Neptune: 'Neptune',
+  Pluto: 'Pluto',
+};
+const BODY_ORDER = [
+  'Sun', 'Earth', 'Moon', 'NorthNode', 'SouthNode', 'Mercury', 'Venus',
+  'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto',
+];
+const ZODIAC_GLYPHS = ['♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓'];
+const ZODIAC_NAMES = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
+
+function planetColumn(activations, sideClass) {
+  const rows = BODY_ORDER.map((body) => {
+    const a = activations.find((x) => x.body === body);
+    if (!a) return '';
+    const signIndex = Math.floor(a.longitude / 30);
+    const degreeInSign = (a.longitude % 30).toFixed(1);
+    return `<div class="planet-row">
+      <span class="planet-icon ${sideClass}">${PLANET_GLYPHS[body]}</span>
+      <span class="planet-name">${PLANET_LABELS[body]}</span>
+      <span class="planet-degree">${degreeInSign}&deg; ${ZODIAC_GLYPHS[signIndex]} ${ZODIAC_NAMES[signIndex]}</span>
+    </div>`;
+  });
+  return `<div class="planet-column">${rows.join('')}</div>`;
 }
 
 function buildCoverPage(name, birthInputs, logoUrl) {
@@ -86,34 +152,83 @@ function buildCoverPage(name, birthInputs, logoUrl) {
   </div>`;
 }
 
-function buildSummaryPage(chart, content) {
+function buildIntroPage(content) {
   return `<div class="report-page center-text">
-    <div class="page-eyebrow">At a Glance</div>
-    <h1 class="page-title">Your Chart Summary</h1>
-    <div class="summary-grid">
-      ${['Type', 'Profile', 'Authority', 'Definition'].map((label) => `
-        <div class="summary-card">
-          <div class="label">${label}</div>
-          <div class="value">${chart[label.toLowerCase()]}</div>
-        </div>`).join('')}
-      <div class="summary-card"><div class="label">Strategy</div><div class="value">${content.typeInfo.strategy}</div></div>
-      <div class="summary-card"><div class="label">Signature / Not-Self</div><div class="value">${content.typeInfo.signature} / ${content.typeInfo.notSelf}</div></div>
+    <div class="page-eyebrow">An Introduction</div>
+    <h1 class="page-title">Human Design</h1>
+    <div class="page-body intro-body">
+      ${content.hdIntroParagraphs.map((p) => `<p>${p}</p>`).join('')}
     </div>
   </div>`;
 }
 
-function buildBodygraphPage(chart, structure) {
-  return `<div class="report-page center-text">
-    <div class="page-eyebrow">Your Bodygraph</div>
-    <h1 class="page-title">The Chart</h1>
-    <div class="bodygraph-wrap centered">
-      <div>${buildBodygraph(chart, structure)}</div>
+function buildChartPage(chart, structure, name, birthInputs) {
+  const birthDateFormatted = new Date(`${birthInputs.date}T00:00:00`).toLocaleDateString('en-US', {
+    year: 'numeric', month: 'long', day: 'numeric',
+  });
+  return `<div class="report-page chart-page">
+    <h1 class="page-title">Human Design Chart</h1>
+    <div class="chart-layout">
+      ${planetColumn(chart.personality, 'personality')}
+      <div class="chart-center">${buildBodygraph(chart, structure)}</div>
+      ${planetColumn(chart.designActivations, 'design')}
     </div>
     <div class="legend centered">
       <div><span class="dot" style="background:#158EA4"></span>Defined</div>
       <div><span class="dot" style="background:#E4D6CE"></span>Undefined</div>
     </div>
-    <p class="page-footnote">Centers and connecting channels are colored by definition. Exact gate numbers and channel names follow in this report.</p>
+    <div class="chart-footer">
+      ${name ? `<div class="chart-name">${name}</div>` : ''}
+      <div class="chart-date">${birthDateFormatted}${birthInputs.time ? ` @ ${birthInputs.time}` : ''}</div>
+    </div>
+  </div>`;
+}
+
+function buildUserDetailsPage(chart, content, name, birthInputs) {
+  const birthDateFormatted = new Date(`${birthInputs.date}T00:00:00`).toLocaleDateString('en-US', {
+    year: 'numeric', month: 'long', day: 'numeric',
+  });
+  const cross = chart.incarnationCross;
+  const rows = [
+    ['Birth date', `${birthDateFormatted} @ ${birthInputs.time}`],
+    ['Type', chart.type],
+    ['Signature', content.typeInfo.signature],
+    ['Not-Self', content.typeInfo.notSelf],
+    ['Strategy', content.typeInfo.strategy],
+    ['Authority', chart.authority],
+    ['Profile', chart.profile],
+    ['Definition', chart.definition],
+  ];
+  return `<div class="report-page center-text">
+    <h1 class="page-title">${name || 'Your'}${name ? "'s" : ''} Details</h1>
+    <div class="details-list">
+      ${rows.map(([label, value]) => `
+        <div class="detail-row">
+          <span class="detail-label">${label}</span>
+          <span class="detail-value">${value}</span>
+        </div>`).join('')}
+      <div class="detail-row detail-row-cross">
+        <span class="detail-label">Incarnation Cross</span>
+        <span class="detail-value">Gates ${cross.personalitySunGate}/${cross.personalityEarthGate} | ${cross.designSunGate}/${cross.designEarthGate}</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function buildFiveTypesOverviewPage(content) {
+  return `<div class="report-page center-text">
+    <div class="page-eyebrow">Overview</div>
+    <h1 class="page-title">The Five Energy Types</h1>
+    <div class="types-list">
+      ${Object.entries(content.types).map(([typeName, info]) => `
+        <div class="type-row">
+          <div class="type-row-header">
+            <span class="type-name">${typeName}</span>
+            <span class="type-pop">${info.population}</span>
+          </div>
+          <p>${info.shortSummary}</p>
+        </div>`).join('')}
+    </div>
   </div>`;
 }
 
@@ -272,15 +387,21 @@ function buildDetailsPage(chart) {
 export function buildReportHtml(chart, content, structure, name, birthInputs, inlineCss, logoUrl) {
   const pages = [
     buildCoverPage(name, birthInputs, logoUrl),
-    buildSummaryPage(chart, content),
-    buildBodygraphPage(chart, structure),
+    buildIntroPage(content),
+    buildChartPage(chart, structure, name, birthInputs),
+    buildUserDetailsPage(chart, content, name, birthInputs),
+    buildChapterPage('', 'Type', content.sectionIntros.Type),
+    buildFiveTypesOverviewPage(content),
     buildTypeOverviewPage(chart, content),
     buildStrategyPage(content),
     buildSignatureQuotePage(content),
+    buildChapterPage('', 'Authority', content.sectionIntros.Authority),
     buildAuthorityPage(content),
+    buildChapterPage('', 'Profile', content.sectionIntros.Profile),
     buildProfilePage(chart, content),
     buildProfileLinePage(Number(chart.profile.split('/')[0]), 'Conscious Line', content),
     buildProfileLinePage(Number(chart.profile.split('/')[1]), 'Unconscious Line', content),
+    buildChapterPage('', 'Definition', content.sectionIntros.Definition),
     buildDefinitionPage(chart, content),
     buildChapterPage(
       'Your Centers',
