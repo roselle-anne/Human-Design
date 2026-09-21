@@ -63,14 +63,14 @@ function gateGrid(gates, cx, cy, colsMax = 3, rowGap = 26, colGap = 32) {
 }
 
 // An activated gate's number is stamped in a solid circle badge, colored by
-// which side(s) activated it: gold for Personality (conscious) only, dark
+// which side(s) activated it: teal for Personality (conscious) only, dark
 // navy for Design (unconscious) only, charcoal when both sides activate it —
-// echoing the gold/navy split used for the planetary columns beside the chart.
+// echoing the teal/navy split used for the planetary columns beside the chart.
 function badgeColor(sides) {
   const hasPersonality = sides.includes('personality');
   const hasDesign = sides.includes('design');
   if (hasPersonality && hasDesign) return '#222222';
-  if (hasPersonality) return '#C9A24A';
+  if (hasPersonality) return '#158EA4';
   return '#2C3E66';
 }
 
@@ -123,7 +123,7 @@ function miniCenterIcon(centerName, gates) {
     .map(({ gate, x, y }) => `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#FFFFFF">${gate}</text>`)
     .join('\n');
   return `<svg viewBox="0 0 120 90" class="center-hero-icon-svg">
-    <path d="${shapePath(pos)}" fill="none" stroke="#C9A24A" stroke-width="3" />
+    <path d="${shapePath(pos)}" fill="none" stroke="#158EA4" stroke-width="3" />
     ${numbers}
   </svg>`;
 }
@@ -139,13 +139,13 @@ const MAP_LABELS = {
 function buildCentersMapPage() {
   const lines = CENTER_PAIRS.map(([a, b]) => {
     const A = CENTER_POS[a], B = CENTER_POS[b];
-    return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="#C9A24A" stroke-width="3" opacity="0.75" />`;
+    return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="#158EA4" stroke-width="3" opacity="0.75" />`;
   }).join('\n');
 
   const shapes = Object.entries(CENTER_POS).map(([name, pos]) => {
     const label = MAP_LABELS[name];
     const fontSize = label.length > 8 ? 10.5 : 13;
-    return `<path d="${shapePath(pos)}" fill="#C9A24A" stroke="#FFFFFF" stroke-width="1.5" />
+    return `<path d="${shapePath(pos)}" fill="#158EA4" stroke="#FFFFFF" stroke-width="1.5" />
       <text x="${pos.x}" y="${pos.y + 4}" text-anchor="middle" font-size="${fontSize}" font-weight="600" fill="#2A1E14">${label}</text>`;
   }).join('\n');
 
@@ -432,10 +432,13 @@ function buildProfileLinePage(lineNumber, eyebrow, content) {
 
 function buildDefinitionPage(chart, content) {
   const info = content.definitionInfoForChart;
+  const paragraphs = info?.paragraphs?.length ? info.paragraphs : (info ? [info.summary] : []);
   return `<div class="report-page center-text">
     <div class="page-eyebrow">Definition</div>
     <h1 class="page-title">${chart.definition}</h1>
-    <p class="page-body">${info ? info.summary : ''}</p>
+    <div class="page-body">
+      ${paragraphs.map((p) => `<p>${p}</p>`).join('')}
+    </div>
   </div>`;
 }
 
@@ -473,40 +476,159 @@ function buildCenterPage(key, info, defined, content, structure) {
   </div>`;
 }
 
-function buildChannelPage(ch, content) {
-  const theme = content.channelThemes[`${ch.gates[0]}-${ch.gates[1]}`] || '';
-  return `<div class="report-page center-text quote-page">
-    <div class="quote-mark">&ldquo;</div>
-    <div class="page-eyebrow">Channel ${ch.gates[0]}&ndash;${ch.gates[1]}</div>
-    <h1 class="page-title">${ch.name}</h1>
-    <p class="page-stats">${ch.centers[0]} &harr; ${ch.centers[1]}</p>
-    <p class="page-body">${theme}</p>
+function sparkleIcon(size = 18) {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" class="sparkle-icon"><path d="M12 0 L14 10 L24 12 L14 14 L12 24 L10 14 L0 12 L10 10 Z" fill="#158EA4"/></svg>`;
+}
+
+function shapeBBox(pos) {
+  return [pos.x - pos.w / 2, pos.y - pos.h / 2, pos.x + pos.w / 2, pos.y + pos.h / 2];
+}
+
+// A compact "symbol" for a channel's report page: just the two centers it
+// connects (with their own full gate lists, badged the same way as the main
+// chart) and the connecting line — a focused crop of the full bodygraph.
+function miniChannelDiagram(ch, chart, structure) {
+  const [nameA, nameB] = ch.centers;
+  const posA = CENTER_POS[nameA];
+  const posB = CENTER_POS[nameB];
+  const activeGateSides = Object.fromEntries(chart.activeGates.map((g) => [g.gate, g.sides]));
+
+  const cellsA = gateGrid(structure.centers[nameA].gates, posA.x, posA.y, 3, 22, 28);
+  const cellsB = gateGrid(structure.centers[nameB].gates, posB.x, posB.y, 3, 22, 28);
+  const allCells = [...cellsA, ...cellsB];
+
+  const [ax0, ay0, ax1, ay1] = shapeBBox(posA);
+  const [bx0, by0, bx1, by1] = shapeBBox(posB);
+  const pad = 20;
+  const minX = Math.min(ax0, bx0, ...allCells.map((c) => c.x)) - pad;
+  const maxX = Math.max(ax1, bx1, ...allCells.map((c) => c.x)) + pad;
+  const minY = Math.min(ay0, by0, ...allCells.map((c) => c.y)) - pad;
+  const maxY = Math.max(ay1, by1, ...allCells.map((c) => c.y)) + pad;
+  const w = maxX - minX;
+  const h = maxY - minY;
+
+  const line = `<line x1="${posA.x}" y1="${posA.y}" x2="${posB.x}" y2="${posB.y}" stroke="#222222" stroke-width="5" />`;
+  const shapes = [posA, posB]
+    .map((pos) => `<path d="${shapePath(pos)}" fill="#F4CEBF" stroke="#E6B1A1" stroke-width="1.5" />`)
+    .join('\n');
+  const labels = allCells.map(({ gate, x, y }) => gateLabel(gate, x, y, activeGateSides[gate])).join('\n');
+
+  return `<svg viewBox="${minX} ${minY} ${w} ${h}" width="230" height="${Math.round((230 * h) / w)}">
+    ${line}
+    ${shapes}
+    ${labels}
+  </svg>`;
+}
+
+function buildChannelPage(ch, content, chart, structure) {
+  const key = `${ch.gates[0]}-${ch.gates[1]}`;
+  const detail = content.channelDetail[key];
+  const paragraphs = detail?.paragraphs?.length ? detail.paragraphs : [content.channelThemes[key] || ''];
+  const quote = detail?.quote || content.channelThemes[key] || '';
+  return `<div class="report-page channel-page">
+    <div class="channel-eyebrow-row">
+      ${sparkleIcon()}
+      <div class="page-eyebrow">Channel ${ch.gates[0]}&ndash;${ch.gates[1]}</div>
+      ${sparkleIcon()}
+    </div>
+    <h1 class="page-title channel-title">${ch.name}</h1>
+    <div class="channel-sparkle-divider">${sparkleIcon(20)}</div>
+    <div class="page-body channel-body">
+      ${paragraphs.map((p) => `<p>${p}</p>`).join('')}
+    </div>
+    <div class="channel-footer">
+      <div class="channel-diagram">${miniChannelDiagram(ch, chart, structure)}</div>
+      <div class="channel-quote">
+        <p>${quote}</p>
+        <div class="channel-quote-mark">&rdquo;</div>
+      </div>
+    </div>
   </div>`;
 }
 
-function buildGatePage(g, content) {
+// A gate's own "symbol" for its hero banner: a mini icon of the shape of
+// the center it belongs to (verified, drawn straight from our own gate/
+// center data), with this specific gate picked out among its neighbors —
+// deliberately not an I Ching hexagram glyph, since we can't independently
+// verify a hexagram line-pattern dataset for all 64 gates with confidence,
+// the same reasoning that keeps the Incarnation Cross page from asserting
+// an unverified named cross.
+function miniGateIcon(centerName, gates, highlightGate) {
+  const shape = CENTER_POS[centerName].shape;
+  const pos = { x: 60, y: 45, shape, w: 92, h: 64 };
+  const numbers = gateGrid(gates, pos.x, pos.y, 3, 15, 20)
+    .map(({ gate, x, y }) => {
+      if (gate === highlightGate) {
+        return `<circle cx="${x}" cy="${y}" r="9" fill="#158EA4" /><text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="9" fill="#FFFFFF" font-weight="600">${gate}</text>`;
+      }
+      return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#FFFFFF" opacity="0.55">${gate}</text>`;
+    })
+    .join('\n');
+  return `<svg viewBox="0 0 120 90" class="center-hero-icon-svg">
+    <path d="${shapePath(pos)}" fill="none" stroke="#158EA4" stroke-width="3" />
+    ${numbers}
+  </svg>`;
+}
+
+function buildGatePage(g, content, structure) {
   const info = content.gates[g.gate];
   const deepDive = content.gateDeepDive[g.gate];
+  const detail = content.gateDetail[g.gate];
   return `<div class="report-page center-text gate-page">
-    <div class="page-eyebrow">Gate ${g.gate} &middot; ${g.center}</div>
-    <h1 class="page-title">${info.name}</h1>
+    <div class="center-hero">
+      <span class="center-hero-icon">${miniGateIcon(g.center, structure.centers[g.center].gates, g.gate)}</span>
+      <div class="center-hero-text">
+        <h1>${info.name}</h1>
+        <p class="center-hero-state">Gate ${g.gate} &middot; ${g.center}</p>
+      </div>
+    </div>
     <p class="page-stats">
       ${g.sides.map((s) => `<span class="side-badge ${s}">${s === 'personality' ? 'Personality' : 'Design'}</span>`).join(' ')}
     </p>
     <p class="page-body"><strong>${info.keynote}</strong></p>
     ${deepDive ? `<p class="page-body">${deepDive}</p>` : ''}
+    ${detail?.affirmations?.length ? `
+    <div class="deep-dive">
+      <div class="deep-dive-block">
+        <div class="deep-dive-label">Affirmations</div>
+        <ul class="affirmations">
+          ${detail.affirmations.map((a) => `<li>${a}</li>`).join('')}
+        </ul>
+      </div>
+    </div>` : ''}
   </div>`;
 }
 
+// The Incarnation Cross is interpreted from the four gates it's actually
+// built from (each already backed by a verified name/keynote elsewhere in
+// this report), rather than asserting one of the traditional named crosses
+// (e.g. "Right Angle Cross of..."). That naming system depends on an
+// angle/profile classification rule we can't independently verify as
+// correct across every profile combination, so — as with the rest of this
+// report — we interpret only what we can calculate and confirm.
 function buildCrossPage(chart, content) {
-  return `<div class="report-page center-text">
-    <div class="page-eyebrow">Incarnation Cross</div>
-    <h1 class="page-title">Your Life's Work</h1>
-    <p class="page-body">Formed by the Sun and Earth gates of your Personality and Design, shaped by your ${chart.profile} profile.</p>
+  const cross = chart.incarnationCross;
+  const pSun = content.gates[cross.personalitySunGate];
+  const pEarth = content.gates[cross.personalityEarthGate];
+  const dSun = content.gates[cross.designSunGate];
+  const dEarth = content.gates[cross.designEarthGate];
+  const trim = (s) => s.replace(/\.$/, '').toLowerCase();
+  return `<div class="report-page cross-page">
+    <div class="cross-hero">
+      <div class="page-eyebrow">Incarnation Cross</div>
+      <h1 class="report-title">Your Life's Work</h1>
+      <p class="report-subject">Gates ${cross.personalitySunGate}/${cross.personalityEarthGate} &middot; ${cross.designSunGate}/${cross.designEarthGate}</p>
+    </div>
+    <div class="page-body cross-body">
+      <p>Your Incarnation Cross is carried by four gates: consciously, the Sun in Gate ${cross.personalitySunGate} (${pSun.name}) opposite the Earth in Gate ${cross.personalityEarthGate} (${pEarth.name}); unconsciously, the Sun in Gate ${cross.designSunGate} (${dSun.name}) opposite the Earth in Gate ${cross.designEarthGate} (${dEarth.name}).</p>
+      <p>Consciously, you are here to work with the theme of ${trim(pSun.keynote)}, grounded and made practical through ${trim(pEarth.keynote)}. This is the half of your life's work you can name for yourself and speak to directly.</p>
+      <p>Underneath, your unconscious design carries ${trim(dSun.keynote)}, balanced by ${trim(dEarth.keynote)}. This half runs quietly in the background — other people often notice it in you well before you notice it yourself, and it shapes your life's work just as much as the conscious half does.</p>
+      <p>Together, shaped by your ${chart.profile} profile, these four gates describe a specific, non-repeatable role: not a job title, but a current running through everything you do, whether or not you ever put a name to it.</p>
+    </div>
     <table class="gates-table centered-table">
       <tr><th></th><th>Sun Gate</th><th>Earth Gate</th></tr>
-      <tr><td>Personality (conscious)</td><td>${chart.incarnationCross.personalitySunGate} — ${content.gates[chart.incarnationCross.personalitySunGate].name}</td><td>${chart.incarnationCross.personalityEarthGate} — ${content.gates[chart.incarnationCross.personalityEarthGate].name}</td></tr>
-      <tr><td>Design (unconscious)</td><td>${chart.incarnationCross.designSunGate} — ${content.gates[chart.incarnationCross.designSunGate].name}</td><td>${chart.incarnationCross.designEarthGate} — ${content.gates[chart.incarnationCross.designEarthGate].name}</td></tr>
+      <tr><td>Personality (conscious)</td><td>${cross.personalitySunGate} — ${pSun.name}</td><td>${cross.personalityEarthGate} — ${pEarth.name}</td></tr>
+      <tr><td>Design (unconscious)</td><td>${cross.designSunGate} — ${dSun.name}</td><td>${cross.designEarthGate} — ${dEarth.name}</td></tr>
     </table>
   </div>`;
 }
@@ -562,13 +684,13 @@ export function buildReportHtml(chart, content, structure, name, birthInputs, in
       'Understanding the Channels',
       'A channel forms when both gates at its two ends are activated, connecting two centers into a single, consistently defined circuit. Each channel carries its own theme — a fixed life-force current running through your design. The following pages cover each channel currently defined in your chart.'
     ),
-    ...chart.definedChannels.map((ch) => buildChannelPage(ch, content)),
+    ...chart.definedChannels.map((ch) => buildChannelPage(ch, content, chart, structure)),
     buildChapterPage(
       'Your Gates',
       'Understanding the Gates',
       "The 64 gates are the building blocks beneath every center and channel — each one a specific theme activated by a planet's position at your exact birth moment (conscious/Personality) or roughly 88 days earlier (unconscious/Design). The following pages cover every gate activated anywhere in your chart."
     ),
-    ...chart.activeGates.map((g) => buildGatePage(g, content)),
+    ...chart.activeGates.map((g) => buildGatePage(g, content, structure)),
     buildChapterPage(
       'Your Incarnation Cross',
       "The Cross of Your Life's Work",

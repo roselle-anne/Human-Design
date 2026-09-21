@@ -828,6 +828,76 @@ export const GATES = {
 
 // Paragraph-length deep dives for each of the 64 gates, expanding on the
 // one-line keynotes above. Original writing for this tool.
+// Two short affirmations per gate, grounded in that gate's own keynote
+// above — used on each gate's report page, in the same "Affirmations"
+// format already used on the center pages.
+export const GATE_DETAIL = {
+  1: { affirmations: ['My creative expression doesn\'t need anyone\'s permission.', 'Being unmistakably myself is enough of a contribution.'] },
+  2: { affirmations: ['I trust the direction I sense before I can explain it.', 'I don\'t need to force a path — I can let it reveal itself.'] },
+  3: { affirmations: ['Chaos before order is part of my process, not a failure of it.', 'Every new form I build starts from something imperfect.'] },
+  4: { affirmations: ['My mind is allowed to answer, even when the answer is "I don\'t know yet."', 'A logical answer is worth the time it takes to actually find it.'] },
+  5: { affirmations: ['My rhythm doesn\'t need to match anyone else\'s.', 'Consistency is one of my quiet strengths.'] },
+  6: { affirmations: ['A little friction doesn\'t mean the bond is wrong.', 'I get to decide who and what gets close, and when.'] },
+  7: { affirmations: ['I can lead by example without needing to be in charge.', 'My influence is real even when it\'s quiet.'] },
+  8: { affirmations: ['My individual way of contributing is valuable exactly as it is.', 'Showing up as myself is its own kind of leadership.'] },
+  9: { affirmations: ['Small details are worth my full attention.', 'Staying focused is a strength, not a limitation.'] },
+  10: { affirmations: ['Loving myself is the foundation everything else is built on.', 'I\'m allowed to behave according to my own nature.'] },
+  11: { affirmations: ['Not every idea I have needs to become an action.', 'My ideas are worth gathering, even before I know what to do with them.'] },
+  12: { affirmations: ['I can wait for the right mood before I speak.', 'My caution about timing is wisdom, not hesitation.'] },
+  13: { affirmations: ['People trust me with their stories for a reason.', 'What I\'ve listened to becomes wisdom once I\'ve had time to reflect.'] },
+  14: { affirmations: ['My resourcefulness is real power in service of a direction.', 'I don\'t need to know the whole plan to keep moving skillfully.'] },
+  15: { affirmations: ['Every rhythm and way of living deserves room, including mine.', 'I don\'t need to judge a pace just because it\'s different from mine.'] },
+  16: { affirmations: ['Practice is how my enthusiasm becomes real skill.', 'It\'s okay to be a beginner at the thing I\'m excited about.'] },
+  17: { affirmations: ['My opinions are worth forming, even if I hold them loosely.', 'I can offer my perspective without needing everyone to agree.'] },
+  18: { affirmations: ['Wanting to improve something doesn\'t mean I think it\'s worthless.', 'My eye for what\'s flawed can come from care, not criticism.'] },
+  19: { affirmations: ['Noticing what others need is a real gift, not just sensitivity.', 'I\'m allowed to ask for what I need to feel resourced too.'] },
+  20: { affirmations: ['This present moment is enough to act from.', 'I don\'t need a rehearsed version of myself to show up honestly.'] },
+  21: { affirmations: ['Wanting control over my own domain is healthy, not controlling.', 'I can manage what\'s mine without needing to manage everyone else\'s.'] },
+  22: { affirmations: ['My emotional openness, well-timed, is a gift to the people around me.', 'Grace and honesty can coexist in how I express myself.'] },
+  23: { affirmations: ['My insight is worth the effort it takes to explain simply.', 'I can wait for the right moment to share what I understand.'] },
+  24: { affirmations: ['Circling back to a question isn\'t getting stuck — it\'s how I get clear.', 'The answer is allowed to take a few passes to arrive.'] },
+  25: { affirmations: ['My capacity to love isn\'t reserved for people who\'ve earned it.', 'I can offer unconditional care without losing myself in it.'] },
+  26: { affirmations: ['I can speak confidently about the value of what I\'ve done.', 'Trusting my read on people and patterns serves me well.'] },
+  27: { affirmations: ['Caring for others is one of my genuine strengths.', 'I can nourish others without abandoning my own needs.'] },
+  28: { affirmations: ['A worthwhile risk is one I get to choose for myself.', 'Meaning is often found on the other side of a real risk.'] },
+  29: { affirmations: ['My yes is worth something because I mean it fully.', 'I don\'t have to say yes to everything to know my commitment is real.'] },
+  30: { affirmations: ['My desires are information, not something to be ashamed of.', 'I can feel a longing fully without needing to act on it right away.'] },
+  31: { affirmations: ['My voice carries the most weight when I\'ve genuinely been asked to use it.', 'Being chosen to lead means more than appointing myself.'] },
+  32: { affirmations: ['My instinct for what will last is worth trusting.', 'Not everything needs to be preserved — only what\'s actually built to endure.'] },
+  33: { affirmations: ['Withdrawing to reflect isn\'t avoidance — it\'s preparation.', 'What I eventually share is worth more for having been considered first.'] },
+  34: { affirmations: ['My power is most effective when I respond rather than force it.', 'I don\'t need to justify the energy I naturally have.'] },
+  35: { affirmations: ['Wanting something new doesn\'t mean I\'m ungrateful for what I have.', 'Progress, even messy progress, is still progress.'] },
+  36: { affirmations: ['A turbulent experience can still be one worth having.', 'My emotional appetite for change is part of how I grow.'] },
+  37: { affirmations: ['Loyalty I give and loyalty I receive should feel balanced.', 'Warmth and reciprocity are things I\'m allowed to expect from my people.'] },
+  38: { affirmations: ['I get to choose what\'s actually worth fighting for.', 'My tenacity has a real purpose behind it.'] },
+  39: { affirmations: ['Testing the waters isn\'t the same as causing trouble.', 'I can provoke a real response without needing to apologize for it.'] },
+  40: { affirmations: ['I\'ve earned my rest through the work I\'ve actually done.', 'Needing time alone doesn\'t make me any less reliable.'] },
+  41: { affirmations: ['A new cycle is allowed to start as just a feeling, before it\'s a plan.', 'My imagination is the beginning of something, not a distraction from it.'] },
+  42: { affirmations: ['Letting a cycle finish fully is worth the patience it takes.', 'Completion is its own kind of growth.'] },
+  43: { affirmations: ['My insight doesn\'t need to make sense to everyone right away.', 'I can find simple words for what arrived to me all at once.'] },
+  44: { affirmations: ['My alertness to patterns from the past is useful, not paranoid.', 'I can trust what my instincts have already learned.'] },
+  45: { affirmations: ['I can hold responsibility for shared resources without apologizing for it.', 'Gathering people around a shared goal is a real skill.'] },
+  46: { affirmations: ['Being in this body, right here, is worth loving.', 'The right place tends to find me when I stay present.'] },
+  47: { affirmations: ['Confusion is just understanding that hasn\'t arrived yet.', 'I don\'t need every piece to make sense before I trust the process.'] },
+  48: { affirmations: ['My depth of knowledge is real, even when I doubt it.', 'Not feeling ready yet doesn\'t mean I\'m not capable.'] },
+  49: { affirmations: ['My sense of what\'s fair is worth honoring in every relationship.', 'Belonging that costs me my principles isn\'t belonging I need to keep.'] },
+  50: { affirmations: ['Holding a group to healthy values is a form of care.', 'My sense of responsibility helps keep the people around me safe.'] },
+  51: { affirmations: ['A jolt can be the exact thing that gets me moving.', 'I can meet a challenge on my own terms, first.'] },
+  52: { affirmations: ['Stillness isn\'t empty — it\'s where my clearest focus comes from.', 'I don\'t have to be in motion to be productive.'] },
+  53: { affirmations: ['Starting something is valuable, even if I\'m not the one who finishes it.', 'A new beginning doesn\'t need to be perfect to be worth starting.'] },
+  54: { affirmations: ['Wanting to rise and improve my circumstances is a healthy drive.', 'My ambition can be in service of something meaningful, not just status.'] },
+  55: { affirmations: ['My sense of abundance is allowed to rise and fall like a mood.', 'A low mood today doesn\'t erase what\'s actually true about my life.'] },
+  56: { affirmations: ['A good story is one of the most generous things I can offer.', 'My gift for stimulating others through experience is real.'] },
+  57: { affirmations: ['My instant intuitive read is worth trusting.', 'I don\'t need to overthink what I already know in the moment.'] },
+  58: { affirmations: ['My critical eye comes from real joy in things working well.', 'Wanting to improve something is a form of vitality, not negativity.'] },
+  59: { affirmations: ['Breaking down a barrier to real intimacy is worth the vulnerability.', 'Bonding, for me, is a genuine drive worth honoring.'] },
+  60: { affirmations: ['A limitation can be exactly what makes real innovation possible.', 'I don\'t need unlimited resources to create something new.'] },
+  61: { affirmations: ['Not every mystery needs to be solved right away.', 'My restless curiosity about the unexplainable is part of who I am.'] },
+  62: { affirmations: ['Getting the details right is a genuine skill, not just pickiness.', 'I can organize what I know into something clear and useful.'] },
+  63: { affirmations: ['My doubt is often what makes an answer trustworthy.', 'Questioning a pattern is how I make sure it actually holds up.'] },
+  64: { affirmations: ['My unprocessed impressions are the raw material for real understanding.', 'The pattern doesn\'t have to be obvious yet for it to eventually come.'] },
+};
+
 export const GATE_DEEP_DIVE = {
   1: "Gate 1 carries a need for genuine self-expression — not performance for approval, but putting something real and personally authored into the world. When this gate is active, creative output, in whatever form that takes, isn't optional self-indulgence; it's how identity actually gets metabolized and shared. Left unexpressed, it can curdle into a quiet frustration of feeling unseen; expressed, it becomes a magnetic, original signature that others recognize as unmistakably yours.",
   2: "This gate doesn't need to see the whole road to know it's headed the right way; it has a quiet, receptive certainty about direction that arrives before logic can explain it. That knowing works best when it isn't second-guessed into a five-year plan — direction here reveals itself one step at a time, trusted rather than mapped out in advance.",
@@ -936,26 +1006,304 @@ export const CHANNEL_THEMES = {
   '47-64': 'Confusion worked through until it resolves into sudden understanding.',
 };
 
+// Fuller, original two-paragraph treatments of each of the 36 channels,
+// plus a short pull-quote for the bottom of each channel's report page —
+// deeper than the one-line CHANNEL_THEMES above, used on the channel pages.
+export const CHANNEL_DETAIL = {
+  '1-8': {
+    paragraphs: [
+      'The channel of Inspiration connects a highly individual, creative self-expression (Gate 1) to a talent for modeling that expression in a way others can actually witness (Gate 8). Together they form a circuit built to influence purely by being visible — not by convincing anyone of anything.',
+      'You are not here to follow a crowd or to lead one through argument; you\'re here to do your own thing, distinctly and openly, and let the example itself do the work. People are moved by watching you be unmistakably yourself, which only works if you resist diluting your creative direction to fit in.',
+    ],
+    quote: 'Your example speaks louder than your explanation ever could.',
+  },
+  '2-14': {
+    paragraphs: [
+      'The channel of The Beat pairs a natural sense of direction (Gate 2) with the resourcefulness and drive to actually get there (Gate 14). It\'s a keynote circuit for the G Center and Sacral working together — knowing where to go, and having the fuel to move.',
+      'This combination makes you someone others quietly look to for orientation, even when you\'re not consciously offering guidance. The direction you sense isn\'t abstract; it\'s meant to be lived out through real, sustained work, which is where the Sacral energy of Gate 14 comes in to power the whole thing.',
+    ],
+    quote: 'You carry both the compass and the fuel to follow it.',
+  },
+  '3-60': {
+    paragraphs: [
+      'The channel of Mutation connects the drive toward innovation (Gate 3) with the discipline of working within real limits (Gate 60). Rather than fighting constraints, this circuit is built to transform through them — genuine newness tends to emerge only once a boundary forces a different approach.',
+      'Because both gates sit in motor centers, this energy isn\'t theoretical — it wants to be tested, tried, and refined in the real world, often through trial and error. Periods that feel restrictive are frequently the exact setup your design needs before the next mutation can land.',
+    ],
+    quote: 'Your limits are the pressure that makes the breakthrough possible.',
+  },
+  '4-63': {
+    paragraphs: [
+      'The channel of Logic joins a mind built to answer questions with a formula (Gate 4) to a mind built to doubt and re-examine existing patterns (Gate 63). Together they create a rigorous, mentally restless circuit that isn\'t satisfied until an answer has actually been tested against doubt.',
+      'This is thinking as a process of confident hypothesis followed by healthy suspicion — not anxiety, but genuine intellectual mutation. Your logical conclusions are usually sound, but they get sharper specifically because you\'re willing to question them rather than settle too early.',
+    ],
+    quote: 'A good answer is one that has survived being doubted.',
+  },
+  '5-15': {
+    paragraphs: [
+      'The channel of Rhythm links a fixed, personal sense of timing (Gate 5) with an extreme flexibility toward different rhythms and ways of living (Gate 15). The result is a steady internal beat that is nonetheless able to include and harmonize a wide range of people.',
+      'You operate best with routines and rituals that anchor your day, and that consistency becomes something others can set their own pace against. This channel\'s gift is bringing very different rhythms into a shared harmony without forcing everyone into a single timeline.',
+    ],
+    quote: 'Your steady rhythm gives everyone else room to find theirs.',
+  },
+  '6-59': {
+    paragraphs: [
+      'The channel of Mating connects emotional friction and boundary-testing (Gate 6) with a drive to break down barriers to real intimacy (Gate 59). It\'s a circuit built for bonding — but bonding that requires some friction first, not instant closeness.',
+      'The push and pull this channel creates isn\'t a flaw to fix; it\'s the actual mechanism by which trust gets tested and real intimacy becomes possible. Once the friction has done its work, the connection that remains tends to be genuinely durable.',
+    ],
+    quote: 'The friction isn\'t in the way of intimacy — it clears the path to it.',
+  },
+  '7-31': {
+    paragraphs: [
+      'The channel of the Alpha combines a role tied to the direction of a group or era (Gate 7) with an influential voice built to lead once genuinely recognized (Gate 31). This is a leadership circuit, but one that depends entirely on being chosen rather than self-appointed.',
+      'You carry a natural sense for the direction things ought to go, and the presence to speak to it — but only when the timing and recognition are actually there. Stepping forward before being invited tends to undercut the very authority this channel is built to carry.',
+    ],
+    quote: 'Real leadership here waits to be recognized before it speaks.',
+  },
+  '9-52': {
+    paragraphs: [
+      'The channel of Concentration pairs the ability to focus on fine detail (Gate 9) with a stillness that can hold that focus without fidgeting (Gate 52). Together they form a circuit built for sustained, quiet application to a single task.',
+      'This is patience with substance behind it — not passivity, but the discipline to stay with something small and specific until it\'s genuinely mastered. Environments or expectations that demand constant motion tend to work against this channel\'s real strength.',
+    ],
+    quote: 'Staying still on one thing is how you actually get it right.',
+  },
+  '10-20': {
+    paragraphs: [
+      'The channel of Awakening connects self-love and personal integrity (Gate 10) with the pressure to act and speak entirely in the present moment (Gate 20). It\'s a circuit for living your values out loud, right now, without waiting for permission or a better time.',
+      'There\'s no room here for rehearsal — this energy expresses itself instantly, which means your behavior in the moment is usually a direct, honest readout of who you actually are. That immediacy can be confronting to people who expect more filtering, but it\'s also deeply authentic.',
+    ],
+    quote: 'Right now is the only moment this channel knows how to live in.',
+  },
+  '10-34': {
+    paragraphs: [
+      'The channel of Exploration joins self-love and personal conviction (Gate 10) with raw, unstoppable Sacral power (Gate 34). This combination is often described as the "channel of the individual" — a strong, self-directed force that follows its own conviction independent of outside approval.',
+      'The power behind this channel is real, but it isn\'t random momentum; it\'s momentum in service of living according to your own values. When those two line up, very little can slow you down, and your independence tends to inspire rather than isolate you.',
+    ],
+    quote: 'Your power and your convictions move as one thing.',
+  },
+  '10-57': {
+    paragraphs: [
+      'The channel of Perfected Form links self-love (Gate 10) with instinctive, in-the-moment survival intuition (Gate 57). This pairing produces a refined sense for what genuinely belongs in your life and what to walk away from, guided by both values and instinct at once.',
+      'Because both gates deal with an authentic relationship to the present, this channel tends to sharpen with age — the more you trust it, the more precisely it separates what\'s actually good for you from what merely looks good.',
+    ],
+    quote: 'What belongs in your life reveals itself the moment you stop overthinking it.',
+  },
+  '11-56': {
+    paragraphs: [
+      'The channel of Curiosity connects a mind full of ideas and possibilities (Gate 11) with a gift for turning those ideas into stories others want to hear (Gate 56). It\'s a circuit built for sharing perspective — through narrative, teaching, or simply good conversation.',
+      'The ideas themselves matter less than the way they travel; this channel\'s real strength is translation, taking something conceptual and giving it a shape that holds someone else\'s attention. You\'re a natural collector and re-teller of experience.',
+    ],
+    quote: 'A good idea only really lands once it becomes a good story.',
+  },
+  '12-22': {
+    paragraphs: [
+      'The channel of Openness pairs a cautious, emotionally aware voice (Gate 12) with social grace and warmth (Gate 22). Together they create a circuit capable of real emotional expression — but only when the timing and mood genuinely feel right.',
+      'This isn\'t inconsistency; it\'s emotional intelligence. You sense exactly when a room is ready to hear something vulnerable or meaningful, and that discernment is what makes your openness, when it does show up, land so well.',
+    ],
+    quote: 'Your honesty is powerful because you know exactly when to offer it.',
+  },
+  '13-33': {
+    paragraphs: [
+      'The channel of the Prodigal connects a gift for listening and holding others\' confidences (Gate 13) with a need for periods of withdrawal before sharing what\'s been learned (Gate 33). This is a circuit built around retreat, reflection, and eventual disclosure.',
+      'People naturally confide in you, and over time you accumulate a wide, often quiet understanding of human experience. The retreat this channel needs isn\'t avoidance — it\'s processing time, and what eventually gets shared afterward tends to carry real, earned insight.',
+    ],
+    quote: 'What you eventually say is worth more for the silence that came before it.',
+  },
+  '16-48': {
+    paragraphs: [
+      'The channel of the Wavelength links enthusiastic, skill-building energy (Gate 16) with a deep well of natural talent and knowledge (Gate 48). It\'s the classic pairing of passion and depth — the drive to practice something combined with an instinct for when it\'s actually good enough.',
+      'The tension in this channel is real: enthusiasm wants to move fast, while the depth underneath knows mastery takes time. Respecting both sides — practicing with genuine excitement while trusting the slower process of true skill-building — is where this channel performs best.',
+    ],
+    quote: 'Enthusiasm gets you started; depth is what makes it last.',
+  },
+  '17-62': {
+    paragraphs: [
+      'The channel of Acceptance connects strong, organized opinions (Gate 17) with a gift for precise, detailed expression (Gate 62). Together they form a circuit built to turn a general viewpoint into something specific, well-supported, and genuinely useful to a group.',
+      'Your opinions carry weight because you back them with real detail rather than vague assertion, which is why others often turn to you for a clear read on a confusing situation. The key is timing that input for when it\'s actually been asked for.',
+    ],
+    quote: 'A well-organized opinion earns the trust a loud one never does.',
+  },
+  '18-58': {
+    paragraphs: [
+      'The channel of Judgment pairs a drive to identify and correct what\'s flawed (Gate 18) with a genuine, energetic joy in improvement itself (Gate 58). This circuit critiques not out of negativity but out of real delight in making something better.',
+      'When this channel is healthy, correction feels generous rather than harsh — you\'re pointing at a flaw because you can see exactly how good the fixed version could be. Without that joy attached, the same instinct can tip into criticism that lands as simply negative.',
+    ],
+    quote: 'You correct things because you can already see how good they could be.',
+  },
+  '19-49': {
+    paragraphs: [
+      'The channel of Synthesis connects sensitivity to what others need (Gate 19) with a strong sense of principle about what\'s fair and acceptable (Gate 49). It\'s a circuit for belonging — tuning into a group\'s needs while holding a real standard for how those needs get met.',
+      'You\'re genuinely attuned to the emotional and material needs of the people close to you, but that sensitivity is filtered through principle: needs get honored when the terms feel right, not automatically. This combination makes for meaningful, values-based belonging rather than people-pleasing.',
+    ],
+    quote: 'Belonging, for you, is built on fairness — not just closeness.',
+  },
+  '20-34': {
+    paragraphs: [
+      'The channel of Charisma joins present-moment awareness and expression (Gate 20) with raw Sacral power (Gate 34). This is one of the most immediately magnetic combinations in the bodygraph — action and presence fused together with no delay between the two.',
+      'What you do speaks for itself here, often before you\'ve consciously decided to make a statement. This channel doesn\'t need to explain its power; the power is visible in how you show up and respond, in real time, to whatever is happening around you.',
+    ],
+    quote: 'You don\'t announce your power — people simply notice it.',
+  },
+  '20-57': {
+    paragraphs: [
+      'The channel of the Brainwave connects present-moment awareness (Gate 20) with instinctive, in-the-moment intuition (Gate 57). Together they produce a kind of knowing that arrives instantly, almost like premonition, and is meant to be acted on immediately rather than analyzed.',
+      'This isn\'t a channel built for long deliberation; its gift is speed. The instinctive read you get in the moment is usually more accurate than anything you\'d arrive at by thinking it through slowly, which can make patience with your own snap judgments genuinely worthwhile.',
+    ],
+    quote: 'What you sense in the instant is often more reliable than what you\'d reason out later.',
+  },
+  '21-45': {
+    paragraphs: [
+      'The channel of Money links a drive for control over one\'s own domain (Gate 21) with a natural authority to gather people and resources around a shared material goal (Gate 45). It\'s a circuit for management — organizing what belongs to a group and directing it well.',
+      'This channel works best when you\'re given (or you claim) a clear area of responsibility to run, rather than being micromanaged inside someone else\'s territory. When that autonomy is respected, you\'re a genuinely capable steward of resources, whether financial, material, or organizational.',
+    ],
+    quote: 'Give this channel a domain to run, and it will run it well.',
+  },
+  '23-43': {
+    paragraphs: [
+      'The channel of Structuring pairs a sudden, individual flash of insight (Gate 43) with the ability to translate that insight into language others can actually follow (Gate 23). The insight itself can feel obvious to you and completely foreign to everyone else — this channel bridges that gap.',
+      'The real skill here is patience in translation: waiting until you\'ve found words simple and clear enough that your insight can actually land, rather than delivering it in a form only you understand. Done well, this channel turns individual genius into shared understanding.',
+    ],
+    quote: 'An insight only matters once someone else can understand it too.',
+  },
+  '24-61': {
+    paragraphs: [
+      'The channel of Awareness connects a mind that circles a question rationally (Gate 24) with a deep, internal pressure to know the unknowable (Gate 61). Together they form a circuit of genuine, repeated mental digging — returning to the same mystery until it finally resolves.',
+      'This isn\'t idle overthinking; it\'s a real process of rational thought slowly catching up to an intuitive inner truth. Give yourself permission to sit with a question across multiple passes rather than expecting instant clarity — the answer tends to arrive on its own schedule.',
+    ],
+    quote: 'The mystery isn\'t rushed — it resolves on its own timeline.',
+  },
+  '25-51': {
+    paragraphs: [
+      'The channel of Initiation pairs universal, unconditional love (Gate 25) with the shock and challenge that spark real growth (Gate 51). This circuit suggests that love, for you, is tested and proven through hardship rather than shielded from it.',
+      'Difficult, even shocking experiences aren\'t simply obstacles in this channel — they\'re initiations, moments that ask you to meet challenge directly and come out the other side more fully yourself. That resilience, once built, becomes a genuine source of inspiration for others facing their own trials.',
+    ],
+    quote: 'What nearly knocks you down is often what wakes you up.',
+  },
+  '26-44': {
+    paragraphs: [
+      'The channel of Surrender connects a talent for confident, persuasive presentation (Gate 26) with an instinctive sense for what has worked before and who can be trusted with it (Gate 44). It\'s a circuit built for marketing, sales, and preserving what\'s proven — not through pressure, but through quiet trust.',
+      'You\'re skilled at reading a person or a pattern and knowing what to do with that information, often before you can fully explain why. The "surrender" in this channel\'s name points to trusting that instinct rather than over-engineering the pitch.',
+    ],
+    quote: 'Trust what has already proven itself — and trust your read on who to share it with.',
+  },
+  '27-50': {
+    paragraphs: [
+      'The channel of Preservation links instinctive caretaking (Gate 27) with a strong sense of the values and principles that keep a community healthy (Gate 50). Together they form a circuit built around responsible nurturing — care that is genuinely accountable, not just generous.',
+      'You feel a real pull to look after others, but this channel also holds you (and the people you care for) to a standard: care that violates a core principle isn\'t actually care. That balance of warmth and accountability is what makes your support trustworthy.',
+    ],
+    quote: 'Real care holds a standard — it doesn\'t just give unconditionally.',
+  },
+  '28-38': {
+    paragraphs: [
+      'The channel of Struggle connects a search for what makes life worth the risk (Gate 28) with the willpower to fight for what genuinely matters (Gate 38). Struggle, in this channel, isn\'t a sign something has gone wrong — it\'s where purpose actually gets found.',
+      'You\'re built to test whether something is worth committing to by seeing what you\'re willing to fight for. A life with no resistance at all can leave this channel feeling adrift; a cause or commitment worth real effort is what brings it fully alive.',
+    ],
+    quote: 'You find out what matters by discovering what you\'re willing to fight for.',
+  },
+  '29-46': {
+    paragraphs: [
+      'The channel of Discovery pairs a capacity for total commitment (Gate 29) with a deep, embodied love of simply being alive in a physical form (Gate 46). This circuit is built for saying yes to experience fully, then discovering along the way — sometimes unexpectedly — that it was worth it.',
+      'Commitment here isn\'t calculated in advance; it\'s given first, and the payoff is often found in the actual living of it rather than in any guarantee beforehand. Being in the right place, physically and literally, tends to matter more for you than most other gates.',
+    ],
+    quote: 'Say yes first — the discovery of why comes later.',
+  },
+  '30-41': {
+    paragraphs: [
+      'The channel of Recognition connects a desire for new, intense experience (Gate 30) with the initial, quiet spark of imagination that starts every new cycle (Gate 41). Together they generate a steady stream of feeling and fantasy about what could be — the fuel for the next chapter before it exists.',
+      'This channel can generate genuine restlessness if the desires it produces aren\'t eventually given somewhere real to go. Recognizing which longings are worth acting on — and which are simply part of this circuit\'s natural churn — is the ongoing work.',
+    ],
+    quote: 'Not every longing needs to be chased — but every longing deserves to be noticed.',
+  },
+  '32-54': {
+    paragraphs: [
+      'The channel of Transformation links an instinct for what will actually last (Gate 32) with fierce ambition and drive (Gate 54). This circuit senses which efforts are built to endure and pushes hard to reach the position needed to make that lasting thing real.',
+      'Status and advancement matter here, but not for their own sake — they matter because reaching the right position is often what\'s required to transform an idea into something durable. This channel is uncomfortable with stagnation and genuinely motivated by upward movement.',
+    ],
+    quote: 'Ambition, for you, is in service of something built to last.',
+  },
+  '34-57': {
+    paragraphs: [
+      'The channel of Power connects raw Sacral life-force (Gate 34) with instinctive, in-the-moment clarity (Gate 57). This is one of the most physically powerful combinations in the bodygraph — strength that is also precisely guided, rather than blind momentum.',
+      'When your instinct and your energy are aligned, very little can outpace you, and your presence alone often has an effect on a room. The discipline this channel asks for is trusting the instinctive guidance rather than overriding it with force alone.',
+    ],
+    quote: 'Real power isn\'t just strength — it\'s strength that already knows where to go.',
+  },
+  '35-36': {
+    paragraphs: [
+      'The channel of Transitoriness pairs a hunger for new, varied experience (Gate 35) with an emotional willingness to go through turbulent or crisis moments in pursuit of it (Gate 36). This is a circuit built for change — even change that comes with some emotional weather attached.',
+      'Novelty and variety genuinely feed you, and a certain amount of emotional intensity along the way isn\'t a red flag so much as part of the process. The lesson this channel often teaches is that experience itself is the reward, regardless of how smoothly it goes.',
+    ],
+    quote: 'The experience was worth having, even the turbulent parts.',
+  },
+  '37-40': {
+    paragraphs: [
+      'The channel of Community connects a need for warmth, agreement, and belonging (Gate 37) with the willpower to work hard for the people you\'ve committed to (Gate 40). Together they form a circuit built on reciprocity — loyalty and effort exchanged in both directions within family or community.',
+      'This bond works best when the give-and-take stays balanced; resentment tends to creep in if one side is doing all the giving. When the exchange is mutual, though, this channel produces some of the most genuinely loyal, dependable relationships in the whole bodygraph.',
+    ],
+    quote: 'Belonging here is a trade — loyalty given, and loyalty returned.',
+  },
+  '39-55': {
+    paragraphs: [
+      'The channel of Emoting pairs a provocative energy that tests others\' spirits (Gate 39) with a wide emotional wave capable of real depth, including sorrow (Gate 55). This circuit isn\'t about staying comfortable — it\'s about stirring genuine feeling, in yourself and in others.',
+      'Emotional highs and lows are simply part of how this channel operates, and trying to flatten them out usually backfires. What this circuit is actually looking for is spirit — an authentic emotional response that proves something real is being felt, not performed.',
+    ],
+    quote: 'The mood swings aren\'t the problem — numbness would be.',
+  },
+  '42-53': {
+    paragraphs: [
+      'The channel of Maturation connects the drive to complete a cycle fully (Gate 42) with the initial spark and pressure to begin a new one (Gate 53). Together they describe a rhythm of starting, growing, and finishing — over and over, each cycle building real, cumulative experience.',
+      'Cutting a cycle short before it\'s matured tends to leave you with restless, unfinished energy; letting a cycle run its full course, on the other hand, produces genuine growth you carry into the next beginning. Patience with process is this channel\'s real lesson.',
+    ],
+    quote: 'Every ending here is really just the maturity the next beginning needed.',
+  },
+  '47-64': {
+    paragraphs: [
+      'The channel of Abstraction pairs a mind full of impressions from the past (Gate 64) with the pressure to make sense of them and answer the questions they raise (Gate 47). It\'s a circuit built for working through confusion until it resolves — often suddenly — into genuine understanding.',
+      'The mental static this channel produces isn\'t a malfunction; it\'s the raw material of insight, and it typically needs time and a bit of mental wandering before it clicks into place. Trying to force clarity too early usually just prolongs the confusion.',
+    ],
+    quote: 'Confusion here isn\'t the opposite of insight — it\'s the beginning of it.',
+  },
+};
+
 // Short original blurbs for the 5 definition types.
 export const DEFINITION_INFO = {
   'No Definition': {
     summary:
       'With no centers consistently defined, energy and identity move with whoever and wherever you are, rather than from a fixed internal pattern. This is the Reflector signature — a life built around sampling and reflecting the world, on the timing of the lunar cycle rather than any inner constant.',
+    paragraphs: [
+      'With No Definition, none of your nine centers are consistently "on" — every one of them is open, taking in and amplifying whatever is present in your environment and the people around you. Rather than a fixed internal engine, you move through the world as a highly sensitive mirror, and your experience of yourself can shift dramatically depending on where you are and who you\'re with.',
+      'This makes you unusually good at reading the health of a group, a relationship, or an environment, since you register it directly rather than filtering it through a fixed identity. The trade-off is that big decisions rarely feel clear in the moment — they genuinely need time, often a full lunar cycle of about 28 days, to be tested against different people and places before the right answer settles. Surrounding yourself with the right environment matters more for you than for any other definition type.',
+    ],
   },
   'Single Definition': {
     summary:
       'All of your defined centers connect into one continuous circuit. There is a consistent, self-contained way you operate — what you feel and know internally is reliably available to you without needing another person present to complete it.',
+    paragraphs: [
+      'A Single Definition means every one of your defined centers connects into one unbroken circuit — your whole system functions as a single unit. Energy moves freely from one part of your design to another without interruption, which gives you unusually direct access to your own knowing: what you feel, sense, or decide internally tends to be reliably available on your own, without needing someone else present to complete the picture.',
+      'Because your circuitry is already whole, you\'re naturally more self-contained than other definition types, and you can usually work through a challenge using your own internal resources rather than needing to borrow someone else\'s energy to feel settled. The flip side is that cooperation can be an acquired taste — since you rarely feel incomplete on your own, seeking others out doesn\'t always come automatically, even in situations where collaborating would genuinely add something you couldn\'t reach alone.',
+    ],
   },
   'Split Definition': {
     summary:
       'Your defined centers form two separate circuits that are not directly connected to each other. There can be a felt sense of something missing or a bridge to find — often satisfied by certain other people whose own design happens to connect the gap, which is part of why some relationships feel unusually easy.',
+    paragraphs: [
+      'A Split Definition means your defined centers form two separate circuits with a genuine gap between them — nothing in your own design directly bridges the two. Energy and awareness flow smoothly within each circuit, but not across the divide, which often shows up as a subtle, hard-to-name sense that something is missing, even though both halves of your design are fully functional on their own.',
+      'This gap is exactly what makes certain people feel unusually easy to be around: someone whose own gates happen to bridge your split can complete the circuit temporarily, and the resulting sense of "click" is a real, mechanical effect rather than just chemistry. It\'s worth remembering that the bridge is a bonus, not a requirement — you\'re whole and functional without it, but it explains why some connections feel disproportionately significant.',
+    ],
   },
   'Triple Split Definition': {
     summary:
       'Your defined centers form three separate circuits. More connecting points are open, which can mean more variability in who and what completes you, and a wider range of people who can bridge the gaps between your circuits.',
+    paragraphs: [
+      'A Triple Split Definition spreads your defined centers across three separate circuits instead of one or two, which means there are more open connection points where outside energy can bridge the gaps. This tends to bring a broader, more varied set of interests and capabilities, since each circuit can develop somewhat independently of the others.',
+      'With three circuits to potentially bridge, you may find that different people complete different parts of you — one relationship bridges one gap, another relationship bridges a different one — rather than any single person needing to complete the whole picture. That variety can be enriching, but it also means your sense of "who completes me" is genuinely more complex, and it\'s worth not expecting any one relationship to close every gap at once.',
+    ],
   },
   'Quadruple Split Definition': {
     summary:
       'Your defined centers form four separate circuits — the most distributed definition pattern. This tends to come with a wide range of interests and capabilities, along with a real need for a diverse circle of people to bridge the several gaps in the design.',
+    paragraphs: [
+      'A Quadruple Split Definition is the most distributed pattern possible — your defined centers form four completely separate circuits, each functioning on its own. This is a rare configuration, and it tends to come with a genuinely wide range of interests, skills, and even personas, since each circuit can express itself somewhat independently of the others.',
+      'Because there are four separate circuits with gaps between them, no single relationship is ever likely to bridge everything — you\'re built for a diverse circle of people rather than one completing partner. A varied social and professional network isn\'t just enjoyable for you, it\'s closer to a genuine structural need, since different people will naturally end up bridging different parts of your design.',
+    ],
   },
 };

@@ -514,7 +514,7 @@ p { line-height: 1.6; }
   flex-shrink: 0;
 }
 .planet-icon-lg svg { width: 26px; height: 26px; }
-.planet-icon-lg.personality { background: #C9A24A; }
+.planet-icon-lg.personality { background: #158EA4; }
 .planet-icon-lg.design { background: #2C3E66; }
 .planet-degree-lg {
   font-family: var(--font-heading);
@@ -561,7 +561,7 @@ p { line-height: 1.6; }
 .type-row p { margin: 0; font-size: 14px; }
 
 /* Profile line pages: eyebrow framing + Potentials/Challenges subheadings */
-.report-page .page-eyebrow.line-eyebrow { color: #C9A24A; }
+.report-page .page-eyebrow.line-eyebrow { color: #158EA4; }
 .line-body { text-align: left; }
 .line-body p { margin-bottom: 14px; }
 .line-body h2 {
@@ -600,6 +600,61 @@ p { line-height: 1.6; }
   font-family: var(--font-heading);
   font-style: italic;
   font-size: 16px;
-  color: #C9A24A;
+  color: #158EA4;
   margin: 4px 0 0;
+}
+
+/* Incarnation Cross page: gradient hero banner + interpretation */
+.cross-hero {
+  background: linear-gradient(135deg, var(--charcoal) 0%, #3a2a26 50%, var(--dusty-peach) 130%);
+  border-radius: 16px;
+  padding: 32px 28px;
+  text-align: center;
+  margin-bottom: 24px;
+}
+.cross-hero .page-eyebrow { color: #158EA4; margin-bottom: 8px; }
+.cross-hero .report-title { color: var(--white); margin: 0 0 6px; font-size: 34px; }
+.cross-hero .report-subject { color: #158EA4; font-style: italic; font-size: 16px; margin: 0; }
+.cross-body { text-align: left; max-width: 640px; margin: 0 auto; }
+.cross-body p { margin-bottom: 14px; }
+
+/* Channel pages: sparkle-flanked title, detailed body, mini diagram + quote footer */
+.channel-page { text-align: center; }
+.channel-eyebrow-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.channel-eyebrow-row .page-eyebrow { margin-bottom: 0; }
+.sparkle-icon { display: inline-block; flex-shrink: 0; }
+.channel-title { font-size: 40px; margin: 6px 0 4px; }
+.channel-sparkle-divider { margin-bottom: 20px; }
+.channel-body { text-align: left; max-width: 620px; margin: 0 auto 28px; }
+.channel-body p { margin-bottom: 14px; }
+.channel-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  border-top: 1px solid var(--border);
+  padding-top: 24px;
+  text-align: left;
+}
+.channel-diagram { flex: 0 0 auto; }
+.channel-quote { flex: 1; text-align: right; position: relative; }
+.channel-quote p {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 19px;
+  color: var(--muted);
+  margin: 0;
+}
+.channel-quote-mark {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 64px;
+  line-height: 1;
+  color: var(--dusty-peach);
+  margin-top: 4px;
 }
