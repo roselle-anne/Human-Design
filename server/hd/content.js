@@ -675,6 +675,74 @@ export const PROFILE_LINES = {
   },
 };
 
+// Deeper, standalone material for each of the 6 profile lines — used on
+// their own report pages (framed as "How you perceive yourself" for the
+// conscious/Personality line, or "How others perceive you" for the
+// unconscious/Design line), independent of the short keyword/summary pairs
+// above used inline elsewhere in the report.
+export const PROFILE_LINE_DETAIL = {
+  1: {
+    paragraphs: [
+      'Line 1 is characterized by a need for a firm, well-researched foundation before stepping into anything new. You feel most secure when you have genuinely investigated a subject, a person, or a situation from the ground up, rather than taking someone else\'s word for it.',
+      'This isn\'t caution for its own sake — it\'s a way of building real, lasting confidence. Once you\'ve done the digging yourself, you carry an unshakeable authority on the subject, and that groundedness is something other people can feel and lean on.',
+    ],
+    potentials:
+      'Your depth of study makes you a genuine expert over time, and a trustworthy source of information for others who haven\'t done the legwork themselves. That security also frees you to explore niche or overlooked subjects fearlessly, since you\'re not chasing approval — you\'re chasing understanding.',
+    challenges:
+      'Without enough foundational research, insecurity can creep in and masquerade as indecision or over-preparation that never quite ends. There\'s also a risk of feeling threatened by not knowing something, when the healthier move is simply admitting the gap and going to investigate it.',
+  },
+  2: {
+    paragraphs: [
+      'Line 2 carries a natural, often hidden gift — a talent that unfolds best in solitude, away from an audience. You do your best work when nobody is watching, refining an ability quietly until it\'s ready to be seen.',
+      'Because the gift feels so effortless from the inside, it can be hard to recognize as special until someone else notices and calls it out. Being "called" — invited out of solitude by the right person or opportunity — matters more for you than for most other lines.',
+    ],
+    potentials:
+      'Left to your own rhythm, you develop real mastery, because your growth isn\'t performative — it\'s private and genuine. When you are called out at the right moment, you can step forward with a level of skill that looks effortless to everyone else.',
+    challenges:
+      'Being pushed or projected onto before you\'re ready can trigger a strong urge to retreat, sometimes just when an opportunity is at its best. The lesson is discerning between a genuine, well-timed call and outside pressure that\'s simply impatient with your natural need for space.',
+  },
+  3: {
+    paragraphs: [
+      'Line 3 moves through the world by doing, not by planning from the sidelines. You find out what actually works — in relationships, methods, or plans — by trying it directly and course-correcting along the way, and a stumble here is rarely a real failure; it\'s data. Bouncing back quickly after things don\'t go as expected is practically a signature trait.',
+      'Because your knowledge comes from lived trial and error rather than borrowed advice, you tend to trust your own tested experience over theory, even when that means bending or ignoring convention. That independence is what lets you find workable paths nobody else has mapped out yet.',
+    ],
+    potentials:
+      'All that hands-on experimenting builds a genuinely practical wisdom — you know what breaks and what holds up, because you\'ve actually tested it. That makes you a valuable guide for anyone else facing a similar trial, since your advice comes from experience rather than theory, and your comfort with risk can give others permission to try, fail, and try again themselves.',
+    challenges:
+      'Constantly adapting to new experiences can blur into losing your own footing, especially inside close relationships, if you\'re not careful to keep checking back in with what you actually want. A fear of the next misstep can also quietly stall you out of trying anything at all — which defeats the entire purpose of this line. Watch, too, for slipping into a "why does this always happen to me" story; the corrective isn\'t luck, it\'s recognizing you chose the experiment.',
+  },
+  4: {
+    paragraphs: [
+      'Line 4 builds its foundation through a close, existing network of friends and contacts rather than through strangers or open opportunity. Your influence in the world moves outward from fixed, established relationships — the people who already know and trust you.',
+      'This makes your closest bonds unusually important: a healthy, stable network of friendships is not a nice-to-have for you, it\'s the actual mechanism through which opportunities and change arrive in your life.',
+    ],
+    potentials:
+      'You can become a warm, reliable hub within your community, someone whose network genuinely opens doors — for yourself and for the people in it. Change that comes through a trusted friend tends to land well and last, because it arrives with a foundation of relationship already in place.',
+    challenges:
+      'Clinging to a friendship or network out of fear of losing your foundation can keep you stuck in situations that no longer serve you. There\'s also a risk of over-identifying with your social circle, mistaking its opinions and comfort for your own genuine direction.',
+  },
+  5: {
+    paragraphs: [
+      'Line 5 gets projected onto by others — seen as a practical problem-solver, a fixer, or even a savior, often before you\'ve said or done anything to earn that reputation. People bring you their expectations, and how you handle that projection shapes your whole path.',
+      'Living up to a projection when it\'s accurate can bring real influence and impact on a wide scale. But when the projection is wrong, correcting it — clearly and without apology — becomes just as important as fulfilling it, since an unmet expectation from a Line 5 tends to turn into a very public reputation swing.',
+    ],
+    potentials:
+      'You have an unusual capacity to solve problems at scale and to be trusted with responsibility others wouldn\'t be handed. When you deliver, your impact and reputation can spread far beyond your immediate circle.',
+    challenges:
+      'The weight of constant projection can feel heavy and impersonal, as if people relate to an idea of you rather than who you actually are. Reputation can swing quickly from savior to scapegoat, which makes transparency and correcting false projections early an essential, ongoing practice.',
+  },
+  6: {
+    paragraphs: [
+      'Line 6 moves through three distinct life phases: an early trial-and-error period much like Line 3, a withdrawn observation phase around age 30 where you step back from the intensity of direct experience, and finally a settled, exemplary role later in life.',
+      'In that final phase, you become a model others watch from a distance and learn from — living an example rather than actively teaching or intervening. The rooftop, as it\'s often described, is where you get the vantage point to see life clearly, both your own and everyone else\'s.',
+    ],
+    potentials:
+      'Your lived experience across all three phases gives you a rare, hard-won credibility — you\'ve actually been in the trenches, then risen above them. As a model, you can inspire simply by living well and visibly, without needing to say a word.',
+    challenges:
+      'The early trial-and-error phase can feel confusing if you expect the composure of your later years too soon — that phase has its own timeline and can\'t be rushed. During the observation phase, isolation can tip into disconnection if you forget that stepping back is temporary, not permanent.',
+  },
+};
+
 function ordinal(n) {
   if (n === 1) return '1st';
   if (n === 2) return '2nd';

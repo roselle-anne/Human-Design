@@ -559,3 +559,47 @@ p { line-height: 1.6; }
 .type-name { font-family: var(--font-heading); font-weight: 600; font-size: 17px; color: var(--charcoal); }
 .type-pop { color: var(--ocean-teal); font-weight: 600; }
 .type-row p { margin: 0; font-size: 14px; }
+
+/* Profile line pages: eyebrow framing + Potentials/Challenges subheadings */
+.report-page .page-eyebrow.line-eyebrow { color: #C9A24A; }
+.line-body { text-align: left; }
+.line-body p { margin-bottom: 14px; }
+.line-body h2 {
+  text-align: center;
+  color: var(--charcoal);
+  margin: 24px 0 10px;
+}
+
+/* Centers location map page: gold bodygraph outline with labels only */
+.centers-map-page .report-title { margin-bottom: 4px; }
+.centers-map-svg { margin-top: 20px; }
+
+/* Center page hero banner: gradient strip with a mini shape icon + title,
+   echoing the Type hero page's badge treatment. */
+.center-hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: linear-gradient(135deg, var(--charcoal) 0%, #3a2a26 50%, var(--dusty-peach) 130%);
+  border-radius: 16px;
+  padding: 20px 36px;
+  margin: 0 auto 24px;
+  max-width: 480px;
+}
+.center-hero-icon { flex: 0 0 auto; }
+.center-hero-icon-svg { width: 80px; height: 60px; display: block; }
+.center-hero-text { text-align: left; }
+.center-hero-text h1 {
+  font-family: var(--font-heading);
+  font-size: 30px;
+  color: var(--white);
+  margin: 0;
+}
+.center-hero-state {
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 16px;
+  color: #C9A24A;
+  margin: 4px 0 0;
+}

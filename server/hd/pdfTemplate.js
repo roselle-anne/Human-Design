@@ -46,12 +46,10 @@ function shapePath({ x, y, shape, w, h }) {
 // shape, laid out in a centered grid of up to 3 columns — matching the
 // reference chart layout, which always prints a center's full fixed gate
 // list (not just the active ones).
-function gateGrid(gates, cx, cy, colsMax = 3) {
+function gateGrid(gates, cx, cy, colsMax = 3, rowGap = 26, colGap = 32) {
   const cols = Math.min(colsMax, gates.length);
   const rows = [];
   for (let i = 0; i < gates.length; i += cols) rows.push(gates.slice(i, i + cols));
-  const rowGap = 26;
-  const colGap = 32;
   const startY = cy - ((rows.length - 1) * rowGap) / 2;
   const cells = [];
   rows.forEach((row, ri) => {
@@ -113,6 +111,84 @@ function buildBodygraph(chart, structure) {
     ${shapes}
     ${gateNumbers}
   </svg>`;
+}
+
+// A small standalone icon of a single center's own shape, gold-outlined
+// with its fixed gate numbers inside — used in each center page's header
+// banner as a compact "which shape is this" reference.
+function miniCenterIcon(centerName, gates) {
+  const shape = CENTER_POS[centerName].shape;
+  const pos = { x: 60, y: 45, shape, w: 92, h: 64 };
+  const numbers = gateGrid(gates, pos.x, pos.y, 3, 15, 20)
+    .map(({ gate, x, y }) => `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#FFFFFF">${gate}</text>`)
+    .join('\n');
+  return `<svg viewBox="0 0 120 90" class="center-hero-icon-svg">
+    <path d="${shapePath(pos)}" fill="none" stroke="#C9A24A" stroke-width="3" />
+    ${numbers}
+  </svg>`;
+}
+
+// A location map of all 9 centers on the bodygraph, labeled but without any
+// gate numbers — an orientation page shown once before the individual
+// center-by-center pages.
+const MAP_LABELS = {
+  Head: 'Head', Ajna: 'Ajna', Throat: 'Throat', G: 'Self / G', Heart: 'Ego / Heart',
+  Sacral: 'Sacral', Spleen: 'Spleen', SolarPlexus: 'Solar Plexus', Root: 'Root',
+};
+
+function buildCentersMapPage() {
+  const lines = CENTER_PAIRS.map(([a, b]) => {
+    const A = CENTER_POS[a], B = CENTER_POS[b];
+    return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="#C9A24A" stroke-width="3" opacity="0.75" />`;
+  }).join('\n');
+
+  const shapes = Object.entries(CENTER_POS).map(([name, pos]) => {
+    const label = MAP_LABELS[name];
+    const fontSize = label.length > 8 ? 10.5 : 13;
+    return `<path d="${shapePath(pos)}" fill="#C9A24A" stroke="#FFFFFF" stroke-width="1.5" />
+      <text x="${pos.x}" y="${pos.y + 4}" text-anchor="middle" font-size="${fontSize}" font-weight="600" fill="#2A1E14">${label}</text>`;
+  }).join('\n');
+
+  return `<div class="report-page cover-page centers-map-page">
+    <div class="page-eyebrow">Your Centers</div>
+    <h1 class="report-title">Where the Centers Sit</h1>
+    <p class="report-subject">A map of the bodygraph before we go center by center</p>
+    <svg viewBox="0 0 500 700" width="420" height="588" class="centers-map-svg">
+      ${lines}
+      ${shapes}
+    </svg>
+  </div>`;
+}
+
+// A general explainer of what "defined" versus "undefined/open" means
+// before the report walks through each of the user's 9 centers individually.
+function buildCentersConceptPage() {
+  return `<div class="report-page">
+    <div class="page-eyebrow" style="text-align:center">Before You Begin</div>
+    <h1 class="page-title" style="text-align:center">Defined vs. Undefined Centers</h1>
+    <div class="two-col">
+      <div class="two-col-item">
+        <h2>Undefined / Open</h2>
+        <p>An open center is not "broken" or "missing" — it's a place in your design built for taking in and amplifying the energy of whoever is around you, rather than generating a fixed version of that energy on your own.</p>
+        <p>Because it shifts with your environment, an open center can feel inconsistent day to day, and it's where conditioning from other people tends to settle in the deepest.</p>
+      </div>
+      <div class="two-col-divider"></div>
+      <div class="two-col-item">
+        <h2>Defined</h2>
+        <p>A defined center is a fixed, reliable part of your energetic makeup — always "on," regardless of who you're with or where you are. It's a consistent trait others can count on from you.</p>
+        <p>Because it's constant, you can mistake a defined center's output for "just how everyone is," when it's actually a specific, non-negotiable part of your own design.</p>
+      </div>
+    </div>
+    <div class="affirmations-box">
+      <h3>Reading Your Centers</h3>
+      <ul class="affirmations">
+        <li>Open centers are where you learn the most about yourself, precisely because they're less fixed.</li>
+        <li>Defined centers are where your consistency lives — traits you can trust are truly, reliably yours.</li>
+        <li>Neither is better: a fully defined chart isn't "more evolved," and a very open chart isn't "less developed."</li>
+        <li>The following pages walk through each of your 9 centers and what its state means specifically for you.</li>
+      </ul>
+    </div>
+  </div>`;
 }
 
 // Hand-drawn SVG glyphs, not Unicode astrological symbol characters —
@@ -333,17 +409,24 @@ function buildAuthorityPage(chart, content) {
 function buildProfilePage(chart, content) {
   return `<div class="report-page center-text">
     <div class="page-eyebrow">Profile</div>
-    <h1 class="page-title">${chart.profile}</h1>
+    <div class="type-badge">${chart.profile}</div>
     <p class="page-body">${content.profileNarrative}</p>
   </div>`;
 }
 
-function buildProfileLinePage(lineNumber, roleLabel, content) {
+function buildProfileLinePage(lineNumber, eyebrow, content) {
   const line = content.profileLines[lineNumber];
-  return `<div class="report-page center-text">
-    <div class="page-eyebrow">${roleLabel}</div>
-    <h1 class="page-title">Line ${lineNumber}: The ${line.keyword}</h1>
-    <p class="page-body">This ${roleLabel.toLowerCase()} line ${line.summary}</p>
+  const detail = content.profileLineDetail[lineNumber];
+  return `<div class="report-page">
+    <div class="page-eyebrow line-eyebrow" style="text-align:center">${eyebrow}</div>
+    <h1 class="page-title" style="text-align:center">Line ${lineNumber}</h1>
+    <div class="page-body line-body">
+      ${detail.paragraphs.map((p) => `<p>${p}</p>`).join('')}
+      <h2>Potentials</h2>
+      <p>${detail.potentials}</p>
+      <h2>Challenges</h2>
+      <p>${detail.challenges}</p>
+    </div>
   </div>`;
 }
 
@@ -356,12 +439,18 @@ function buildDefinitionPage(chart, content) {
   </div>`;
 }
 
-function buildCenterPage(key, info, defined, content) {
+function buildCenterPage(key, info, defined, content, structure) {
   const state = defined ? 'defined' : 'undefined';
   const deepDive = content.centerDeepDive[key]?.[state];
+  const baseName = info.label.split(' (')[0];
   return `<div class="report-page center-text">
-    <div class="page-eyebrow">${defined ? 'Defined Center' : 'Undefined / Open Center'}</div>
-    <h1 class="page-title">${info.label}</h1>
+    <div class="center-hero">
+      <span class="center-hero-icon">${miniCenterIcon(key, structure.centers[key].gates)}</span>
+      <div class="center-hero-text">
+        <h1>${baseName} Center</h1>
+        <p class="center-hero-state">${state}</p>
+      </div>
+    </div>
     <p class="page-stats">${info.theme}</p>
     <p class="page-body">${defined ? info.defined : info.undefined}</p>
     ${deepDive ? `
@@ -456,8 +545,8 @@ export function buildReportHtml(chart, content, structure, name, birthInputs, in
     buildAuthorityPage(chart, content),
     buildChapterPage('Section', 'Profile', content.sectionIntros.Profile),
     buildProfilePage(chart, content),
-    buildProfileLinePage(Number(chart.profile.split('/')[0]), 'Conscious Line', content),
-    buildProfileLinePage(Number(chart.profile.split('/')[1]), 'Unconscious Line', content),
+    buildProfileLinePage(Number(chart.profile.split('/')[0]), 'How You Perceive Yourself', content),
+    buildProfileLinePage(Number(chart.profile.split('/')[1]), 'How Others Perceive You', content),
     buildChapterPage('Section', 'Definition', content.sectionIntros.Definition),
     buildDefinitionPage(chart, content),
     buildChapterPage(
@@ -465,7 +554,9 @@ export function buildReportHtml(chart, content, structure, name, birthInputs, in
       'Understanding the Centers',
       'The bodygraph is made up of 9 centers. A defined center is a consistent, reliable part of who you are — always "on," regardless of who you\'re with. An undefined center is where you take in and amplify the energy of others, which can be a source of wisdom or of conditioning depending on how aware of it you are. The following pages walk through each of your 9 centers.'
     ),
-    ...Object.entries(content.centers).map(([key, info]) => buildCenterPage(key, info, chart.centers[key], content)),
+    buildCentersMapPage(),
+    buildCentersConceptPage(),
+    ...Object.entries(content.centers).map(([key, info]) => buildCenterPage(key, info, chart.centers[key], content, structure)),
     buildChapterPage(
       'Your Channels',
       'Understanding the Channels',
