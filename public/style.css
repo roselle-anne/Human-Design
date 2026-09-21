@@ -382,6 +382,9 @@ p { line-height: 1.6; }
 }
 
 .gate-page .page-title { font-size: 42px; }
+/* Gate pages use blush/pink instead of the teal accent used elsewhere */
+.gate-page .center-hero-state { color: #D88C9A; }
+.gate-page .deep-dive-label { color: #D88C9A; }
 
 /* Center deep-dive: Challenges / Potentials / Affirmations */
 .deep-dive {

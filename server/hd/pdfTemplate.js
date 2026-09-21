@@ -566,13 +566,13 @@ function miniGateIcon(centerName, gates, highlightGate) {
   const numbers = gateGrid(gates, pos.x, pos.y, 3, 15, 20)
     .map(({ gate, x, y }) => {
       if (gate === highlightGate) {
-        return `<circle cx="${x}" cy="${y}" r="9" fill="#158EA4" /><text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="9" fill="#FFFFFF" font-weight="600">${gate}</text>`;
+        return `<circle cx="${x}" cy="${y}" r="9" fill="#D88C9A" /><text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="9" fill="#FFFFFF" font-weight="600">${gate}</text>`;
       }
       return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#FFFFFF" opacity="0.55">${gate}</text>`;
     })
     .join('\n');
   return `<svg viewBox="0 0 120 90" class="center-hero-icon-svg">
-    <path d="${shapePath(pos)}" fill="none" stroke="#158EA4" stroke-width="3" />
+    <path d="${shapePath(pos)}" fill="none" stroke="#D88C9A" stroke-width="3" />
     ${numbers}
   </svg>`;
 }
