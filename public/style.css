@@ -295,7 +295,7 @@ p { line-height: 1.6; }
   border-radius: 0;
   border: none;
   box-shadow: none;
-  min-height: calc(100vh - 110px);
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;

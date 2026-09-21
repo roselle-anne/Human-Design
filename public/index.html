@@ -11,23 +11,18 @@
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header class="site-header">
-    <img src="assets/logo-horizontal-color.png" alt="Embodiance" class="site-logo" />
-  </header>
-
   <main>
     <div class="title-page landing-hero">
       <img src="assets/logo-horizontal-color.png" alt="Embodiance" class="title-logo" />
       <div class="title-eyebrow">Human Design Report</div>
       <h1 class="report-title">Discover Your Human Design Chart</h1>
-      <p class="report-subject">Swiss Ephemeris-precision bodygraph calculation, paired with a full narrative report — generated instantly from your birth details.</p>
       <a href="#birth-form" class="btn-hero-cta">Get Started &darr;</a>
     </div>
 
     <form id="birth-form">
       <label>
-        Name (optional)
-        <input type="text" id="name" placeholder="For your report header" />
+        Name
+        <input type="text" id="name" placeholder="For your report header" required />
       </label>
       <label>
         Birth date
