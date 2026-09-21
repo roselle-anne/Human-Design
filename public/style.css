@@ -494,30 +494,31 @@ p { line-height: 1.6; }
 .planet-column {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  flex: 0 0 150px;
+  gap: 8px;
+  flex: 0 0 auto;
 }
 .planet-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 10px;
-  color: var(--muted);
+  gap: 12px;
 }
-.planet-icon {
+.planet-icon-lg {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  font-size: 10px;
   flex-shrink: 0;
 }
-.planet-icon.personality { background: var(--charcoal); color: var(--white); }
-.planet-icon.design { background: var(--dusty-peach); color: var(--charcoal); }
-.planet-name { width: 46px; flex-shrink: 0; color: var(--charcoal); font-weight: 600; }
-.planet-degree { white-space: nowrap; }
+.planet-icon-lg svg { width: 22px; height: 22px; }
+.planet-icon-lg.personality { background: var(--charcoal); }
+.planet-icon-lg.design { background: var(--dusty-peach); }
+.planet-degree-lg {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  color: var(--charcoal);
+}
 .chart-footer { text-align: center; margin-top: 12px; }
 .chart-name { font-family: var(--font-heading); font-size: 20px; color: var(--charcoal); }
 .chart-date { color: var(--muted); font-size: 13px; }

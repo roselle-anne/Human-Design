@@ -98,35 +98,41 @@ function buildBodygraph(chart, structure) {
   </svg>`;
 }
 
-const PLANET_GLYPHS = {
-  Sun: '☉', Earth: '⊕', Moon: '☽', NorthNode: '☊',
-  SouthNode: '☋', Mercury: '☿', Venus: '♀', Mars: '♂',
-  Jupiter: '♃', Saturn: '♄', Uranus: '♅', Neptune: '♆',
-  Pluto: '♇',
-};
-const PLANET_LABELS = {
-  Sun: 'Sun', Earth: 'Earth', Moon: 'Moon', NorthNode: 'N. Node',
-  SouthNode: 'S. Node', Mercury: 'Mercury', Venus: 'Venus', Mars: 'Mars',
-  Jupiter: 'Jupiter', Saturn: 'Saturn', Uranus: 'Uranus', Neptune: 'Neptune',
-  Pluto: 'Pluto',
+// Hand-drawn SVG glyphs, not Unicode astrological symbol characters —
+// Unicode glyphs rendered inconsistently across environments (Chromium
+// substituted colorful emoji-style symbols for several of them in
+// testing), which defeats a clean, consistent chart. These are simple
+// white-stroke line icons in a shared 0-100 viewBox, styled to sit inside
+// a solid-color circle.
+const STROKE = 'stroke="white" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"';
+const PLANET_SVG = {
+  Sun: `<circle cx="50" cy="50" r="30" ${STROKE}/><circle cx="50" cy="50" r="5" fill="white" stroke="none"/>`,
+  Earth: `<circle cx="50" cy="50" r="30" ${STROKE}/><line x1="50" y1="20" x2="50" y2="80" ${STROKE}/><line x1="20" y1="50" x2="80" y2="50" ${STROKE}/>`,
+  Moon: `<path d="M68,18 A34,34 0 1 0 68,82 A26,26 0 0 1 68,18 Z" fill="white" stroke="none"/>`,
+  NorthNode: `<path d="M28,32 A22,22 0 1 1 72,32" ${STROKE}/><circle cx="28" cy="32" r="6" fill="white" stroke="none"/><circle cx="72" cy="32" r="6" fill="white" stroke="none"/>`,
+  SouthNode: `<path d="M28,68 A22,22 0 1 0 72,68" ${STROKE}/><circle cx="28" cy="68" r="6" fill="white" stroke="none"/><circle cx="72" cy="68" r="6" fill="white" stroke="none"/>`,
+  Mercury: `<path d="M35,20 A15,14 0 0 1 65,20" ${STROKE}/><circle cx="50" cy="45" r="20" ${STROKE}/><line x1="50" y1="65" x2="50" y2="85" ${STROKE}/><line x1="38" y1="78" x2="62" y2="78" ${STROKE}/>`,
+  Venus: `<circle cx="50" cy="38" r="20" ${STROKE}/><line x1="50" y1="58" x2="50" y2="85" ${STROKE}/><line x1="36" y1="75" x2="64" y2="75" ${STROKE}/>`,
+  Mars: `<circle cx="42" cy="58" r="20" ${STROKE}/><line x1="57" y1="43" x2="80" y2="20" ${STROKE}/><path d="M60,20 L80,20 L80,40" ${STROKE}/>`,
+  Jupiter: `<path d="M28,25 Q16,45 38,45 L78,45" ${STROKE}/><line x1="63" y1="20" x2="63" y2="80" ${STROKE}/>`,
+  Saturn: `<line x1="28" y1="22" x2="55" y2="22" ${STROKE}/><line x1="42" y1="15" x2="42" y2="58" ${STROKE}/><path d="M42,58 Q42,88 68,78" ${STROKE}/>`,
+  Uranus: `<line x1="25" y1="18" x2="25" y2="52" ${STROKE}/><line x1="75" y1="18" x2="75" y2="52" ${STROKE}/><line x1="25" y1="38" x2="75" y2="38" ${STROKE}/><line x1="50" y1="52" x2="50" y2="62" ${STROKE}/><circle cx="50" cy="76" r="13" ${STROKE}/>`,
+  Neptune: `<path d="M28,18 Q28,42 50,32 Q72,42 72,18" ${STROKE}/><line x1="50" y1="30" x2="50" y2="85" ${STROKE}/><line x1="34" y1="63" x2="66" y2="63" ${STROKE}/>`,
+  Pluto: `<circle cx="50" cy="28" r="14" ${STROKE}/><path d="M30,52 Q50,74 70,52" ${STROKE}/><line x1="50" y1="55" x2="50" y2="82" ${STROKE}/>`,
 };
 const BODY_ORDER = [
   'Sun', 'Earth', 'Moon', 'NorthNode', 'SouthNode', 'Mercury', 'Venus',
   'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto',
 ];
-const ZODIAC_GLYPHS = ['♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓'];
-const ZODIAC_NAMES = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
 
 function planetColumn(activations, sideClass) {
   const rows = BODY_ORDER.map((body) => {
     const a = activations.find((x) => x.body === body);
     if (!a) return '';
-    const signIndex = Math.floor(a.longitude / 30);
     const degreeInSign = (a.longitude % 30).toFixed(1);
     return `<div class="planet-row">
-      <span class="planet-icon ${sideClass}">${PLANET_GLYPHS[body]}</span>
-      <span class="planet-name">${PLANET_LABELS[body]}</span>
-      <span class="planet-degree">${degreeInSign}&deg; ${ZODIAC_GLYPHS[signIndex]} ${ZODIAC_NAMES[signIndex]}</span>
+      <span class="planet-icon-lg ${sideClass}"><svg viewBox="0 0 100 100">${PLANET_SVG[body]}</svg></span>
+      <span class="planet-degree-lg">${degreeInSign}</span>
     </div>`;
   });
   return `<div class="planet-column">${rows.join('')}</div>`;
