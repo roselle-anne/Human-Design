@@ -513,7 +513,14 @@ function miniChannelDiagram(ch, chart, structure) {
     .join('\n');
   const labels = allCells.map(({ gate, x, y }) => gateLabel(gate, x, y, activeGateSides[gate])).join('\n');
 
-  return `<svg viewBox="${minX} ${minY} ${w} ${h}" width="230" height="${Math.round((230 * h) / w)}">
+  // Some channel pairs (e.g. Throat-Sacral) sit far apart vertically on the
+  // full chart, which would otherwise stretch this crop into a very tall
+  // image and push the page footer onto a second physical PDF page. Fit the
+  // crop inside a fixed box instead of scaling a fixed width by aspect ratio.
+  const maxW = 230;
+  const maxH = 260;
+  const scale = Math.min(maxW / w, maxH / h);
+  return `<svg viewBox="${minX} ${minY} ${w} ${h}" width="${Math.round(w * scale)}" height="${Math.round(h * scale)}">
     ${line}
     ${shapes}
     ${labels}
