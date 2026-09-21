@@ -5,15 +5,15 @@
 // identically in Node.
 
 const CENTER_POS = {
-  Head: { x: 200, y: 40, shape: 'triangle-down', w: 60, h: 40 },
-  Ajna: { x: 200, y: 110, shape: 'triangle-up', w: 60, h: 45 },
-  Throat: { x: 200, y: 195, shape: 'square', w: 70, h: 55 },
-  G: { x: 200, y: 285, shape: 'diamond', w: 70, h: 70 },
-  Heart: { x: 295, y: 250, shape: 'triangle-left', w: 45, h: 35 },
-  Sacral: { x: 200, y: 385, shape: 'square', w: 70, h: 55 },
-  Spleen: { x: 90, y: 320, shape: 'triangle-right', w: 55, h: 70 },
-  SolarPlexus: { x: 310, y: 345, shape: 'triangle-left', w: 55, h: 70 },
-  Root: { x: 200, y: 470, shape: 'square', w: 70, h: 55 },
+  Head: { x: 260, y: 52, shape: 'triangle-down', w: 90, h: 55 },
+  Ajna: { x: 260, y: 143, shape: 'triangle-up', w: 90, h: 65 },
+  Throat: { x: 260, y: 258, shape: 'square', w: 115, h: 90 },
+  G: { x: 260, y: 375, shape: 'diamond', w: 105, h: 105 },
+  Heart: { x: 386, y: 325, shape: 'triangle-left', w: 65, h: 55 },
+  Sacral: { x: 260, y: 500, shape: 'square', w: 115, h: 90 },
+  Spleen: { x: 117, y: 430, shape: 'triangle-right', w: 80, h: 100 },
+  SolarPlexus: { x: 403, y: 449, shape: 'triangle-left', w: 80, h: 100 },
+  Root: { x: 260, y: 615, shape: 'square', w: 115, h: 90 },
 };
 
 const CENTER_PAIRS = [
@@ -42,59 +42,76 @@ function shapePath({ x, y, shape, w, h }) {
   }
 }
 
-// Which side of each center's shape to print its active gate numbers on,
-// chosen per position so the labels point away from neighboring shapes.
-const GATE_LABEL_SIDE = {
-  Head: 'right', Ajna: 'right', Throat: 'right', G: 'right', Sacral: 'right',
-  Root: 'right', Heart: 'right', SolarPlexus: 'right', Spleen: 'left',
-};
+// Every gate belonging to a center is printed inside/around that center's
+// shape, laid out in a centered grid of up to 3 columns — matching the
+// reference chart layout, which always prints a center's full fixed gate
+// list (not just the active ones).
+function gateGrid(gates, cx, cy, colsMax = 3) {
+  const cols = Math.min(colsMax, gates.length);
+  const rows = [];
+  for (let i = 0; i < gates.length; i += cols) rows.push(gates.slice(i, i + cols));
+  const rowGap = 26;
+  const colGap = 32;
+  const startY = cy - ((rows.length - 1) * rowGap) / 2;
+  const cells = [];
+  rows.forEach((row, ri) => {
+    const y = startY + ri * rowGap;
+    const startX = cx - ((row.length - 1) * colGap) / 2;
+    row.forEach((gate, ci) => {
+      cells.push({ gate, x: startX + ci * colGap, y });
+    });
+  });
+  return cells;
+}
+
+// An activated gate's number is stamped in a solid circle badge, colored by
+// which side(s) activated it: gold for Personality (conscious) only, dark
+// navy for Design (unconscious) only, charcoal when both sides activate it —
+// echoing the gold/navy split used for the planetary columns beside the chart.
+function badgeColor(sides) {
+  const hasPersonality = sides.includes('personality');
+  const hasDesign = sides.includes('design');
+  if (hasPersonality && hasDesign) return '#222222';
+  if (hasPersonality) return '#C9A24A';
+  return '#2C3E66';
+}
+
+function gateLabel(gate, x, y, sides) {
+  if (!sides) {
+    return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="13" fill="#5B4F48">${gate}</text>`;
+  }
+  return `<circle cx="${x}" cy="${y}" r="11" fill="${badgeColor(sides)}" />
+    <text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#FFFFFF" font-weight="600">${gate}</text>`;
+}
 
 function buildBodygraph(chart, structure) {
   const definedGatePairKeys = new Set(
     chart.definedChannels.map((c) => c.centers.slice().sort().join('|'))
   );
+  const activeGateSides = Object.fromEntries(chart.activeGates.map((g) => [g.gate, g.sides]));
 
   const lines = CENTER_PAIRS.map(([a, b]) => {
     const A = CENTER_POS[a], B = CENTER_POS[b];
     const defined = definedGatePairKeys.has([a, b].sort().join('|'));
-    return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${defined ? '#158EA4' : '#E4D6CE'}" stroke-width="${defined ? 4 : 2}" />`;
+    return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${defined ? '#222222' : '#EAD3C8'}" stroke-width="${defined ? 5 : 2}" />`;
   }).join('\n');
 
-  const shapes = Object.entries(CENTER_POS).map(([name, pos]) => {
-    const defined = chart.centers[name];
-    const label = name === 'SolarPlexus' ? 'Solar Plexus' : name;
-    return `<path d="${shapePath(pos)}" fill="${defined ? '#158EA4' : '#FBF3EF'}" stroke="#E6B1A1" stroke-width="1.5" opacity="${defined ? 0.95 : 0.9}" />
-      <text x="${pos.x}" y="${pos.y + 3}" text-anchor="middle" font-size="${label.length > 6 ? 8 : 10}" fill="${defined ? '#FFFFFF' : '#8A7A72'}">${label}</text>`;
+  const shapes = Object.keys(CENTER_POS).map((name) => {
+    const pos = CENTER_POS[name];
+    return `<path d="${shapePath(pos)}" fill="#F4CEBF" stroke="#E6B1A1" stroke-width="1.5" />`;
   }).join('\n');
 
-  // Small active-gate-number labels just outside each center, grouped 3
-  // per line so a busy center (e.g. Root with several active gates)
-  // doesn't overrun its neighbors.
-  const gateLabels = Object.entries(CENTER_POS).map(([name, pos]) => {
-    const activeInCenter = chart.activeGates
-      .filter((g) => g.center === name)
-      .map((g) => g.gate)
-      .sort((a, b) => a - b);
-    if (activeInCenter.length === 0) return '';
-    const side = GATE_LABEL_SIDE[name];
-    const hw = pos.w / 2;
-    const anchorX = side === 'left' ? pos.x - hw - 6 : pos.x + hw + 6;
-    const textAnchor = side === 'left' ? 'end' : 'start';
-    const rows = [];
-    for (let i = 0; i < activeInCenter.length; i += 3) {
-      rows.push(activeInCenter.slice(i, i + 3).join(' '));
-    }
-    const startY = pos.y - ((rows.length - 1) * 7) / 2;
-    const tspans = rows
-      .map((row, i) => `<tspan x="${anchorX}" y="${startY + i * 7}">${row}</tspan>`)
-      .join('');
-    return `<text text-anchor="${textAnchor}" font-size="6.5" fill="#8A7A72">${tspans}</text>`;
+  const gateNumbers = Object.entries(CENTER_POS).map(([name, pos]) => {
+    const gates = structure.centers[name].gates;
+    return gateGrid(gates, pos.x, pos.y)
+      .map(({ gate, x, y }) => gateLabel(gate, x, y, activeGateSides[gate]))
+      .join('\n');
   }).join('\n');
 
-  return `<svg viewBox="0 0 400 540" width="380" height="513">
+  return `<svg viewBox="0 0 500 700" width="500" height="700">
     ${lines}
     ${shapes}
-    ${gateLabels}
+    ${gateNumbers}
   </svg>`;
 }
 
@@ -130,7 +147,7 @@ function planetColumn(activations, sideClass) {
     const a = activations.find((x) => x.body === body);
     if (!a) return '';
     const degreeInSign = (a.longitude % 30).toFixed(1);
-    return `<div class="planet-row">
+    return `<div class="planet-row ${sideClass}">
       <span class="planet-icon-lg ${sideClass}"><svg viewBox="0 0 100 100">${PLANET_SVG[body]}</svg></span>
       <span class="planet-degree-lg">${degreeInSign}</span>
     </div>`;
@@ -173,15 +190,11 @@ function buildChartPage(chart, structure, name, birthInputs) {
     year: 'numeric', month: 'long', day: 'numeric',
   });
   return `<div class="report-page chart-page">
-    <h1 class="page-title">Human Design Chart</h1>
+    <h1 class="page-title chart-title">Human Design Chart</h1>
     <div class="chart-layout">
       ${planetColumn(chart.personality, 'personality')}
       <div class="chart-center">${buildBodygraph(chart, structure)}</div>
       ${planetColumn(chart.designActivations, 'design')}
-    </div>
-    <div class="legend centered">
-      <div><span class="dot" style="background:#158EA4"></span>Defined</div>
-      <div><span class="dot" style="background:#E4D6CE"></span>Undefined</div>
     </div>
     <div class="chart-footer">
       ${name ? `<div class="chart-name">${name}</div>` : ''}

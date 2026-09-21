@@ -483,45 +483,47 @@ p { line-height: 1.6; }
 .intro-body p { margin-bottom: 16px; }
 
 /* Comprehensive chart page: planetary columns flanking the bodygraph */
+.chart-page { padding: 32px 16px; }
+.chart-title { text-align: center; font-size: 42px; margin-bottom: 4px; }
 .chart-layout {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
-  margin: 12px 0;
+  gap: 8px;
+  margin: 8px 0;
 }
 .chart-center { flex: 0 0 auto; }
 .planet-column {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 9px;
   flex: 0 0 auto;
 }
 .planet-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 .planet-icon-lg {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   flex-shrink: 0;
 }
-.planet-icon-lg svg { width: 22px; height: 22px; }
-.planet-icon-lg.personality { background: var(--charcoal); }
-.planet-icon-lg.design { background: var(--dusty-peach); }
+.planet-icon-lg svg { width: 26px; height: 26px; }
+.planet-icon-lg.personality { background: #C9A24A; }
+.planet-icon-lg.design { background: #2C3E66; }
 .planet-degree-lg {
   font-family: var(--font-heading);
-  font-size: 20px;
+  font-size: 22px;
   color: var(--charcoal);
 }
-.chart-footer { text-align: center; margin-top: 12px; }
-.chart-name { font-family: var(--font-heading); font-size: 20px; color: var(--charcoal); }
-.chart-date { color: var(--muted); font-size: 13px; }
+.chart-footer { text-align: center; margin-top: 20px; }
+.chart-name { font-family: var(--font-heading); font-size: 24px; color: var(--charcoal); }
+.chart-date { color: var(--muted); font-size: 14px; }
 
 /* User details page: labeled pill rows */
 .details-list { max-width: 480px; margin: 0 auto; text-align: left; }
