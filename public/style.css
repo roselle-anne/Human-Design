@@ -425,9 +425,6 @@ p { line-height: 1.6; }
 }
 
 .gate-page .page-title { font-size: 42px; }
-/* Gate pages use blush/pink instead of the teal accent used elsewhere */
-.gate-page .center-hero-state { color: #D88C9A; }
-.gate-page .deep-dive-label { color: #D88C9A; }
 
 /* Center deep-dive: Challenges / Potentials / Affirmations */
 .deep-dive {
@@ -442,7 +439,7 @@ p { line-height: 1.6; }
 .deep-dive-label {
   font-family: var(--font-heading);
   font-weight: 600;
-  color: var(--ocean-teal);
+  color: var(--dusty-peach);
   font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -646,7 +643,7 @@ p { line-height: 1.6; }
   font-family: var(--font-heading);
   font-style: italic;
   font-size: 16px;
-  color: #158EA4;
+  color: var(--dusty-peach);
   margin: 4px 0 0;
 }
 

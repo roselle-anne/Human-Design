@@ -131,6 +131,14 @@ app.post('/api/chart', async (req, res) => {
 // ever has to follow a link to a file.
 const styleCssPath = path.join(__dirname, '..', 'public', 'style.css');
 
+// Embedding the logo as a data URI (read once at startup) means Puppeteer
+// never has to make a real network round-trip back to this same server to
+// fetch it while rendering the PDF — that self-request (through Render's
+// public hostname, not a local file read) was the slow part of "loading
+// the logo," not image decoding itself.
+const logoPath = path.join(__dirname, '..', 'public', 'assets', 'logo-horizontal-color.png');
+const logoDataUri = `data:image/png;base64,${fs.readFileSync(logoPath).toString('base64')}`;
+
 // Launching a fresh Chromium process per request measured at ~60s on
 // Render's free tier (0.5 CPU) — most of that is browser startup, not
 // actual rendering (56 pages renders in ~7s locally). Keeping one browser
@@ -165,7 +173,6 @@ app.get('/api/report.pdf', async (req, res) => {
     const { chart, content } = await buildChartAndContent(birthUTC);
     const structure = { centers: CENTERS, channels: CHANNELS };
     const inlineCss = fs.readFileSync(styleCssPath, 'utf8');
-    const logoUrl = `${req.protocol}://${req.get('host')}/assets/logo-horizontal-color.png`;
 
     const html = buildReportHtml(
       chart,
@@ -174,7 +181,7 @@ app.get('/api/report.pdf', async (req, res) => {
       name ? String(name) : '',
       { date: String(date), time: String(time), timeZone: String(timeZone) },
       inlineCss,
-      logoUrl
+      logoDataUri
     );
 
     // Temporary timing instrumentation: two "warm" production requests

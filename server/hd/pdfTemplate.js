@@ -113,9 +113,9 @@ function buildBodygraph(chart, structure) {
   </svg>`;
 }
 
-// A small standalone icon of a single center's own shape, gold-outlined
-// with its fixed gate numbers inside — used in each center page's header
-// banner as a compact "which shape is this" reference.
+// A small standalone icon of a single center's own shape, dusty-peach
+// outlined, with its fixed gate numbers inside — used in each center
+// page's header banner as a compact "which shape is this" reference.
 function miniCenterIcon(centerName, gates) {
   const shape = CENTER_POS[centerName].shape;
   const pos = { x: 60, y: 45, shape, w: 92, h: 64 };
@@ -123,7 +123,7 @@ function miniCenterIcon(centerName, gates) {
     .map(({ gate, x, y }) => `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#FFFFFF">${gate}</text>`)
     .join('\n');
   return `<svg viewBox="0 0 120 90" class="center-hero-icon-svg">
-    <path d="${shapePath(pos)}" fill="none" stroke="#158EA4" stroke-width="3" />
+    <path d="${shapePath(pos)}" fill="none" stroke="#E6B1A1" stroke-width="3" />
     ${numbers}
   </svg>`;
 }
@@ -566,13 +566,13 @@ function miniGateIcon(centerName, gates, highlightGate) {
   const numbers = gateGrid(gates, pos.x, pos.y, 3, 15, 20)
     .map(({ gate, x, y }) => {
       if (gate === highlightGate) {
-        return `<circle cx="${x}" cy="${y}" r="9" fill="#D88C9A" /><text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="9" fill="#FFFFFF" font-weight="600">${gate}</text>`;
+        return `<circle cx="${x}" cy="${y}" r="9" fill="#E6B1A1" /><text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="9" fill="#FFFFFF" font-weight="600">${gate}</text>`;
       }
       return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#FFFFFF" opacity="0.55">${gate}</text>`;
     })
     .join('\n');
   return `<svg viewBox="0 0 120 90" class="center-hero-icon-svg">
-    <path d="${shapePath(pos)}" fill="none" stroke="#D88C9A" stroke-width="3" />
+    <path d="${shapePath(pos)}" fill="none" stroke="#E6B1A1" stroke-width="3" />
     ${numbers}
   </svg>`;
 }
