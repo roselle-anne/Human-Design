@@ -1,45 +1,51 @@
-const tzSearch = document.getElementById('tz-search');
-const tzSelect = document.getElementById('timeZone');
-let allZones = [];
-let chosenZone = null;
+const placeSearch = document.getElementById('place-search');
+const placeSelect = document.getElementById('place-select');
+let placeMatches = [];
+let chosenPlace = null; // { displayName, lat, lon, timeZone }
+let placeSearchController = null;
+let placeSearchDebounce = null;
 
-async function loadZones() {
-  const res = await fetch('/api/timezones');
-  allZones = await res.json();
-  // Deliberately no pre-filled default: this app supports all 400+ IANA
-  // timezones worldwide, and pre-filling one (even the visitor's own) risked
-  // looking like the tool was limited to a single region.
+async function searchPlaces(query) {
+  if (placeSearchController) placeSearchController.abort();
+  placeSearchController = new AbortController();
+  try {
+    const res = await fetch(`/api/place-search?q=${encodeURIComponent(query)}`, { signal: placeSearchController.signal });
+    placeMatches = res.ok ? await res.json() : [];
+  } catch (err) {
+    if (err.name !== 'AbortError') placeMatches = [];
+    else return;
+  }
+  renderPlaceOptions();
 }
-loadZones();
 
-function renderZoneOptions(filter) {
-  const matches = allZones
-    .filter((z) => z.toLowerCase().includes(filter.toLowerCase()))
-    .slice(0, 50);
-  tzSelect.innerHTML = matches
-    .map((z) => `<option value="${z}">${z}</option>`)
+function renderPlaceOptions() {
+  placeSelect.innerHTML = placeMatches
+    .map((p, i) => `<option value="${i}">${p.displayName}</option>`)
     .join('');
-  // Size the listbox to the actual match count (capped at 6) so it never
-  // reserves empty rows that visually overlap the elements below it.
-  tzSelect.size = Math.max(1, Math.min(matches.length, 6));
-  tzSelect.style.display = matches.length && document.activeElement === tzSearch ? 'block' : 'none';
+  placeSelect.size = Math.max(1, Math.min(placeMatches.length, 6));
+  placeSelect.style.display = placeMatches.length && document.activeElement === placeSearch ? 'block' : 'none';
 }
 
-tzSearch.addEventListener('input', () => {
-  chosenZone = null;
-  renderZoneOptions(tzSearch.value);
+placeSearch.addEventListener('input', () => {
+  chosenPlace = null;
+  clearTimeout(placeSearchDebounce);
+  const query = placeSearch.value.trim();
+  if (query.length < 2) {
+    placeMatches = [];
+    renderPlaceOptions();
+    return;
+  }
+  // Debounced so we don't hammer the free geocoding service on every
+  // keystroke — Nominatim's usage policy expects modest request rates.
+  placeSearchDebounce = setTimeout(() => searchPlaces(query), 400);
 });
-tzSearch.addEventListener('focus', () => {
-  tzSearch.select();
-  renderZoneOptions(tzSearch.value);
-});
-tzSelect.addEventListener('change', () => {
-  chosenZone = tzSelect.value;
-  tzSearch.value = chosenZone;
-  tzSelect.style.display = 'none';
+placeSelect.addEventListener('change', () => {
+  chosenPlace = placeMatches[Number(placeSelect.value)] || null;
+  if (chosenPlace) placeSearch.value = chosenPlace.displayName;
+  placeSelect.style.display = 'none';
 });
 document.addEventListener('click', (e) => {
-  if (e.target !== tzSearch && e.target !== tzSelect) tzSelect.style.display = 'none';
+  if (e.target !== placeSearch && e.target !== placeSelect) placeSelect.style.display = 'none';
 });
 
 // ---- Bodygraph layout (schematic, not pixel-exact to any single source) ----
@@ -112,6 +118,78 @@ function el(html) {
   return t.content.firstChild;
 }
 
+function ordinalSuffix(n) {
+  if (n >= 11 && n <= 13) return 'th';
+  switch (n % 10) {
+    case 1: return 'st';
+    case 2: return 'nd';
+    case 3: return 'rd';
+    default: return 'th';
+  }
+}
+
+// Birth date/time are already the exact local wall-clock values the visitor
+// typed, so this formats them directly with no timezone conversion needed.
+function formatOrdinalLocal(dateStr, timeStr) {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const monthName = new Date(2000, month - 1, 1).toLocaleDateString('en-US', { month: 'long' });
+  return `${day}${ordinalSuffix(day)} ${monthName} ${year}${timeStr ? ` @ ${timeStr}` : ''}`;
+}
+
+// The Design moment is stored as a UTC instant and needs converting into the
+// birth location's local time (unlike birth date/time, which the visitor
+// already entered in local terms).
+function formatOrdinalInTimeZone(isoUTC, timeZone) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone, year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+  }).formatToParts(new Date(isoUTC));
+  const map = Object.fromEntries(parts.map((p) => [p.type, p.value]));
+  const day = Number(map.day);
+  return `${day}${ordinalSuffix(day)} ${map.month} ${map.year} @ ${map.hour}:${map.minute}`;
+}
+
+function computeAge(dateStr) {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const today = new Date();
+  let age = today.getFullYear() - year;
+  const hadBirthdayThisYear = (today.getMonth() + 1 > month) || (today.getMonth() + 1 === month && today.getDate() >= day);
+  if (!hadBirthdayThisYear) age -= 1;
+  return age;
+}
+
+// A concise, single-screen overview — one line of context per topic, no
+// deep-dive paragraphs (those live in the sections and PDF below/beyond
+// this). Six Human Design "Variables" fields (Digestion, Sense, Design
+// Sense, Motivation, Perspective, Environment) are intentionally left out:
+// that subsystem depends on a Color/Tone lookup table we could not source
+// and verify accurately, so rather than risk showing a wrong personal
+// result, it's omitted until we have a verified data source for it.
+function buildOverviewSection(name, birthInputs, chart, content) {
+  const rows = [
+    ['Name', name || '—'],
+    ['Birth Date', formatOrdinalLocal(birthInputs.date, birthInputs.time)],
+    ['Age', String(computeAge(birthInputs.date))],
+    ['Design Date', formatOrdinalInTimeZone(chart.design.utc, birthInputs.timeZone)],
+    ['Type', chart.type, content.typeInfo.shortSummary],
+    ['Strategy', content.typeInfo.strategy, content.typeDetailForChart.strategyParagraphs[0]],
+    ['Inner Authority', chart.authority, content.authorityInfo.description],
+    ['Definition', chart.definition, content.definitionInfoForChart.summary],
+    ['Profile', chart.profile, content.profileNarrative],
+    ['Incarnation Cross', `${content.crossReading.title} (${chart.incarnationCross.personalitySunGate}/${chart.incarnationCross.personalityEarthGate} | ${chart.incarnationCross.designSunGate}/${chart.incarnationCross.designEarthGate})`, content.crossReading.paragraphs[0].split(' For you specifically')[0]],
+    ['Signature', content.typeInfo.signature, content.typeDetailForChart.signatureParagraphs[0]],
+    ['Not-Self Theme', content.typeInfo.notSelf, content.typeDetailForChart.notSelfParagraphs[0]],
+  ];
+  return `<section class="panel overview-panel">
+    <h2>Overview</h2>
+    ${rows.map(([label, value, desc]) => `
+      <div class="overview-row">
+        <div class="overview-label">${label}</div>
+        <div class="overview-value">${value}</div>
+        ${desc ? `<p class="overview-desc">${desc}</p>` : ''}
+      </div>`).join('')}
+  </section>`;
+}
+
 function buildTitlePage(name, birthInputs) {
   const preparedDate = new Date().toLocaleDateString(undefined, {
     year: 'numeric', month: 'long', day: 'numeric',
@@ -126,7 +204,7 @@ function buildTitlePage(name, birthInputs) {
     ${name ? `<p class="report-subject">Prepared for ${name}</p>` : ''}
     <div class="title-meta">
       <span><strong>Birth date:</strong> ${birthDateFormatted} at ${birthInputs.time}</span>
-      <span><strong>Timezone:</strong> ${birthInputs.timeZone}</span>
+      <span><strong>Place of birth:</strong> ${birthInputs.place || birthInputs.timeZone}</span>
       <span><strong>Report prepared:</strong> ${preparedDate}</span>
     </div>
   </div>`;
@@ -143,16 +221,7 @@ function renderReport(name, birthInputs, data) {
 
   reportContent.appendChild(el(buildTitlePage(name, birthInputs)));
 
-  const summary = el(`<div class="summary-grid">
-    ${['Type', 'Profile', 'Authority', 'Definition'].map((label) => `
-      <div class="summary-card">
-        <div class="label">${label}</div>
-        <div class="value">${chart[label.toLowerCase()]}</div>
-      </div>`).join('')}
-    <div class="summary-card"><div class="label">Strategy</div><div class="value">${content.typeInfo.strategy}</div></div>
-    <div class="summary-card"><div class="label">Signature / Not-Self</div><div class="value">${content.typeInfo.signature} / ${content.typeInfo.notSelf}</div></div>
-  </div>`);
-  reportContent.appendChild(summary);
+  reportContent.appendChild(el(buildOverviewSection(name, birthInputs, chart, content)));
 
   const bodygraphSection = el(`<section class="panel">
     <h2>Bodygraph</h2>
@@ -301,6 +370,7 @@ async function downloadReportPDF(name, birthInputs) {
       timeZone: birthInputs.timeZone,
     });
     if (name) params.set('name', name);
+    if (birthInputs.place) params.set('place', birthInputs.place);
 
     const res = await fetch(`/api/report.pdf?${params.toString()}`);
     if (!res.ok) throw new Error('Failed to generate the report.');
@@ -345,12 +415,13 @@ document.getElementById('birth-form').addEventListener('submit', async (e) => {
   const name = document.getElementById('name').value.trim();
   const date = document.getElementById('date').value;
   const time = document.getElementById('time').value;
-  const timeZone = chosenZone || tzSearch.value.trim();
 
-  if (!date || !time || !timeZone || !allZones.includes(timeZone)) {
-    status.textContent = 'Please fill in date, time, and pick a valid timezone from the list.';
+  if (!date || !time || !chosenPlace) {
+    status.textContent = 'Please fill in date, time, and select your place of birth from the list.';
     return;
   }
+  const timeZone = chosenPlace.timeZone;
+  const place = chosenPlace.displayName;
 
   status.textContent = 'Calculating planetary positions...';
   document.getElementById('result').hidden = true;
@@ -364,7 +435,7 @@ document.getElementById('birth-form').addEventListener('submit', async (e) => {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Failed to calculate chart');
     status.textContent = '';
-    renderReport(name, { date, time, timeZone }, data);
+    renderReport(name, { date, time, timeZone, place }, data);
   } catch (err) {
     status.textContent = 'Error: ' + err.message;
   }

@@ -78,7 +78,7 @@ input, select {
   font-family: var(--font-body);
 }
 
-select#timeZone {
+select#place-select {
   position: absolute;
   top: 100%;
   left: 0;
@@ -196,6 +196,30 @@ button[type="submit"]:hover, .btn-primary:hover { filter: brightness(1.05); }
 }
 .summary-card .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
 .summary-card .value { font-size: 18px; font-weight: 600; margin-top: 4px; font-family: var(--font-heading); }
+
+.overview-panel .overview-row {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.overview-panel .overview-row:last-child { border-bottom: none; }
+.overview-label {
+  color: var(--ocean-teal);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+.overview-value {
+  font-size: 18px;
+  font-weight: 600;
+  font-family: var(--font-heading);
+  margin-top: 2px;
+}
+.overview-desc {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
 
 section.panel {
   background: var(--panel);

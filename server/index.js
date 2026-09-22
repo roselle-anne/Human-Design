@@ -3,9 +3,10 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer';
+import tzLookup from 'tz-lookup';
 import { calculateChart } from './hd/calculate.js';
 import { CENTERS, CHANNELS } from './hd/structure.js';
-import { TYPES, TYPE_DETAIL, AUTHORITIES, AUTHORITY_DETAIL, CENTERS_INFO, CENTER_DEEP_DIVE, GATES, GATE_DEEP_DIVE, GATE_DETAIL, CHANNEL_THEMES, CHANNEL_DETAIL, DEFINITION_INFO, PROFILE_LINES, PROFILE_LINE_DETAIL, SECTION_INTROS, HD_INTRO_PARAGRAPHS, profileDescription } from './hd/content.js';
+import { TYPES, TYPE_DETAIL, AUTHORITIES, AUTHORITY_DETAIL, CENTERS_INFO, CENTER_DEEP_DIVE, GATES, GATE_DEEP_DIVE, GATE_DETAIL, CHANNEL_THEMES, CHANNEL_DETAIL, DEFINITION_INFO, PROFILE_LINES, PROFILE_LINE_DETAIL, SECTION_INTROS, HD_INTRO_PARAGRAPHS, profileDescription, buildIncarnationCrossReading } from './hd/content.js';
 import { buildReportHtml } from './hd/pdfTemplate.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -26,6 +27,52 @@ app.use(
 
 app.get('/api/timezones', (req, res) => {
   res.json(Intl.supportedValuesOf('timeZone'));
+});
+
+// Resolves a typed place name (e.g. "Singapore" or "Austin, Texas") to
+// candidate places with coordinates, each already resolved to its exact
+// IANA timezone — so the birth-details form can ask for an actual place of
+// birth instead of a raw timezone string. Geocoding via OpenStreetMap's free
+// Nominatim API (no key required); the timezone itself is then resolved
+// fully offline via tz-lookup's bundled timezone-boundary data, so no
+// external timezone service or API key is needed for that part.
+app.get('/api/place-search', async (req, res) => {
+  try {
+    const q = String(req.query.q || '').trim();
+    if (q.length < 2) return res.json([]);
+
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=8&addressdetails=1`;
+    const nominatimRes = await fetch(url, {
+      headers: {
+        // Nominatim's usage policy requires a descriptive User-Agent
+        // identifying the application making requests.
+        'User-Agent': 'EmbodianceHumanDesignApp/1.0 (https://embodiance.com)',
+      },
+    });
+    if (!nominatimRes.ok) {
+      return res.status(502).json({ error: 'Place lookup service unavailable' });
+    }
+    const results = await nominatimRes.json();
+
+    const places = results
+      .map((r) => {
+        const lat = Number(r.lat);
+        const lon = Number(r.lon);
+        let timeZone;
+        try {
+          timeZone = tzLookup(lat, lon);
+        } catch {
+          return null;
+        }
+        return { displayName: r.display_name, lat, lon, timeZone };
+      })
+      .filter(Boolean);
+
+    res.json(places);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to search for that place' });
+  }
 });
 
 /**
@@ -95,6 +142,7 @@ async function buildChartAndContent(birthUTC) {
       chart.personality.find((a) => a.body === 'Sun').line,
       chart.designActivations.find((a) => a.body === 'Sun').line
     ),
+    crossReading: buildIncarnationCrossReading(chart.incarnationCross, chart.profile, GATES),
   };
   return { chart, content };
 }
@@ -161,7 +209,7 @@ async function getBrowser() {
 app.get('/api/report.pdf', async (req, res) => {
   let page;
   try {
-    const { date, time, timeZone, name } = req.query;
+    const { date, time, timeZone, name, place } = req.query;
     if (!date || !time || !timeZone) {
       return res.status(400).json({ error: 'date, time, and timeZone are required' });
     }
@@ -186,7 +234,7 @@ app.get('/api/report.pdf', async (req, res) => {
       content,
       structure,
       name ? String(name) : '',
-      { date: String(date), time: String(time), timeZone: String(timeZone) },
+      { date: String(date), time: String(time), timeZone: String(timeZone), place: place ? String(place) : '' },
       inlineCss,
       logoDataUri
     );

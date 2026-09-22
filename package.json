@@ -17,7 +17,8 @@
   "dependencies": {
     "@kuntay/swisseph": "^0.2.2",
     "express": "^5.2.1",
-    "puppeteer": "^25.11.0"
+    "puppeteer": "^25.11.0",
+    "tz-lookup": "^6.1.25"
   },
   "allowScripts": {
     "puppeteer@25.11.0": true

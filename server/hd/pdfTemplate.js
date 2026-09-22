@@ -4,8 +4,6 @@
 // these are pure string functions with no DOM dependency, so they run
 // identically in Node.
 
-import { buildIncarnationCrossReading } from './content.js';
-
 const CENTER_POS = {
   Head: { x: 260, y: 52, shape: 'triangle-down', w: 90, h: 55 },
   Ajna: { x: 260, y: 143, shape: 'triangle-up', w: 90, h: 65 },
@@ -262,7 +260,7 @@ function buildCoverPage(name, birthInputs, logoUrl) {
     ${name ? `<p class="report-subject">Prepared for ${name}</p>` : ''}
     <div class="title-meta">
       <span><strong>Birth date:</strong> ${birthDateFormatted} at ${birthInputs.time}</span>
-      <span><strong>Timezone:</strong> ${birthInputs.timeZone}</span>
+      <span><strong>Place of birth:</strong> ${birthInputs.place || birthInputs.timeZone}</span>
       <span><strong>Report prepared:</strong> ${preparedDate}</span>
     </div>
   </div>`;
@@ -636,7 +634,7 @@ function buildCrossPage(chart, content) {
   const pEarth = content.gates[cross.personalityEarthGate];
   const dSun = content.gates[cross.designSunGate];
   const dEarth = content.gates[cross.designEarthGate];
-  const reading = buildIncarnationCrossReading(cross, chart.profile, content.gates);
+  const reading = content.crossReading;
   const labels = ['Your Life Theme', 'What Each Gate Contributes', 'How Your Angle Shapes It', 'Where Resistance Shows Up', 'Living In Your Cross'];
   return `<div class="report-page cross-page">
     <div class="cross-hero">
