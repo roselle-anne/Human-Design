@@ -191,11 +191,13 @@ function renderReport(name, birthInputs, data) {
   const crossSection = el(`<section class="panel">
     <h2>Incarnation Cross</h2>
     <p>Your Incarnation Cross is formed by the Sun and Earth gates of your Personality and Design, and is further shaped by your ${chart.profile} profile.</p>
-    <table class="gates-table">
-      <tr><th></th><th>Sun Gate</th><th>Earth Gate</th></tr>
-      <tr><td>Personality (conscious)</td><td>${chart.incarnationCross.personalitySunGate} — ${content.gates[chart.incarnationCross.personalitySunGate].name}</td><td>${chart.incarnationCross.personalityEarthGate} — ${content.gates[chart.incarnationCross.personalityEarthGate].name}</td></tr>
-      <tr><td>Design (unconscious)</td><td>${chart.incarnationCross.designSunGate} — ${content.gates[chart.incarnationCross.designSunGate].name}</td><td>${chart.incarnationCross.designEarthGate} — ${content.gates[chart.incarnationCross.designEarthGate].name}</td></tr>
-    </table>
+    <div class="table-scroll">
+      <table class="gates-table">
+        <tr><th></th><th>Sun Gate</th><th>Earth Gate</th></tr>
+        <tr><td>Personality (conscious)</td><td>${chart.incarnationCross.personalitySunGate} — ${content.gates[chart.incarnationCross.personalitySunGate].name}</td><td>${chart.incarnationCross.personalityEarthGate} — ${content.gates[chart.incarnationCross.personalityEarthGate].name}</td></tr>
+        <tr><td>Design (unconscious)</td><td>${chart.incarnationCross.designSunGate} — ${content.gates[chart.incarnationCross.designSunGate].name}</td><td>${chart.incarnationCross.designEarthGate} — ${content.gates[chart.incarnationCross.designEarthGate].name}</td></tr>
+      </table>
+    </div>
   </section>`);
   reportContent.appendChild(crossSection);
 
@@ -217,19 +219,21 @@ function renderReport(name, birthInputs, data) {
   const gatesSection = el(`<section class="panel">
     <h2>Activated Gates</h2>
     <p class="legend"><span class="side-badge personality">Personality</span> conscious, from your exact birth moment &nbsp;&nbsp; <span class="side-badge design">Design</span> unconscious, from ~88° of solar arc before birth</p>
-    <table class="gates-table">
-      <tr><th>Gate</th><th>Name</th><th>Center</th><th>Side(s)</th><th>Keynote</th></tr>
-      ${chart.activeGates.map((g) => {
-        const info = content.gates[g.gate];
-        return `<tr>
-          <td>${g.gate}</td>
-          <td>${info.name}</td>
-          <td>${g.center}</td>
-          <td>${g.sides.map((s) => `<span class="side-badge ${s}">${s === 'personality' ? 'P' : 'D'}</span>`).join('')}</td>
-          <td>${info.keynote}</td>
-        </tr>`;
-      }).join('')}
-    </table>
+    <div class="table-scroll">
+      <table class="gates-table">
+        <tr><th>Gate</th><th>Name</th><th>Center</th><th>Side(s)</th><th>Keynote</th></tr>
+        ${chart.activeGates.map((g) => {
+          const info = content.gates[g.gate];
+          return `<tr>
+            <td>${g.gate}</td>
+            <td>${info.name}</td>
+            <td>${g.center}</td>
+            <td>${g.sides.map((s) => `<span class="side-badge ${s}">${s === 'personality' ? 'P' : 'D'}</span>`).join('')}</td>
+            <td>${info.keynote}</td>
+          </tr>`;
+        }).join('')}
+      </table>
+    </div>
   </section>`);
   reportContent.appendChild(gatesSection);
 

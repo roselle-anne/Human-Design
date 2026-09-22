@@ -4,6 +4,8 @@
 // these are pure string functions with no DOM dependency, so they run
 // identically in Node.
 
+import { buildIncarnationCrossReading } from './content.js';
+
 const CENTER_POS = {
   Head: { x: 260, y: 52, shape: 'triangle-down', w: 90, h: 55 },
   Ajna: { x: 260, y: 143, shape: 'triangle-up', w: 90, h: 65 },
@@ -83,32 +85,47 @@ function gateLabel(gate, x, y, sides) {
 }
 
 function buildBodygraph(chart, structure) {
-  const definedGatePairKeys = new Set(
-    chart.definedChannels.map((c) => c.centers.slice().sort().join('|'))
+  const definedChannelKeys = new Set(
+    chart.definedChannels.map((c) => c.gates.slice().sort((a, b) => a - b).join('-'))
   );
   const activeGateSides = Object.fromEntries(chart.activeGates.map((g) => [g.gate, g.sides]));
 
-  const lines = CENTER_PAIRS.map(([a, b]) => {
-    const A = CENTER_POS[a], B = CENTER_POS[b];
-    const defined = definedGatePairKeys.has([a, b].sort().join('|'));
-    return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${defined ? '#222222' : '#EAD3C8'}" stroke-width="${defined ? 5 : 2}" />`;
-  }).join('\n');
+  // Every gate's rendered (x,y) is computed up front so channel lines can
+  // connect the exact two gate dots a channel actually joins, instead of a
+  // generic center-to-center line that doesn't line up with either gate.
+  const gatePos = {};
+  const cellsByCenter = {};
+  Object.entries(CENTER_POS).forEach(([name, pos]) => {
+    const cells = gateGrid(structure.centers[name].gates, pos.x, pos.y);
+    cellsByCenter[name] = cells;
+    cells.forEach(({ gate, x, y }) => { gatePos[gate] = { x, y }; });
+  });
 
   const shapes = Object.keys(CENTER_POS).map((name) => {
     const pos = CENTER_POS[name];
     return `<path d="${shapePath(pos)}" fill="#F4CEBF" stroke="#E6B1A1" stroke-width="1.5" />`;
   }).join('\n');
 
-  const gateNumbers = Object.entries(CENTER_POS).map(([name, pos]) => {
-    const gates = structure.centers[name].gates;
-    return gateGrid(gates, pos.x, pos.y)
-      .map(({ gate, x, y }) => gateLabel(gate, x, y, activeGateSides[gate]))
-      .join('\n');
+  // Lines are drawn on top of the (opaque) shapes, so a defined channel's
+  // thick line is visibly traceable crossing right up to its gate dot,
+  // rather than being hidden underneath the shape fill.
+  const lines = structure.channels.map((ch) => {
+    const [gA, gB] = ch.gates;
+    const A = gatePos[gA];
+    const B = gatePos[gB];
+    if (!A || !B) return '';
+    const defined = definedChannelKeys.has([gA, gB].slice().sort((a, b) => a - b).join('-'));
+    return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${defined ? '#222222' : '#EAD3C8'}" stroke-width="${defined ? 5 : 2}" />`;
   }).join('\n');
 
+  const gateNumbers = Object.values(cellsByCenter)
+    .flat()
+    .map(({ gate, x, y }) => gateLabel(gate, x, y, activeGateSides[gate]))
+    .join('\n');
+
   return `<svg viewBox="0 0 500 700" width="500" height="700">
-    ${lines}
     ${shapes}
+    ${lines}
     ${gateNumbers}
   </svg>`;
 }
@@ -619,18 +636,16 @@ function buildCrossPage(chart, content) {
   const pEarth = content.gates[cross.personalityEarthGate];
   const dSun = content.gates[cross.designSunGate];
   const dEarth = content.gates[cross.designEarthGate];
-  const trim = (s) => s.replace(/\.$/, '').toLowerCase();
+  const reading = buildIncarnationCrossReading(cross, chart.profile, content.gates);
+  const labels = ['Your Life Theme', 'What Each Gate Contributes', 'How Your Angle Shapes It', 'Where Resistance Shows Up', 'Living In Your Cross'];
   return `<div class="report-page cross-page">
     <div class="cross-hero">
-      <div class="page-eyebrow">Incarnation Cross</div>
-      <h1 class="report-title">Your Life's Work</h1>
+      <div class="page-eyebrow">Incarnation Cross &middot; ${reading.epithet}</div>
+      <h1 class="report-title">${reading.title}</h1>
       <p class="report-subject">Gates ${cross.personalitySunGate}/${cross.personalityEarthGate} &middot; ${cross.designSunGate}/${cross.designEarthGate}</p>
     </div>
     <div class="page-body cross-body">
-      <p>Your Incarnation Cross is carried by four gates: consciously, the Sun in Gate ${cross.personalitySunGate} (${pSun.name}) opposite the Earth in Gate ${cross.personalityEarthGate} (${pEarth.name}); unconsciously, the Sun in Gate ${cross.designSunGate} (${dSun.name}) opposite the Earth in Gate ${cross.designEarthGate} (${dEarth.name}).</p>
-      <p>Consciously, you are here to work with the theme of ${trim(pSun.keynote)}, grounded and made practical through ${trim(pEarth.keynote)}. This is the half of your life's work you can name for yourself and speak to directly.</p>
-      <p>Underneath, your unconscious design carries ${trim(dSun.keynote)}, balanced by ${trim(dEarth.keynote)}. This half runs quietly in the background — other people often notice it in you well before you notice it yourself, and it shapes your life's work just as much as the conscious half does.</p>
-      <p>Together, shaped by your ${chart.profile} profile, these four gates describe a specific, non-repeatable role: not a job title, but a current running through everything you do, whether or not you ever put a name to it.</p>
+      ${reading.paragraphs.map((p, i) => `<h2>${labels[i]}</h2><p>${p}</p>`).join('')}
     </div>
     <table class="gates-table centered-table">
       <tr><th></th><th>Sun Gate</th><th>Earth Gate</th></tr>

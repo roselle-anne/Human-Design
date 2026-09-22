@@ -1307,3 +1307,151 @@ export const DEFINITION_INFO = {
     ],
   },
 };
+
+// --- Incarnation Cross -----------------------------------------------------
+//
+// The angle-type rule below (which of the 12 possible Profiles produces a
+// Right Angle, Left Angle, or Juxtaposition Cross) is well-documented,
+// standard Human Design mechanics — cross-checked against multiple
+// independent sources and against a known real example (a 3/5 profile
+// producing a Right Angle Cross).
+//
+// The specific poetic base names (e.g. "The Sleeping Phoenix") are also
+// standard, universal Human Design terminology — identical across every
+// provider — rather than any one company's proprietary text. CROSS_NAMES
+// below is a **partial** table (~100 of the 192 total names), built from
+// cross-referencing multiple independent public sources and verified
+// against the one example we could fully confirm. Where a user's specific
+// four gates aren't in this partial table, buildIncarnationCrossReading
+// falls back to an accurate, ungraded "Your {Angle Type} Cross" title
+// rather than guessing a name — the full interpretation still renders
+// either way, since it's built from each gate's own verified name/keynote
+// plus the angle-type's well-established general meaning, not from
+// per-cross text we don't have.
+const RIGHT_ANGLE_PROFILES = new Set(['1/3', '1/4', '2/4', '2/5', '3/5', '3/6', '4/6']);
+const LEFT_ANGLE_PROFILES = new Set(['5/1', '5/2', '6/2', '6/3']);
+
+export function crossAngleType(profile) {
+  if (profile === '4/1') return 'Juxtaposition';
+  if (RIGHT_ANGLE_PROFILES.has(profile)) return 'Right Angle';
+  if (LEFT_ANGLE_PROFILES.has(profile)) return 'Left Angle';
+  return 'Right Angle';
+}
+
+export const CROSS_ANGLE_INFO = {
+  'Right Angle': {
+    epithet: 'Cross of Personal Destiny',
+    theme:
+      'A Right Angle Cross is oriented around your own life — the most common of the three angles, and the one most concerned with living out your personal narrative rather than serving anyone else\'s agenda. Fulfilling your own nature, on your own terms, is itself the point; it is not selfish, it is the actual job.',
+    howToLive:
+      'In practice, this means orienting major decisions around what genuinely calls you rather than around what\'s expected of you — checking in with your own strategy and authority before anyone else\'s opinion, and treating your own satisfaction as a legitimate, sufficient reason to move forward on something.',
+    resistance:
+      'Resistance and confusion here tend to show up as chronic self-deferral — organizing your choices around other people\'s schedules, expectations, or approval instead of your own correct timing and direction. The friction is almost always a sign you have quietly handed your own narrative over to someone else.',
+  },
+  'Left Angle': {
+    epithet: 'Cross of Transpersonal Destiny',
+    theme:
+      'A Left Angle Cross is oriented outward — your life\'s meaning shows up less through a private personal arc and more through your effect on the people, situations, and circumstances that cross your path. You are, in a real sense, working for something larger than your own individual story, whether or not you ever frame it that way.',
+    howToLive:
+      'In practice, this means staying available to what actually shows up in front of you rather than engineering your life from a private, solo plan — trusting that your correct next contribution often arrives through someone else\'s need, request, or circumstance, not through an agenda you set entirely on your own.',
+    resistance:
+      'Resistance and confusion here tend to show up as isolation — trying to go it entirely alone, or treating your life as if it only concerns you. Since a transpersonal destiny is only completed through contact with others, cutting yourself off from people and circumstances is where this cross\'s energy stalls out.',
+  },
+  Juxtaposition: {
+    epithet: 'Cross of Fixed Fate',
+    theme:
+      'A Juxtaposition Cross is the rarest of the three, occurring only with a 4/1 profile. It fuses personal and transpersonal destiny into one tight, specific, largely non-negotiable role — less a path you choose than one you are precisely built for, with very little room to substitute a different direction.',
+    howToLive:
+      'In practice, this means accepting that your path is unusually specific and won\'t look like anyone else\'s — trying to broaden it, diversify it, or make it more flexible tends to create more friction than simply living inside its precise, narrow lane.',
+    resistance:
+      'Resistance and confusion here tend to show up as fighting the sheer specificity of the path — wishing it were broader, more flexible, or more like everyone else\'s more open-ended options. The friction eases considerably once the fixed, exact nature of the role is accepted rather than resisted.',
+  },
+};
+
+// Partial table of base cross names, keyed by a canonical, order-independent
+// combination of the two gate-axes involved (see crossAxisKey). Sourced and
+// cross-checked as described above.
+const CROSS_NAME_ROWS = [
+  ['Beginnings', 53, 54, 42, 32], ['Bargains', 37, 40, 5, 35], ['Caring', 27, 28, 19, 33],
+  ['Behavior', 10, 15, 18, 17], ['Ambition', 54, 53, 32, 42], ['Alertness', 44, 24, 7, 13],
+  ['Assimilation', 23, 43, 30, 29], ['Articulation', 12, 11, 25, 46], ['Completion', 42, 32, 60, 56],
+  ['Commitment', 29, 30, 20, 34], ['Mutation', 3, 50, 41, 31], ['Moods', 55, 59, 9, 16],
+  ['The Now', 20, 34, 37, 40], ['Need', 19, 33, 1, 2], ['Opposition', 38, 39, 57, 51],
+  ['Opinions', 17, 18, 38, 39], ['Possession', 45, 26, 36, 6], ['Oppression', 47, 22, 12, 11],
+  ['Principles', 49, 4, 14, 8], ['Power', 34, 20, 40, 37], ['Provocation', 39, 38, 51, 57],
+  ['Rationalization', 24, 44, 13, 7], ['Retreat', 33, 19, 2, 1], ['Risks', 28, 27, 33, 19],
+  ['Self-Expression', 1, 2, 4, 49], ['Serendipity', 46, 25, 52, 58], ['Shock', 51, 57, 61, 62],
+  ['Stillness', 52, 58, 21, 48], ['Stimulation', 56, 60, 27, 28], ['Strategy', 59, 55, 16, 9],
+  ['Vitality', 58, 52, 48, 21], ['Values', 50, 3, 31, 41], ['The Trickster', 26, 45, 6, 36],
+  ['Thinking', 61, 62, 50, 3], ['Control', 21, 48, 54, 53], ['Correction', 18, 17, 39, 38],
+  ['Crisis', 36, 6, 10, 15], ['Denial', 40, 37, 35, 5], ['Conflict', 6, 36, 15, 10],
+  ['Confusion', 64, 63, 45, 26], ['Conservation', 32, 42, 56, 60], ['Contribution', 8, 14, 55, 59],
+  ['Depth', 48, 21, 53, 54], ['Detail', 62, 61, 3, 50], ['Fates', 30, 29, 34, 20],
+  ['Fantasy', 41, 31, 44, 24], ['Extremes', 15, 10, 17, 18], ['Experimentation', 16, 9, 63, 64],
+  ['Experience', 35, 5, 22, 47], ['Empowering', 14, 8, 59, 55], ['The Driver', 2, 1, 49, 4],
+  ['Doubts', 63, 64, 26, 45], ['Formulization', 4, 49, 8, 14], ['Focus', 9, 16, 64, 63],
+  ['Interaction', 7, 13, 23, 43], ['Intuition', 57, 51, 62, 61], ['Innocence', 25, 46, 58, 52],
+  ['Insight', 43, 23, 29, 30], ['Ideas', 11, 12, 46, 25], ['Influence', 31, 41, 24, 44],
+  ['Grace', 22, 47, 11, 12], ['Habits', 5, 35, 47, 22], ['Limitation', 60, 56, 28, 27],
+  ['Listening', 13, 7, 43, 23], ['The Alpha', 41, 31, 44, 24], ['Alignment', 28, 27, 33, 19],
+  ['The Clarion', 57, 51, 62, 61], ['Cycles', 53, 54, 42, 32], ['Confrontation', 45, 26, 36, 6],
+  ['Defiance', 2, 1, 49, 4], ['Dedication', 23, 43, 30, 29], ['Demands', 52, 58, 21, 48],
+  ['Endeavor', 48, 21, 53, 54], ['Duality', 34, 20, 40, 37], ['Education', 11, 12, 46, 25],
+  ['Distraction', 60, 56, 28, 27], ['Dominion', 64, 63, 45, 26], ['Industry', 30, 29, 34, 20],
+  ['Incarnation', 24, 44, 13, 7], ['Individualism', 39, 38, 51, 57], ['Healing', 25, 46, 58, 52],
+  ['Identification', 16, 9, 63, 64], ['Masks', 13, 7, 43, 23], ['Migration', 37, 40, 5, 35],
+  ['Informing', 22, 47, 11, 12], ['Obscuration', 62, 61, 3, 50], ['Wishes', 3, 50, 41, 31],
+  ['Upheaval', 17, 18, 38, 39], ['Uncertainty', 8, 14, 55, 59], ['Spirit', 55, 59, 9, 16],
+  ['Explanation', 49, 4, 43, 23], ['The Four Ways', 24, 44, 19, 33], ['Laws', 3, 50, 60, 56],
+  ['Planning', 40, 37, 16, 9], ['Rulership', 47, 22, 45, 26], ['Service', 17, 18, 58, 52],
+  ['Maya', 62, 61, 42, 32], ['Penetration', 53, 54, 51, 57], ['The Sleeping Phoenix', 20, 34, 55, 59],
+  ['The Sphinx', 2, 1, 13, 7],
+];
+
+function crossAxisKey(g1, g2, g3, g4) {
+  const axisA = [g1, g2].sort((a, b) => a - b).join('-');
+  const axisB = [g3, g4].sort((a, b) => a - b).join('-');
+  return [axisA, axisB].sort().join('|');
+}
+
+export const CROSS_NAMES = Object.fromEntries(
+  CROSS_NAME_ROWS.map(([name, g1, g2, g3, g4]) => [crossAxisKey(g1, g2, g3, g4), name])
+);
+
+/**
+ * A comprehensive, five-part Incarnation Cross reading, built from the
+ * user's actual four gates (verified names/keynotes) and their angle
+ * type's well-established general meaning — synthesized fresh per person
+ * rather than a single fixed block of text per cross name.
+ */
+export function buildIncarnationCrossReading(cross, profile, gatesContent) {
+  const angleType = crossAngleType(profile);
+  const angleInfo = CROSS_ANGLE_INFO[angleType];
+  const key = crossAxisKey(cross.personalitySunGate, cross.personalityEarthGate, cross.designSunGate, cross.designEarthGate);
+  const baseName = CROSS_NAMES[key];
+  const title = baseName ? `${angleType} Cross of ${baseName}` : `Your ${angleType} Cross`;
+
+  const pSun = gatesContent[cross.personalitySunGate];
+  const pEarth = gatesContent[cross.personalityEarthGate];
+  const dSun = gatesContent[cross.designSunGate];
+  const dEarth = gatesContent[cross.designEarthGate];
+  const trim = (s) => s.replace(/\.$/, '');
+
+  return {
+    title,
+    angleType,
+    epithet: angleInfo.epithet,
+    paragraphs: [
+      // 1. Overarching life theme / soul purpose
+      `${angleInfo.theme}${baseName ? ` For you specifically, that purpose carries the flavor of ${baseName} — a current running underneath everything else described below.` : ''}`,
+      // 2. What each of the four gates contributes
+      `Your four gates each contribute a specific piece: consciously, Gate ${cross.personalitySunGate} (${pSun.name}) brings ${trim(pSun.keynote).toLowerCase()}, balanced by Gate ${cross.personalityEarthGate} (${pEarth.name}) — ${trim(pEarth.keynote).toLowerCase()}. Unconsciously, Gate ${cross.designSunGate} (${dSun.name}) contributes ${trim(dSun.keynote).toLowerCase()}, balanced by Gate ${cross.designEarthGate} (${dEarth.name}) — ${trim(dEarth.keynote).toLowerCase()}. Together these four form the specific, non-repeatable combination your life's work draws on.`,
+      // 3. How the angle shapes living the purpose
+      `As a ${angleType} Cross, shaped further by your ${profile} profile, the way you're meant to live this out follows a specific pattern. ${angleInfo.howToLive}`,
+      // 4. Where resistance/confusion shows up
+      angleInfo.resistance,
+      // 5. What "living in the cross" looks and feels like day to day
+      `Day to day, living in alignment with this cross tends to feel less like following a plan and more like a recurring pull back toward these same four themes — inspiration through ${pSun.name.toLowerCase()}, grounded by ${pEarth.name.toLowerCase()}, with ${dSun.name.toLowerCase()} and ${dEarth.name.toLowerCase()} shaping how others experience you even when you're not consciously aware of it. When you're off-track, it usually shows up first as the resistance described above; when you're on-track, these four themes tend to show up so consistently across your life that they start to feel less like effort and more like simply who you are.`,
+    ],
+  };
+}

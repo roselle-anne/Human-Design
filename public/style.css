@@ -209,7 +209,11 @@ section.panel h2 { margin-top: 0; }
 section.panel h3 { color: var(--ocean-teal); margin-bottom: 4px; }
 
 .bodygraph-wrap { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
-.bodygraph-wrap svg { flex: 0 0 auto; }
+.bodygraph-wrap svg { max-width: 100%; height: auto; }
+
+/* A wide table (e.g. Activated Gates) scrolls within its own box on a
+   narrow screen instead of forcing the whole page to scroll sideways. */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
 .legend { font-size: 13px; color: var(--muted); display: flex; gap: 16px; margin-top: 8px; flex-wrap: wrap; }
 .legend span.dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: middle; }
@@ -659,7 +663,14 @@ p { line-height: 1.6; }
 .cross-hero .report-title { color: var(--white); margin: 0 0 6px; font-size: 34px; }
 .cross-hero .report-subject { color: #158EA4; font-style: italic; font-size: 16px; margin: 0; }
 .cross-body { text-align: left; max-width: 640px; margin: 0 auto; }
-.cross-body p { margin-bottom: 14px; }
+.cross-body p { margin-bottom: 20px; }
+.cross-body h2 {
+  font-size: 17px;
+  color: var(--ocean-teal);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 8px;
+}
 
 /* Channel pages: sparkle-flanked title, detailed body, mini diagram + quote footer */
 .channel-page { text-align: center; }
