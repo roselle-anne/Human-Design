@@ -170,6 +170,13 @@ app.get('/api/report.pdf', async (req, res) => {
       return res.status(400).json({ error: 'Invalid date/time/timeZone' });
     }
 
+    // A lightweight, visible record of who has generated a report — viewable
+    // via Render's dashboard Logs tab. Not a database (no permanent storage
+    // or guaranteed retention), just a way to actually see this activity at
+    // all, since nothing about a report generation was recorded anywhere
+    // before this.
+    console.log(`[report generated] name="${name || ''}" date=${date} time=${time} timeZone=${timeZone} at=${new Date().toISOString()}`);
+
     const { chart, content } = await buildChartAndContent(birthUTC);
     const structure = { centers: CENTERS, channels: CHANNELS };
     const inlineCss = fs.readFileSync(styleCssPath, 'utf8');
