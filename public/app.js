@@ -5,12 +5,18 @@ let chosenPlace = null; // { displayName, lat, lon, timeZone }
 let placeSearchController = null;
 let placeSearchDebounce = null;
 
+// Geocoding happens directly from the browser (not proxied through our own
+// server — see the /api/timezone-from-coords comment in server/index.js for
+// why) via OpenStreetMap's free Nominatim API, which explicitly supports
+// and expects this kind of client-side usage.
 async function searchPlaces(query) {
   if (placeSearchController) placeSearchController.abort();
   placeSearchController = new AbortController();
   try {
-    const res = await fetch(`/api/place-search?q=${encodeURIComponent(query)}`, { signal: placeSearchController.signal });
-    placeMatches = res.ok ? await res.json() : [];
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=8&addressdetails=1`;
+    const res = await fetch(url, { signal: placeSearchController.signal });
+    const results = res.ok ? await res.json() : [];
+    placeMatches = results.map((r) => ({ displayName: r.display_name, lat: Number(r.lat), lon: Number(r.lon) }));
   } catch (err) {
     if (err.name !== 'AbortError') placeMatches = [];
     else return;
@@ -39,10 +45,24 @@ placeSearch.addEventListener('input', () => {
   // keystroke — Nominatim's usage policy expects modest request rates.
   placeSearchDebounce = setTimeout(() => searchPlaces(query), 400);
 });
-placeSelect.addEventListener('change', () => {
-  chosenPlace = placeMatches[Number(placeSelect.value)] || null;
-  if (chosenPlace) placeSearch.value = chosenPlace.displayName;
+placeSelect.addEventListener('change', async () => {
+  const picked = placeMatches[Number(placeSelect.value)] || null;
   placeSelect.style.display = 'none';
+  chosenPlace = null;
+  if (!picked) return;
+  placeSearch.value = picked.displayName;
+
+  const status = document.getElementById('status');
+  status.textContent = 'Resolving timezone for that place…';
+  try {
+    const res = await fetch(`/api/timezone-from-coords?lat=${picked.lat}&lon=${picked.lon}`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Could not resolve a timezone');
+    chosenPlace = { ...picked, timeZone: data.timeZone };
+    status.textContent = '';
+  } catch (err) {
+    status.textContent = 'Error: ' + err.message;
+  }
 });
 document.addEventListener('click', (e) => {
   if (e.target !== placeSearch && e.target !== placeSelect) placeSelect.style.display = 'none';

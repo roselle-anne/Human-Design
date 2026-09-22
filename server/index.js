@@ -30,48 +30,31 @@ app.get('/api/timezones', (req, res) => {
 });
 
 // Resolves a typed place name (e.g. "Singapore" or "Austin, Texas") to
-// candidate places with coordinates, each already resolved to its exact
-// IANA timezone — so the birth-details form can ask for an actual place of
-// birth instead of a raw timezone string. Geocoding via OpenStreetMap's free
-// Nominatim API (no key required); the timezone itself is then resolved
-// fully offline via tz-lookup's bundled timezone-boundary data, so no
-// external timezone service or API key is needed for that part.
-app.get('/api/place-search', async (req, res) => {
+// Resolves a lat/lon (from a place the visitor picked, geocoded client-side —
+// see public/app.js) to its exact IANA timezone. This runs fully offline via
+// tz-lookup's bundled timezone-boundary data: no external service, API key,
+// or network call happens here at all.
+//
+// Geocoding itself (place name -> lat/lon) intentionally happens in the
+// visitor's own browser via a direct client-side call to OpenStreetMap's
+// free Nominatim API, not from this server. Nominatim's usage policy blocks
+// exactly the pattern a server-side proxy creates here — many different
+// end users' lookups all arriving from one shared server IP looks like
+// automated bulk querying from a cloud host, and Nominatim actively rate-
+// limits/blocks known hosting-provider IP ranges for that reason (which is
+// exactly what started happening once this app got real traffic). Each
+// visitor's own browser making the request instead is the pattern their
+// policy actually expects and allows.
+app.get('/api/timezone-from-coords', (req, res) => {
+  const lat = Number(req.query.lat);
+  const lon = Number(req.query.lon);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+    return res.status(400).json({ error: 'lat and lon are required' });
+  }
   try {
-    const q = String(req.query.q || '').trim();
-    if (q.length < 2) return res.json([]);
-
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=8&addressdetails=1`;
-    const nominatimRes = await fetch(url, {
-      headers: {
-        // Nominatim's usage policy requires a descriptive User-Agent
-        // identifying the application making requests.
-        'User-Agent': 'EmbodianceHumanDesignApp/1.0 (https://embodiance.com)',
-      },
-    });
-    if (!nominatimRes.ok) {
-      return res.status(502).json({ error: 'Place lookup service unavailable' });
-    }
-    const results = await nominatimRes.json();
-
-    const places = results
-      .map((r) => {
-        const lat = Number(r.lat);
-        const lon = Number(r.lon);
-        let timeZone;
-        try {
-          timeZone = tzLookup(lat, lon);
-        } catch {
-          return null;
-        }
-        return { displayName: r.display_name, lat, lon, timeZone };
-      })
-      .filter(Boolean);
-
-    res.json(places);
+    res.json({ timeZone: tzLookup(lat, lon) });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to search for that place' });
+    res.status(400).json({ error: 'Could not resolve a timezone for that location' });
   }
 });
 
