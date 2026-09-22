@@ -4,16 +4,23 @@
 // these are pure string functions with no DOM dependency, so they run
 // identically in Node.
 
+// Sized generously, with each pointed shape's gate grid deliberately
+// centered off the shape's own geometric center and biased toward its
+// widest edge — a triangle/diamond is only as wide as its point allows
+// away from that edge, so centering a multi-row grid on the shape's
+// midpoint (as if it were a rectangle) is exactly what pushed numbers past
+// the sloped sides before. `cols` and `offsetX`/`offsetY` are tuned per
+// shape's specific point direction (see shapePath below for orientation).
 const CENTER_POS = {
-  Head: { x: 260, y: 52, shape: 'triangle-down', w: 90, h: 55 },
-  Ajna: { x: 260, y: 143, shape: 'triangle-up', w: 90, h: 65 },
-  Throat: { x: 260, y: 258, shape: 'square', w: 115, h: 90 },
-  G: { x: 260, y: 375, shape: 'diamond', w: 105, h: 105 },
-  Heart: { x: 386, y: 325, shape: 'triangle-left', w: 65, h: 55 },
-  Sacral: { x: 260, y: 500, shape: 'square', w: 115, h: 90 },
-  Spleen: { x: 117, y: 430, shape: 'triangle-right', w: 80, h: 100 },
-  SolarPlexus: { x: 403, y: 449, shape: 'triangle-left', w: 80, h: 100 },
-  Root: { x: 260, y: 615, shape: 'square', w: 115, h: 90 },
+  Head: { x: 290, y: 58, shape: 'triangle-down', w: 100, h: 60, cols: 3, offsetY: -9 },
+  Ajna: { x: 290, y: 160, shape: 'triangle-up', w: 100, h: 75, cols: 3, offsetY: 9 },
+  Throat: { x: 290, y: 290, shape: 'square', w: 130, h: 100, cols: 3 },
+  G: { x: 290, y: 420, shape: 'diamond', w: 120, h: 120, cols: 2 },
+  Heart: { x: 430, y: 365, shape: 'triangle-left', w: 75, h: 60, cols: 2, offsetX: 11 },
+  Sacral: { x: 290, y: 560, shape: 'square', w: 130, h: 100, cols: 3 },
+  Spleen: { x: 130, y: 480, shape: 'triangle-right', w: 90, h: 110, cols: 4, offsetX: -14 },
+  SolarPlexus: { x: 450, y: 500, shape: 'triangle-left', w: 90, h: 110, cols: 4, offsetX: 14 },
+  Root: { x: 290, y: 690, shape: 'square', w: 130, h: 100, cols: 3 },
 };
 
 const CENTER_PAIRS = [
@@ -46,7 +53,7 @@ function shapePath({ x, y, shape, w, h }) {
 // shape, laid out in a centered grid of up to 3 columns — matching the
 // reference chart layout, which always prints a center's full fixed gate
 // list (not just the active ones).
-function gateGrid(gates, cx, cy, colsMax = 3, rowGap = 26, colGap = 32) {
+function gateGrid(gates, cx, cy, colsMax = 3, rowGap = 28, colGap = 38) {
   const cols = Math.min(colsMax, gates.length);
   const rows = [];
   for (let i = 0; i < gates.length; i += cols) rows.push(gates.slice(i, i + cols));
@@ -62,21 +69,27 @@ function gateGrid(gates, cx, cy, colsMax = 3, rowGap = 26, colGap = 32) {
   return cells;
 }
 
-// An activated gate's number is stamped in a solid circle badge, colored by
-// which side(s) activated it: teal for Personality (conscious) only, dark
-// navy for Design (unconscious) only, charcoal when both sides activate it —
-// echoing the teal/navy split used for the planetary columns beside the chart.
+// The whole chart is restricted to exactly four colors: the two brand
+// peach tones (dusty for defined/active, soft for undefined/inactive),
+// black, and teal — no gold, navy, or charcoal anywhere in this graphic.
+const CHART_DUSTY_PEACH = '#E6B1A1';
+const CHART_SOFT_PEACH = '#F4CEBF';
+const CHART_BLACK = '#000000';
+const CHART_TEAL = '#158EA4';
+
+// An activated gate's number is stamped in a solid circle badge: teal when
+// only Personality (conscious) activates it, black when Design
+// (unconscious) is involved at all (design-only or both sides) — the two
+// non-peach accent colors doing double duty as the chart's whole "which
+// side activated this" legend.
 function badgeColor(sides) {
-  const hasPersonality = sides.includes('personality');
   const hasDesign = sides.includes('design');
-  if (hasPersonality && hasDesign) return '#222222';
-  if (hasPersonality) return '#158EA4';
-  return '#2C3E66';
+  return hasDesign ? CHART_BLACK : CHART_TEAL;
 }
 
 function gateLabel(gate, x, y, sides) {
   if (!sides) {
-    return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="13" fill="#5B4F48">${gate}</text>`;
+    return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="13" fill="${CHART_BLACK}" opacity="0.55">${gate}</text>`;
   }
   return `<circle cx="${x}" cy="${y}" r="11" fill="${badgeColor(sides)}" />
     <text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#FFFFFF" font-weight="600">${gate}</text>`;
@@ -94,26 +107,39 @@ function buildBodygraph(chart, structure) {
   const gatePos = {};
   const cellsByCenter = {};
   Object.entries(CENTER_POS).forEach(([name, pos]) => {
-    const cells = gateGrid(structure.centers[name].gates, pos.x, pos.y);
+    const cells = gateGrid(structure.centers[name].gates, pos.x + (pos.offsetX || 0), pos.y + (pos.offsetY || 0), pos.cols);
     cellsByCenter[name] = cells;
     cells.forEach(({ gate, x, y }) => { gatePos[gate] = { x, y }; });
   });
 
+  // A defined center is filled with the more saturated dusty peach; an
+  // undefined/open one gets the lighter soft peach — the same two-tone
+  // distinction the reference chart draws with gold vs. plain tan.
   const shapes = Object.keys(CENTER_POS).map((name) => {
     const pos = CENTER_POS[name];
-    return `<path d="${shapePath(pos)}" fill="#F4CEBF" stroke="#E6B1A1" stroke-width="1.5" />`;
+    const fill = chart.centers[name] ? CHART_DUSTY_PEACH : CHART_SOFT_PEACH;
+    return `<path d="${shapePath(pos)}" fill="${fill}" stroke="${CHART_DUSTY_PEACH}" stroke-width="1.5" />`;
   }).join('\n');
 
   // Lines are drawn on top of the (opaque) shapes, so a defined channel's
   // thick line is visibly traceable crossing right up to its gate dot,
-  // rather than being hidden underneath the shape fill.
+  // rather than being hidden underneath the shape fill. A defined channel's
+  // color follows the same teal/black legend as the gate badges: teal only
+  // if both its gates are personality-only, black if design is involved on
+  // either end.
   const lines = structure.channels.map((ch) => {
     const [gA, gB] = ch.gates;
     const A = gatePos[gA];
     const B = gatePos[gB];
     if (!A || !B) return '';
     const defined = definedChannelKeys.has([gA, gB].slice().sort((a, b) => a - b).join('-'));
-    return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${defined ? '#222222' : '#EAD3C8'}" stroke-width="${defined ? 5 : 2}" />`;
+    if (!defined) {
+      return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${CHART_DUSTY_PEACH}" stroke-width="2" opacity="0.5" />`;
+    }
+    const sidesA = activeGateSides[gA] || [];
+    const sidesB = activeGateSides[gB] || [];
+    const color = sidesA.includes('design') || sidesB.includes('design') ? CHART_BLACK : CHART_TEAL;
+    return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${color}" stroke-width="5" />`;
   }).join('\n');
 
   const gateNumbers = Object.values(cellsByCenter)
@@ -121,7 +147,12 @@ function buildBodygraph(chart, structure) {
     .map(({ gate, x, y }) => gateLabel(gate, x, y, activeGateSides[gate]))
     .join('\n');
 
-  return `<svg viewBox="0 0 500 700" width="500" height="700">
+  // The coordinate space (viewBox) is generously sized so every shape has
+  // room to fit its full gate grid without crowding; the rendered width/
+  // height below is chosen to be the largest size that still fits next to
+  // the planetary columns on one printable PDF page (see .chart-page /
+  // .planet-icon-lg in style.css, sized to leave exactly this much room).
+  return `<svg viewBox="0 0 560 800" width="520" height="743">
     ${shapes}
     ${lines}
     ${gateNumbers}

@@ -554,42 +554,42 @@ p { line-height: 1.6; }
 .intro-body p { margin-bottom: 16px; }
 
 /* Comprehensive chart page: planetary columns flanking the bodygraph */
-.chart-page { padding: 32px 16px; }
+.chart-page { padding: 24px 8px; }
 .chart-title { text-align: center; font-size: 42px; margin-bottom: 4px; }
 .chart-layout {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   margin: 8px 0;
 }
 .chart-center { flex: 0 0 auto; }
 .planet-column {
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 7px;
   flex: 0 0 auto;
 }
 .planet-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 7px;
 }
 .planet-icon-lg {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   flex-shrink: 0;
 }
-.planet-icon-lg svg { width: 26px; height: 26px; }
+.planet-icon-lg svg { width: 20px; height: 20px; }
 .planet-icon-lg.personality { background: #158EA4; }
-.planet-icon-lg.design { background: #2C3E66; }
+.planet-icon-lg.design { background: #000000; }
 .planet-degree-lg {
   font-family: var(--font-heading);
-  font-size: 22px;
+  font-size: 17px;
   color: var(--charcoal);
 }
 .chart-footer { text-align: center; margin-top: 20px; }
