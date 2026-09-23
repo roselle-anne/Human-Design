@@ -25,11 +25,11 @@
 // scaled uniformly.
 const CENTER_POS = {
   Head: { x: 346, y: 74, shape: 'triangle-up', w: 149, h: 89, cols: 3, offsetY: 14 },
-  Ajna: { x: 346, y: 205, shape: 'triangle-down', w: 149, h: 114, cols: 3, offsetY: -18 },
-  Throat: { x: 346, y: 346, shape: 'square', w: 155, h: 119, cols: 3 },
-  G: { x: 346, y: 499, shape: 'diamond', w: 143, h: 143, cols: 2 },
-  Heart: { x: 512, y: 434, shape: 'triangle-left', w: 114, h: 89, cols: 2, offsetX: 16 },
-  Sacral: { x: 346, y: 665, shape: 'square', w: 155, h: 119, cols: 3 },
+  Ajna: { x: 346, y: 216, shape: 'triangle-down', w: 149, h: 114, cols: 3, offsetY: -18 },
+  Throat: { x: 346, y: 371, shape: 'square', w: 155, h: 119, cols: 3 },
+  G: { x: 346, y: 541, shape: 'diamond', w: 168, h: 168, cols: 2 },
+  Heart: { x: 512, y: 444, shape: 'triangle-left', w: 114, h: 89, cols: 2, offsetX: 16 },
+  Sacral: { x: 346, y: 719, shape: 'square', w: 155, h: 119, cols: 3 },
   // Spleen and Solar Plexus sit at the same y and mirror x-distance from the
   // central x=346 axis, so they read as a genuinely symmetric pair.
   // Spleen/Solar Plexus have one edge that's a full-height vertical line
@@ -38,9 +38,9 @@ const CENTER_POS = {
   // BOTH the row above and the row below center — a narrower colGap (and a
   // gentler offsetX) than the shared default is required to keep all 4
   // columns inside on every row, not just the center one.
-  Spleen: { x: 156, y: 582, shape: 'triangle-right', w: 135, h: 163, cols: 4, offsetX: -16, colGap: 30 },
-  SolarPlexus: { x: 536, y: 582, shape: 'triangle-left', w: 135, h: 163, cols: 4, offsetX: 16, colGap: 30 },
-  Root: { x: 346, y: 821, shape: 'square', w: 155, h: 119, cols: 3 },
+  Spleen: { x: 150, y: 541, shape: 'triangle-right', w: 148, h: 178, cols: 4, offsetX: -12, colGap: 32 },
+  SolarPlexus: { x: 542, y: 541, shape: 'triangle-left', w: 148, h: 178, cols: 4, offsetX: 12, colGap: 32 },
+  Root: { x: 346, y: 874, shape: 'square', w: 155, h: 119, cols: 3 },
 };
 
 const CENTER_PAIRS = [
@@ -119,16 +119,21 @@ function gateGrid(gates, cx, cy, colsMax = 3, rowGap = 28, colGap = 38) {
   return cells;
 }
 
-// The whole chart uses only the two brand peach tones (dusty for
-// defined centers, soft for undefined) plus black — matching the
-// approved reference layout exactly.
+// The whole chart uses only the brand peach tones (dusty for defined
+// centers, blush for undefined) plus black and a dark outline gray —
+// matching the approved Embodiance palette exactly.
 const CHART_DUSTY_PEACH = '#E6B1A1';
-const CHART_SOFT_PEACH = '#F4CEBF';
+const CHART_SOFT_PEACH = '#F4DED7';
 const CHART_BLACK = '#000000';
+const CHART_OUTLINE = '#222222';
+const CHART_GRAY = '#444444';
 
 function gateLabel(gate, x, y, sides) {
   if (!sides) {
-    return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="13" fill="${CHART_BLACK}" opacity="0.55">${gate}</text>`;
+    // A thin white halo (painted before the fill) keeps a plain gate number
+    // legible on the rare occasion a channel line happens to pass directly
+    // behind it, rather than the line visually cutting through the digits.
+    return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="15" fill="${CHART_GRAY}" stroke="#FFFFFF" stroke-width="3" paint-order="stroke" stroke-linejoin="round">${gate}</text>`;
   }
   return `<circle cx="${x}" cy="${y}" r="11" fill="${CHART_BLACK}" />
     <text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#FFFFFF" font-weight="600">${gate}</text>`;
@@ -164,7 +169,7 @@ function buildBodygraph(chart, structure) {
   const shapes = Object.keys(CENTER_POS).map((name) => {
     const pos = CENTER_POS[name];
     const fill = chart.centers[name] ? CHART_DUSTY_PEACH : CHART_SOFT_PEACH;
-    return `<path d="${shapePath(pos)}" fill="${fill}" stroke="${CHART_BLACK}" stroke-width="2" />`;
+    return `<path d="${shapePath(pos)}" fill="${fill}" stroke="${CHART_OUTLINE}" stroke-width="1.25" />`;
   }).join('\n');
 
   // Lines are drawn on top of the (opaque) shapes, so a defined channel's
@@ -177,9 +182,9 @@ function buildBodygraph(chart, structure) {
     if (!A || !B) return '';
     const defined = definedChannelKeys.has([gA, gB].slice().sort((a, b) => a - b).join('-'));
     if (!defined) {
-      return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${CHART_DUSTY_PEACH}" stroke-width="3" opacity="0.7" />`;
+      return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${CHART_DUSTY_PEACH}" stroke-width="2.5" opacity="0.85" />`;
     }
-    return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${CHART_BLACK}" stroke-width="5" />`;
+    return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${CHART_BLACK}" stroke-width="4" />`;
   }).join('\n');
 
   const gateNumbers = Object.values(cellsByCenter)
@@ -192,7 +197,7 @@ function buildBodygraph(chart, structure) {
   // height below is chosen to be the largest size that still fits next to
   // the planetary columns on one printable PDF page (see .chart-page /
   // .planet-icon-lg in style.css, sized to leave exactly this much room).
-  return `<svg viewBox="0 0 670 950" width="585" height="830">
+  return `<svg viewBox="0 0 690 960" width="585" height="814">
     ${shapes}
     ${lines}
     ${gateNumbers}

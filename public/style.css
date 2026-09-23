@@ -585,7 +585,7 @@ p { line-height: 1.6; }
   flex-shrink: 0;
 }
 .planet-icon-lg svg { width: 17px; height: 17px; }
-.planet-icon-lg.personality { background: #158EA4; }
+.planet-icon-lg.personality { background: #E6B1A1; }
 .planet-icon-lg.design { background: #000000; }
 .planet-degree-lg {
   font-family: var(--font-heading);
