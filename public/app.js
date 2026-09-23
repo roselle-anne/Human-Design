@@ -28,7 +28,11 @@ function renderPlaceOptions() {
   placeSelect.innerHTML = placeMatches
     .map((p, i) => `<option value="${i}">${p.displayName}</option>`)
     .join('');
-  placeSelect.size = Math.max(1, Math.min(placeMatches.length, 6));
+  // A <select size="1"> renders as a closed native combobox that needs its
+  // own extra click to open — with exactly one match that silently broke
+  // selecting it. Forcing a minimum of 2 keeps this an always-open inline
+  // listbox regardless of match count.
+  placeSelect.size = Math.max(2, Math.min(placeMatches.length, 6));
   placeSelect.style.display = placeMatches.length && document.activeElement === placeSearch ? 'block' : 'none';
 }
 
@@ -65,7 +69,10 @@ placeSelect.addEventListener('change', async () => {
   }
 });
 document.addEventListener('click', (e) => {
-  if (e.target !== placeSearch && e.target !== placeSelect) placeSelect.style.display = 'none';
+  // .contains (not strict equality) so a click on an <option> — a
+  // descendant of placeSelect, not placeSelect itself — doesn't get
+  // treated as "clicked outside" and hide the list before it can register.
+  if (!placeSearch.contains(e.target) && !placeSelect.contains(e.target)) placeSelect.style.display = 'none';
 });
 
 // ---- Bodygraph layout (schematic, not pixel-exact to any single source) ----
