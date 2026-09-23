@@ -32,8 +32,14 @@ const CENTER_POS = {
   Sacral: { x: 346, y: 665, shape: 'square', w: 155, h: 119, cols: 3 },
   // Spleen and Solar Plexus sit at the same y and mirror x-distance from the
   // central x=346 axis, so they read as a genuinely symmetric pair.
-  Spleen: { x: 156, y: 582, shape: 'triangle-right', w: 135, h: 163, cols: 4, offsetX: -20 },
-  SolarPlexus: { x: 536, y: 582, shape: 'triangle-left', w: 135, h: 163, cols: 4, offsetX: 20 },
+  // Spleen/Solar Plexus have one edge that's a full-height vertical line
+  // (the side nearest G) and taper to a single point on the far side, so
+  // unlike the other triangles their available width actually shrinks in
+  // BOTH the row above and the row below center — a narrower colGap (and a
+  // gentler offsetX) than the shared default is required to keep all 4
+  // columns inside on every row, not just the center one.
+  Spleen: { x: 156, y: 582, shape: 'triangle-right', w: 135, h: 163, cols: 4, offsetX: -16, colGap: 30 },
+  SolarPlexus: { x: 536, y: 582, shape: 'triangle-left', w: 135, h: 163, cols: 4, offsetX: 16, colGap: 30 },
   Root: { x: 346, y: 821, shape: 'square', w: 155, h: 119, cols: 3 },
 };
 
@@ -140,7 +146,14 @@ function buildBodygraph(chart, structure) {
   const gatePos = {};
   const cellsByCenter = {};
   Object.entries(CENTER_POS).forEach(([name, pos]) => {
-    const cells = gateGrid(structure.centers[name].gates, pos.x + (pos.offsetX || 0), pos.y + (pos.offsetY || 0), pos.cols);
+    const cells = gateGrid(
+      structure.centers[name].gates,
+      pos.x + (pos.offsetX || 0),
+      pos.y + (pos.offsetY || 0),
+      pos.cols,
+      pos.rowGap || 28,
+      pos.colGap || 38
+    );
     cellsByCenter[name] = cells;
     cells.forEach(({ gate, x, y }) => { gatePos[gate] = { x, y }; });
   });
