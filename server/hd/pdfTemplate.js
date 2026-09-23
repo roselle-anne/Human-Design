@@ -31,22 +31,52 @@ const CENTER_PAIRS = [
   ['G', 'Heart'], ['Heart', 'Spleen'], ['Sacral', 'Spleen'], ['Heart', 'SolarPlexus'],
 ];
 
-function shapePath({ x, y, shape, w, h }) {
+function shapeVertices({ x, y, shape, w, h }) {
   const hw = w / 2, hh = h / 2;
   switch (shape) {
     case 'triangle-down':
-      return `M${x - hw},${y - hh} L${x + hw},${y - hh} L${x},${y + hh} Z`;
+      return [{ x: x - hw, y: y - hh }, { x: x + hw, y: y - hh }, { x, y: y + hh }];
     case 'triangle-up':
-      return `M${x - hw},${y + hh} L${x + hw},${y + hh} L${x},${y - hh} Z`;
+      return [{ x: x - hw, y: y + hh }, { x: x + hw, y: y + hh }, { x, y: y - hh }];
     case 'triangle-left':
-      return `M${x + hw},${y - hh} L${x + hw},${y + hh} L${x - hw},${y} Z`;
+      return [{ x: x + hw, y: y - hh }, { x: x + hw, y: y + hh }, { x: x - hw, y }];
     case 'triangle-right':
-      return `M${x - hw},${y - hh} L${x - hw},${y + hh} L${x + hw},${y} Z`;
+      return [{ x: x - hw, y: y - hh }, { x: x - hw, y: y + hh }, { x: x + hw, y }];
     case 'diamond':
-      return `M${x},${y - hh} L${x + hw},${y} L${x},${y + hh} L${x - hw},${y} Z`;
+      return [{ x, y: y - hh }, { x: x + hw, y }, { x, y: y + hh }, { x: x - hw, y }];
     default:
-      return `M${x - hw},${y - hh} L${x + hw},${y - hh} L${x + hw},${y + hh} L${x - hw},${y + hh} Z`;
+      return [{ x: x - hw, y: y - hh }, { x: x + hw, y: y - hh }, { x: x + hw, y: y + hh }, { x: x - hw, y: y + hh }];
   }
+}
+
+// A softly rounded polygon outline (used for every chart shape) reads as
+// noticeably cleaner/more polished than sharp corners at this size — each
+// vertex is replaced by a short quadratic curve rather than a hard point.
+function roundedPolygonPath(points, radius) {
+  const n = points.length;
+  const dist = (a, b) => Math.hypot(b.x - a.x, b.y - a.y);
+  let d = '';
+  for (let i = 0; i < n; i++) {
+    const curr = points[i];
+    const prev = points[(i - 1 + n) % n];
+    const next = points[(i + 1) % n];
+    const rPrev = Math.min(radius, dist(prev, curr) / 2);
+    const rNext = Math.min(radius, dist(next, curr) / 2);
+    const p1 = {
+      x: curr.x + ((prev.x - curr.x) / dist(prev, curr)) * rPrev,
+      y: curr.y + ((prev.y - curr.y) / dist(prev, curr)) * rPrev,
+    };
+    const p2 = {
+      x: curr.x + ((next.x - curr.x) / dist(next, curr)) * rNext,
+      y: curr.y + ((next.y - curr.y) / dist(next, curr)) * rNext,
+    };
+    d += `${i === 0 ? 'M' : 'L'}${p1.x},${p1.y} Q${curr.x},${curr.y} ${p2.x},${p2.y} `;
+  }
+  return `${d}Z`;
+}
+
+function shapePath(pos, radius = 10) {
+  return roundedPolygonPath(shapeVertices(pos), radius);
 }
 
 // Every gate belonging to a center is printed inside/around that center's
@@ -134,7 +164,7 @@ function buildBodygraph(chart, structure) {
     if (!A || !B) return '';
     const defined = definedChannelKeys.has([gA, gB].slice().sort((a, b) => a - b).join('-'));
     if (!defined) {
-      return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${CHART_DUSTY_PEACH}" stroke-width="2" opacity="0.5" />`;
+      return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${CHART_DUSTY_PEACH}" stroke-width="1.25" opacity="0.35" />`;
     }
     const sidesA = activeGateSides[gA] || [];
     const sidesB = activeGateSides[gB] || [];
