@@ -16,17 +16,24 @@
 // points DOWN (wide edge facing up to meet Head, apex pointing down into
 // Throat) — their matching wide edges meet directly, rather than the two
 // apexes pinching together.
+// A triangle's actual visible area is only ~half of a square's for the
+// same bounding box (area = 0.5*w*h vs w*h), so giving triangles and
+// squares the same w/h — or scaling both by the same percentage — makes
+// the triangles read as noticeably smaller/thinner even though the
+// numbers matched. Triangle dimensions below are boosted well beyond the
+// square/diamond ones specifically to compensate for that, not just
+// scaled uniformly.
 const CENTER_POS = {
-  Head: { x: 346, y: 69, shape: 'triangle-up', w: 119, h: 71, cols: 3, offsetY: 11 },
-  Ajna: { x: 346, y: 190, shape: 'triangle-down', w: 119, h: 91, cols: 3, offsetY: -11 },
+  Head: { x: 346, y: 74, shape: 'triangle-up', w: 149, h: 89, cols: 3, offsetY: 14 },
+  Ajna: { x: 346, y: 205, shape: 'triangle-down', w: 149, h: 114, cols: 3, offsetY: -18 },
   Throat: { x: 346, y: 346, shape: 'square', w: 155, h: 119, cols: 3 },
   G: { x: 346, y: 499, shape: 'diamond', w: 143, h: 143, cols: 2 },
-  Heart: { x: 512, y: 434, shape: 'triangle-left', w: 91, h: 71, cols: 2, offsetX: 13 },
+  Heart: { x: 512, y: 434, shape: 'triangle-left', w: 114, h: 89, cols: 2, offsetX: 16 },
   Sacral: { x: 346, y: 665, shape: 'square', w: 155, h: 119, cols: 3 },
   // Spleen and Solar Plexus sit at the same y and mirror x-distance from the
   // central x=346 axis, so they read as a genuinely symmetric pair.
-  Spleen: { x: 156, y: 582, shape: 'triangle-right', w: 108, h: 130, cols: 4, offsetX: -16 },
-  SolarPlexus: { x: 536, y: 582, shape: 'triangle-left', w: 108, h: 130, cols: 4, offsetX: 16 },
+  Spleen: { x: 156, y: 582, shape: 'triangle-right', w: 135, h: 163, cols: 4, offsetX: -20 },
+  SolarPlexus: { x: 536, y: 582, shape: 'triangle-left', w: 135, h: 163, cols: 4, offsetX: 20 },
   Root: { x: 346, y: 821, shape: 'square', w: 155, h: 119, cols: 3 },
 };
 
