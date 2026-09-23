@@ -11,16 +11,21 @@
 // midpoint (as if it were a rectangle) is exactly what pushed numbers past
 // the sloped sides before. `cols` and `offsetX`/`offsetY` are tuned per
 // shape's specific point direction (see shapePath below for orientation).
+// Head/Ajna use the traditional tropical bodygraph orientation: Head points
+// UP (apex at the very top, wide edge facing down into Ajna) and Ajna
+// points DOWN (wide edge facing up to meet Head, apex pointing down into
+// Throat) — their matching wide edges meet directly, rather than the two
+// apexes pinching together.
 const CENTER_POS = {
-  Head: { x: 290, y: 58, shape: 'triangle-down', w: 100, h: 60, cols: 3, offsetY: -9 },
-  Ajna: { x: 290, y: 160, shape: 'triangle-up', w: 100, h: 75, cols: 3, offsetY: 9 },
-  Throat: { x: 290, y: 290, shape: 'square', w: 130, h: 100, cols: 3 },
-  G: { x: 290, y: 420, shape: 'diamond', w: 120, h: 120, cols: 2 },
-  Heart: { x: 430, y: 365, shape: 'triangle-left', w: 75, h: 60, cols: 2, offsetX: 11 },
-  Sacral: { x: 290, y: 560, shape: 'square', w: 130, h: 100, cols: 3 },
-  Spleen: { x: 130, y: 480, shape: 'triangle-right', w: 90, h: 110, cols: 4, offsetX: -14 },
-  SolarPlexus: { x: 450, y: 500, shape: 'triangle-left', w: 90, h: 110, cols: 4, offsetX: 14 },
-  Root: { x: 290, y: 690, shape: 'square', w: 130, h: 100, cols: 3 },
+  Head: { x: 320, y: 64, shape: 'triangle-up', w: 110, h: 66, cols: 3, offsetY: 10 },
+  Ajna: { x: 320, y: 176, shape: 'triangle-down', w: 110, h: 84, cols: 3, offsetY: -10 },
+  Throat: { x: 320, y: 320, shape: 'square', w: 144, h: 110, cols: 3 },
+  G: { x: 320, y: 462, shape: 'diamond', w: 132, h: 132, cols: 2 },
+  Heart: { x: 474, y: 402, shape: 'triangle-left', w: 84, h: 66, cols: 2, offsetX: 12 },
+  Sacral: { x: 320, y: 616, shape: 'square', w: 144, h: 110, cols: 3 },
+  Spleen: { x: 144, y: 528, shape: 'triangle-right', w: 100, h: 120, cols: 4, offsetX: -15 },
+  SolarPlexus: { x: 496, y: 550, shape: 'triangle-left', w: 100, h: 120, cols: 4, offsetX: 15 },
+  Root: { x: 320, y: 760, shape: 'square', w: 144, h: 110, cols: 3 },
 };
 
 const CENTER_PAIRS = [
@@ -165,7 +170,7 @@ function buildBodygraph(chart, structure) {
   // height below is chosen to be the largest size that still fits next to
   // the planetary columns on one printable PDF page (see .chart-page /
   // .planet-icon-lg in style.css, sized to leave exactly this much room).
-  return `<svg viewBox="0 0 560 800" width="520" height="743">
+  return `<svg viewBox="0 0 620 880" width="560" height="795">
     ${shapes}
     ${lines}
     ${gateNumbers}
