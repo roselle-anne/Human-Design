@@ -99,29 +99,18 @@ function gateGrid(gates, cx, cy, colsMax = 3, rowGap = 28, colGap = 38) {
   return cells;
 }
 
-// The whole chart is restricted to exactly four colors: the two brand
-// peach tones (dusty for defined/active, soft for undefined/inactive),
-// black, and teal — no gold, navy, or charcoal anywhere in this graphic.
+// The whole chart uses only the two brand peach tones (dusty for
+// defined centers, soft for undefined) plus black — matching the
+// approved reference layout exactly.
 const CHART_DUSTY_PEACH = '#E6B1A1';
 const CHART_SOFT_PEACH = '#F4CEBF';
 const CHART_BLACK = '#000000';
-const CHART_TEAL = '#158EA4';
-
-// An activated gate's number is stamped in a solid circle badge: teal when
-// only Personality (conscious) activates it, black when Design
-// (unconscious) is involved at all (design-only or both sides) — the two
-// non-peach accent colors doing double duty as the chart's whole "which
-// side activated this" legend.
-function badgeColor(sides) {
-  const hasDesign = sides.includes('design');
-  return hasDesign ? CHART_BLACK : CHART_TEAL;
-}
 
 function gateLabel(gate, x, y, sides) {
   if (!sides) {
     return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="13" fill="${CHART_BLACK}" opacity="0.55">${gate}</text>`;
   }
-  return `<circle cx="${x}" cy="${y}" r="11" fill="${badgeColor(sides)}" />
+  return `<circle cx="${x}" cy="${y}" r="11" fill="${CHART_BLACK}" />
     <text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#FFFFFF" font-weight="600">${gate}</text>`;
 }
 
@@ -148,15 +137,12 @@ function buildBodygraph(chart, structure) {
   const shapes = Object.keys(CENTER_POS).map((name) => {
     const pos = CENTER_POS[name];
     const fill = chart.centers[name] ? CHART_DUSTY_PEACH : CHART_SOFT_PEACH;
-    return `<path d="${shapePath(pos)}" fill="${fill}" stroke="${CHART_DUSTY_PEACH}" stroke-width="1.5" />`;
+    return `<path d="${shapePath(pos)}" fill="${fill}" stroke="${CHART_BLACK}" stroke-width="2" />`;
   }).join('\n');
 
   // Lines are drawn on top of the (opaque) shapes, so a defined channel's
   // thick line is visibly traceable crossing right up to its gate dot,
-  // rather than being hidden underneath the shape fill. A defined channel's
-  // color follows the same teal/black legend as the gate badges: teal only
-  // if both its gates are personality-only, black if design is involved on
-  // either end.
+  // rather than being hidden underneath the shape fill.
   const lines = structure.channels.map((ch) => {
     const [gA, gB] = ch.gates;
     const A = gatePos[gA];
@@ -164,12 +150,9 @@ function buildBodygraph(chart, structure) {
     if (!A || !B) return '';
     const defined = definedChannelKeys.has([gA, gB].slice().sort((a, b) => a - b).join('-'));
     if (!defined) {
-      return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${CHART_DUSTY_PEACH}" stroke-width="1.25" opacity="0.35" />`;
+      return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${CHART_DUSTY_PEACH}" stroke-width="3" opacity="0.7" />`;
     }
-    const sidesA = activeGateSides[gA] || [];
-    const sidesB = activeGateSides[gB] || [];
-    const color = sidesA.includes('design') || sidesB.includes('design') ? CHART_BLACK : CHART_TEAL;
-    return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${color}" stroke-width="5" />`;
+    return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${CHART_BLACK}" stroke-width="5" />`;
   }).join('\n');
 
   const gateNumbers = Object.values(cellsByCenter)
