@@ -17,15 +17,17 @@
 // Throat) — their matching wide edges meet directly, rather than the two
 // apexes pinching together.
 const CENTER_POS = {
-  Head: { x: 320, y: 64, shape: 'triangle-up', w: 110, h: 66, cols: 3, offsetY: 10 },
-  Ajna: { x: 320, y: 176, shape: 'triangle-down', w: 110, h: 84, cols: 3, offsetY: -10 },
-  Throat: { x: 320, y: 320, shape: 'square', w: 144, h: 110, cols: 3 },
-  G: { x: 320, y: 462, shape: 'diamond', w: 132, h: 132, cols: 2 },
-  Heart: { x: 474, y: 402, shape: 'triangle-left', w: 84, h: 66, cols: 2, offsetX: 12 },
-  Sacral: { x: 320, y: 616, shape: 'square', w: 144, h: 110, cols: 3 },
-  Spleen: { x: 144, y: 528, shape: 'triangle-right', w: 100, h: 120, cols: 4, offsetX: -15 },
-  SolarPlexus: { x: 496, y: 550, shape: 'triangle-left', w: 100, h: 120, cols: 4, offsetX: 15 },
-  Root: { x: 320, y: 760, shape: 'square', w: 144, h: 110, cols: 3 },
+  Head: { x: 346, y: 69, shape: 'triangle-up', w: 119, h: 71, cols: 3, offsetY: 11 },
+  Ajna: { x: 346, y: 190, shape: 'triangle-down', w: 119, h: 91, cols: 3, offsetY: -11 },
+  Throat: { x: 346, y: 346, shape: 'square', w: 155, h: 119, cols: 3 },
+  G: { x: 346, y: 499, shape: 'diamond', w: 143, h: 143, cols: 2 },
+  Heart: { x: 512, y: 434, shape: 'triangle-left', w: 91, h: 71, cols: 2, offsetX: 13 },
+  Sacral: { x: 346, y: 665, shape: 'square', w: 155, h: 119, cols: 3 },
+  // Spleen and Solar Plexus sit at the same y and mirror x-distance from the
+  // central x=346 axis, so they read as a genuinely symmetric pair.
+  Spleen: { x: 156, y: 582, shape: 'triangle-right', w: 108, h: 130, cols: 4, offsetX: -16 },
+  SolarPlexus: { x: 536, y: 582, shape: 'triangle-left', w: 108, h: 130, cols: 4, offsetX: 16 },
+  Root: { x: 346, y: 821, shape: 'square', w: 155, h: 119, cols: 3 },
 };
 
 const CENTER_PAIRS = [
@@ -170,7 +172,7 @@ function buildBodygraph(chart, structure) {
   // height below is chosen to be the largest size that still fits next to
   // the planetary columns on one printable PDF page (see .chart-page /
   // .planet-icon-lg in style.css, sized to leave exactly this much room).
-  return `<svg viewBox="0 0 620 880" width="560" height="795">
+  return `<svg viewBox="0 0 670 950" width="585" height="830">
     ${shapes}
     ${lines}
     ${gateNumbers}
