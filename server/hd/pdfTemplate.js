@@ -25,22 +25,24 @@
 // scaled uniformly.
 const CENTER_POS = {
   Head: { x: 346, y: 74, shape: 'triangle-up', w: 149, h: 89, cols: 3, offsetY: 14 },
-  Ajna: { x: 346, y: 216, shape: 'triangle-down', w: 149, h: 114, cols: 3, offsetY: -18 },
-  Throat: { x: 346, y: 371, shape: 'square', w: 155, h: 119, cols: 3 },
-  G: { x: 346, y: 541, shape: 'diamond', w: 168, h: 168, cols: 2 },
-  Heart: { x: 512, y: 444, shape: 'triangle-left', w: 114, h: 89, cols: 2, offsetX: 16 },
-  Sacral: { x: 346, y: 719, shape: 'square', w: 155, h: 119, cols: 3 },
-  // Spleen and Solar Plexus sit at the same y and mirror x-distance from the
-  // central x=346 axis, so they read as a genuinely symmetric pair.
+  Ajna: { x: 346, y: 228, shape: 'triangle-down', w: 149, h: 114, cols: 3, offsetY: -18 },
+  Throat: { x: 346, y: 390, shape: 'square', w: 155, h: 119, cols: 3 },
+  G: { x: 346, y: 560, shape: 'diamond', w: 180, h: 180, cols: 2 },
+  Heart: { x: 512, y: 465, shape: 'triangle-left', w: 114, h: 89, cols: 2, offsetX: 16 },
+  Sacral: { x: 346, y: 745, shape: 'square', w: 155, h: 119, cols: 3 },
+  // Spleen and Solar Plexus mirror each other's x-distance from the central
+  // x=346 axis, and sit lower than G's own center — closer to Sacral's
+  // height, matching the reference chart's proportions — rather than at
+  // the exact same height as G.
   // Spleen/Solar Plexus have one edge that's a full-height vertical line
   // (the side nearest G) and taper to a single point on the far side, so
   // unlike the other triangles their available width actually shrinks in
   // BOTH the row above and the row below center — a narrower colGap (and a
   // gentler offsetX) than the shared default is required to keep all 4
   // columns inside on every row, not just the center one.
-  Spleen: { x: 150, y: 541, shape: 'triangle-right', w: 148, h: 178, cols: 4, offsetX: -12, colGap: 32 },
-  SolarPlexus: { x: 542, y: 541, shape: 'triangle-left', w: 148, h: 178, cols: 4, offsetX: 12, colGap: 32 },
-  Root: { x: 346, y: 874, shape: 'square', w: 155, h: 119, cols: 3 },
+  Spleen: { x: 145, y: 680, shape: 'triangle-right', w: 158, h: 190, cols: 4, offsetX: -12, colGap: 34 },
+  SolarPlexus: { x: 547, y: 680, shape: 'triangle-left', w: 158, h: 190, cols: 4, offsetX: 12, colGap: 34 },
+  Root: { x: 346, y: 900, shape: 'square', w: 155, h: 119, cols: 3 },
 };
 
 const CENTER_PAIRS = [
@@ -95,7 +97,7 @@ function roundedPolygonPath(points, radius) {
   return `${d}Z`;
 }
 
-function shapePath(pos, radius = 10) {
+function shapePath(pos, radius = 13) {
   return roundedPolygonPath(shapeVertices(pos), radius);
 }
 
@@ -103,7 +105,7 @@ function shapePath(pos, radius = 10) {
 // shape, laid out in a centered grid of up to 3 columns — matching the
 // reference chart layout, which always prints a center's full fixed gate
 // list (not just the active ones).
-function gateGrid(gates, cx, cy, colsMax = 3, rowGap = 28, colGap = 38) {
+function gateGrid(gates, cx, cy, colsMax = 3, rowGap = 30, colGap = 40) {
   const cols = Math.min(colsMax, gates.length);
   const rows = [];
   for (let i = 0; i < gates.length; i += cols) rows.push(gates.slice(i, i + cols));
@@ -126,14 +128,14 @@ const CHART_DUSTY_PEACH = '#E6B1A1';
 const CHART_SOFT_PEACH = '#F4DED7';
 const CHART_BLACK = '#000000';
 const CHART_OUTLINE = '#222222';
-const CHART_GRAY = '#444444';
+const CHART_GRAY = '#333333';
 
 function gateLabel(gate, x, y, sides) {
   if (!sides) {
     // A thin white halo (painted before the fill) keeps a plain gate number
     // legible on the rare occasion a channel line happens to pass directly
     // behind it, rather than the line visually cutting through the digits.
-    return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="15" fill="${CHART_GRAY}" stroke="#FFFFFF" stroke-width="3" paint-order="stroke" stroke-linejoin="round">${gate}</text>`;
+    return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="15" fill="${CHART_GRAY}" stroke="#FFFFFF" stroke-width="1.25" paint-order="stroke" stroke-linejoin="round">${gate}</text>`;
   }
   return `<circle cx="${x}" cy="${y}" r="11" fill="${CHART_BLACK}" />
     <text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#FFFFFF" font-weight="600">${gate}</text>`;
@@ -184,7 +186,7 @@ function buildBodygraph(chart, structure) {
     if (!defined) {
       return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${CHART_DUSTY_PEACH}" stroke-width="2.5" opacity="0.85" />`;
     }
-    return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${CHART_BLACK}" stroke-width="4" />`;
+    return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${CHART_BLACK}" stroke-width="3.5" />`;
   }).join('\n');
 
   const gateNumbers = Object.values(cellsByCenter)
@@ -197,7 +199,7 @@ function buildBodygraph(chart, structure) {
   // height below is chosen to be the largest size that still fits next to
   // the planetary columns on one printable PDF page (see .chart-page /
   // .planet-icon-lg in style.css, sized to leave exactly this much room).
-  return `<svg viewBox="0 0 690 960" width="585" height="814">
+  return `<svg viewBox="0 0 700 990" width="585" height="827">
     ${shapes}
     ${lines}
     ${gateNumbers}
