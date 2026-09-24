@@ -177,9 +177,9 @@ function buildBodygraph(chart, structure) {
   // A thin white knockout separates a channel line from the darker dusty-
   // peach fill wherever the line actually crosses one of those centers —
   // clipped to just the defined-center shapes, so it disappears the
-  // instant the line leaves them rather than forming a border around the
-  // whole line. Drawn as a wider white copy of the line underneath the
-  // real one, but only visible where the clip path lets it show through.
+  // instant the line leaves them. Drawn as a same-width white copy of the
+  // line on top of the real one, only visible where the clip path lets it
+  // show through, so the line itself turns white rather than gaining a border.
   const darkCenterClip = Object.keys(CENTER_POS)
     .filter((name) => chart.centers[name])
     .map((name) => `<path d="${shapePath(CENTER_POS[name])}" />`)
@@ -199,14 +199,14 @@ function buildBodygraph(chart, structure) {
       : { A, B, color: CHART_DUSTY_PEACH, width: 2.5, opacity: 0.85 };
   }).filter(Boolean);
 
-  const lineHalos = `<g clip-path="url(#darkCenterClip)">
-    ${lineSpecs.map(({ A, B, width }) =>
-      `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="#FFFFFF" stroke-width="${width + 3}" />`
-    ).join('\n')}
-  </g>`;
   const lines = lineSpecs.map(({ A, B, color, width, opacity }) =>
     `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${color}" stroke-width="${width}" opacity="${opacity}" />`
   ).join('\n');
+  const lineOverlays = `<g clip-path="url(#darkCenterClip)">
+    ${lineSpecs.map(({ A, B, width }) =>
+      `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="#FFFFFF" stroke-width="${width}" />`
+    ).join('\n')}
+  </g>`;
 
   const gateNumbers = Object.values(cellsByCenter)
     .flat()
@@ -221,8 +221,8 @@ function buildBodygraph(chart, structure) {
   return `<svg viewBox="0 0 700 990" width="585" height="827">
     <defs><clipPath id="darkCenterClip">${darkCenterClip}</clipPath></defs>
     ${shapes}
-    ${lineHalos}
     ${lines}
+    ${lineOverlays}
     ${gateNumbers}
   </svg>`;
 }
@@ -640,13 +640,6 @@ function miniChannelDiagram(ch, chart, structure) {
   const shapes = [posA, posB]
     .map((pos) => `<path d="${shapePath(pos)}" fill="${CHART_DUSTY_PEACH}" stroke="${CHART_OUTLINE}" stroke-width="1.5" />`)
     .join('\n');
-  // Same white-knockout treatment as the main chart: a wider white line
-  // clipped to the two (always-defined, since this page only exists for a
-  // defined channel) shape fills, so the black line has clean separation
-  // from the dusty-peach fill without a border around the whole line.
-  const clipId = `miniClip-${gA}-${gB}`;
-  const clip = `<clipPath id="${clipId}">${[posA, posB].map((pos) => `<path d="${shapePath(pos)}" />`).join('')}</clipPath>`;
-  const halo = `<g clip-path="url(#${clipId})"><line x1="${endA.x}" y1="${endA.y}" x2="${endB.x}" y2="${endB.y}" stroke="#FFFFFF" stroke-width="6.5" /></g>`;
   const line = `<line x1="${endA.x}" y1="${endA.y}" x2="${endB.x}" y2="${endB.y}" stroke="${CHART_BLACK}" stroke-width="3.5" />`;
   const labels = allCells.map(({ gate, x, y }) => gateLabel(gate, x, y, activeGateSides[gate])).join('\n');
 
@@ -658,9 +651,7 @@ function miniChannelDiagram(ch, chart, structure) {
   const maxH = 260;
   const scale = Math.min(maxW / w, maxH / h);
   return `<svg viewBox="${minX} ${minY} ${w} ${h}" width="${Math.round(w * scale)}" height="${Math.round(h * scale)}">
-    <defs>${clip}</defs>
     ${shapes}
-    ${halo}
     ${line}
     ${labels}
   </svg>`;
