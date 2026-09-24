@@ -174,20 +174,39 @@ function buildBodygraph(chart, structure) {
     return `<path d="${shapePath(pos)}" fill="${fill}" stroke="${CHART_OUTLINE}" stroke-width="1.25" />`;
   }).join('\n');
 
+  // A thin white knockout separates a channel line from the darker dusty-
+  // peach fill wherever the line actually crosses one of those centers —
+  // clipped to just the defined-center shapes, so it disappears the
+  // instant the line leaves them rather than forming a border around the
+  // whole line. Drawn as a wider white copy of the line underneath the
+  // real one, but only visible where the clip path lets it show through.
+  const darkCenterClip = Object.keys(CENTER_POS)
+    .filter((name) => chart.centers[name])
+    .map((name) => `<path d="${shapePath(CENTER_POS[name])}" />`)
+    .join('\n');
+
   // Lines are drawn on top of the (opaque) shapes, so a defined channel's
   // thick line is visibly traceable crossing right up to its gate dot,
   // rather than being hidden underneath the shape fill.
-  const lines = structure.channels.map((ch) => {
+  const lineSpecs = structure.channels.map((ch) => {
     const [gA, gB] = ch.gates;
     const A = gatePos[gA];
     const B = gatePos[gB];
-    if (!A || !B) return '';
+    if (!A || !B) return null;
     const defined = definedChannelKeys.has([gA, gB].slice().sort((a, b) => a - b).join('-'));
-    if (!defined) {
-      return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${CHART_DUSTY_PEACH}" stroke-width="2.5" opacity="0.85" />`;
-    }
-    return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${CHART_BLACK}" stroke-width="3.5" />`;
-  }).join('\n');
+    return defined
+      ? { A, B, color: CHART_BLACK, width: 3.5, opacity: 1 }
+      : { A, B, color: CHART_DUSTY_PEACH, width: 2.5, opacity: 0.85 };
+  }).filter(Boolean);
+
+  const lineHalos = `<g clip-path="url(#darkCenterClip)">
+    ${lineSpecs.map(({ A, B, width }) =>
+      `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="#FFFFFF" stroke-width="${width + 3}" />`
+    ).join('\n')}
+  </g>`;
+  const lines = lineSpecs.map(({ A, B, color, width, opacity }) =>
+    `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${color}" stroke-width="${width}" opacity="${opacity}" />`
+  ).join('\n');
 
   const gateNumbers = Object.values(cellsByCenter)
     .flat()
@@ -200,7 +219,9 @@ function buildBodygraph(chart, structure) {
   // the planetary columns on one printable PDF page (see .chart-page /
   // .planet-icon-lg in style.css, sized to leave exactly this much room).
   return `<svg viewBox="0 0 700 990" width="585" height="827">
+    <defs><clipPath id="darkCenterClip">${darkCenterClip}</clipPath></defs>
     ${shapes}
+    ${lineHalos}
     ${lines}
     ${gateNumbers}
   </svg>`;
@@ -580,15 +601,31 @@ function shapeBBox(pos) {
 // A compact "symbol" for a channel's report page: just the two centers it
 // connects (with their own full gate lists, badged the same way as the main
 // chart) and the connecting line — a focused crop of the full bodygraph.
+// Gate positions use the exact same per-shape offsetX/offsetY/cols/gaps as
+// the main bodygraph, and the connecting line runs between the channel's
+// actual two gate dots — not the shapes' centers — matching how the main
+// chart already connects channels precisely to their gates.
 function miniChannelDiagram(ch, chart, structure) {
   const [nameA, nameB] = ch.centers;
   const posA = CENTER_POS[nameA];
   const posB = CENTER_POS[nameB];
   const activeGateSides = Object.fromEntries(chart.activeGates.map((g) => [g.gate, g.sides]));
 
-  const cellsA = gateGrid(structure.centers[nameA].gates, posA.x, posA.y, 3, 22, 28);
-  const cellsB = gateGrid(structure.centers[nameB].gates, posB.x, posB.y, 3, 22, 28);
+  const cellsFor = (name, pos) => gateGrid(
+    structure.centers[name].gates,
+    pos.x + (pos.offsetX || 0),
+    pos.y + (pos.offsetY || 0),
+    pos.cols,
+    pos.rowGap || 30,
+    pos.colGap || 40
+  );
+  const cellsA = cellsFor(nameA, posA);
+  const cellsB = cellsFor(nameB, posB);
   const allCells = [...cellsA, ...cellsB];
+  const gatePos = Object.fromEntries(allCells.map(({ gate, x, y }) => [gate, { x, y }]));
+  const [gA, gB] = ch.gates;
+  const endA = gatePos[gA];
+  const endB = gatePos[gB];
 
   const [ax0, ay0, ax1, ay1] = shapeBBox(posA);
   const [bx0, by0, bx1, by1] = shapeBBox(posB);
@@ -600,10 +637,17 @@ function miniChannelDiagram(ch, chart, structure) {
   const w = maxX - minX;
   const h = maxY - minY;
 
-  const line = `<line x1="${posA.x}" y1="${posA.y}" x2="${posB.x}" y2="${posB.y}" stroke="#222222" stroke-width="5" />`;
   const shapes = [posA, posB]
-    .map((pos) => `<path d="${shapePath(pos)}" fill="#F4CEBF" stroke="#E6B1A1" stroke-width="1.5" />`)
+    .map((pos) => `<path d="${shapePath(pos)}" fill="${CHART_DUSTY_PEACH}" stroke="${CHART_OUTLINE}" stroke-width="1.5" />`)
     .join('\n');
+  // Same white-knockout treatment as the main chart: a wider white line
+  // clipped to the two (always-defined, since this page only exists for a
+  // defined channel) shape fills, so the black line has clean separation
+  // from the dusty-peach fill without a border around the whole line.
+  const clipId = `miniClip-${gA}-${gB}`;
+  const clip = `<clipPath id="${clipId}">${[posA, posB].map((pos) => `<path d="${shapePath(pos)}" />`).join('')}</clipPath>`;
+  const halo = `<g clip-path="url(#${clipId})"><line x1="${endA.x}" y1="${endA.y}" x2="${endB.x}" y2="${endB.y}" stroke="#FFFFFF" stroke-width="6.5" /></g>`;
+  const line = `<line x1="${endA.x}" y1="${endA.y}" x2="${endB.x}" y2="${endB.y}" stroke="${CHART_BLACK}" stroke-width="3.5" />`;
   const labels = allCells.map(({ gate, x, y }) => gateLabel(gate, x, y, activeGateSides[gate])).join('\n');
 
   // Some channel pairs (e.g. Throat-Sacral) sit far apart vertically on the
@@ -614,8 +658,10 @@ function miniChannelDiagram(ch, chart, structure) {
   const maxH = 260;
   const scale = Math.min(maxW / w, maxH / h);
   return `<svg viewBox="${minX} ${minY} ${w} ${h}" width="${Math.round(w * scale)}" height="${Math.round(h * scale)}">
-    ${line}
+    <defs>${clip}</defs>
     ${shapes}
+    ${halo}
+    ${line}
     ${labels}
   </svg>`;
 }
