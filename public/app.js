@@ -265,53 +265,6 @@ function renderReport(name, birthInputs, data) {
   </section>`);
   reportContent.appendChild(bodygraphSection);
 
-  const typeSection = el(`<section class="panel">
-    <h2>${chart.type}</h2>
-    <p><strong>Strategy:</strong> ${content.typeInfo.strategy} &nbsp; | &nbsp; <strong>Signature:</strong> ${content.typeInfo.signature} &nbsp; | &nbsp; <strong>Not-Self Theme:</strong> ${content.typeInfo.notSelf} &nbsp; | &nbsp; <strong>Population:</strong> ${content.typeInfo.population}</p>
-    <p>${content.typeInfo.summary}</p>
-  </section>`);
-  reportContent.appendChild(typeSection);
-
-  const authoritySection = el(`<section class="panel">
-    <h2>${content.authorityInfo.title}</h2>
-    <p>${content.authorityInfo.description}</p>
-  </section>`);
-  reportContent.appendChild(authoritySection);
-
-  const profileSection = el(`<section class="panel">
-    <h2>Profile ${chart.profile}</h2>
-    <p>${content.profileNarrative}</p>
-  </section>`);
-  reportContent.appendChild(profileSection);
-
-  const crossSection = el(`<section class="panel">
-    <h2>Incarnation Cross</h2>
-    <p>Your Incarnation Cross is formed by the Sun and Earth gates of your Personality and Design, and is further shaped by your ${chart.profile} profile.</p>
-    <div class="table-scroll">
-      <table class="gates-table">
-        <tr><th></th><th>Sun Gate</th><th>Earth Gate</th></tr>
-        <tr><td>Personality (conscious)</td><td>${chart.incarnationCross.personalitySunGate} — ${content.gates[chart.incarnationCross.personalitySunGate].name}</td><td>${chart.incarnationCross.personalityEarthGate} — ${content.gates[chart.incarnationCross.personalityEarthGate].name}</td></tr>
-        <tr><td>Design (unconscious)</td><td>${chart.incarnationCross.designSunGate} — ${content.gates[chart.incarnationCross.designSunGate].name}</td><td>${chart.incarnationCross.designEarthGate} — ${content.gates[chart.incarnationCross.designEarthGate].name}</td></tr>
-      </table>
-    </div>
-  </section>`);
-  reportContent.appendChild(crossSection);
-
-  const centersSection = el(`<section class="panel">
-    <h2>Centers</h2>
-    <div class="center-list">
-      ${Object.entries(content.centers).map(([key, info]) => {
-        const defined = chart.centers[key];
-        return `<div class="center-item ${defined ? 'defined' : ''}">
-          <div class="name">${info.label}</div>
-          <div class="state">${defined ? 'Defined' : 'Undefined/Open'} — ${info.theme}</div>
-          <p>${defined ? info.defined : info.undefined}</p>
-        </div>`;
-      }).join('')}
-    </div>
-  </section>`);
-  reportContent.appendChild(centersSection);
-
   const gatesSection = el(`<section class="panel">
     <h2>Activated Gates</h2>
     <p class="legend"><span class="side-badge personality">Personality</span> conscious, from your exact birth moment &nbsp;&nbsp; <span class="side-badge design">Design</span> unconscious, from ~88° of solar arc before birth</p>
