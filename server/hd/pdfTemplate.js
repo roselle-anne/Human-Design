@@ -135,7 +135,7 @@ function gateLabel(gate, x, y, sides) {
     // A thin white halo (painted before the fill) keeps a plain gate number
     // legible on the rare occasion a channel line happens to pass directly
     // behind it, rather than the line visually cutting through the digits.
-    return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="15" fill="${CHART_GRAY}" stroke="#FFFFFF" stroke-width="1.25" paint-order="stroke" stroke-linejoin="round">${gate}</text>`;
+    return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="15" fill="${CHART_GRAY}" stroke="#FFFFFF" stroke-width="1.5" paint-order="stroke" stroke-linejoin="round">${gate}</text>`;
   }
   return `<circle cx="${x}" cy="${y}" r="11" fill="${CHART_BLACK}" />
     <text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#FFFFFF" font-weight="600">${gate}</text>`;
