@@ -597,6 +597,16 @@ function shapeBBox(pos) {
   return [pos.x - pos.w / 2, pos.y - pos.h / 2, pos.x + pos.w / 2, pos.y + pos.h / 2];
 }
 
+function pointToSegmentDistance(px, py, x1, y1, x2, y2) {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const lengthSq = dx * dx + dy * dy;
+  const t = lengthSq === 0 ? 0 : Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / lengthSq));
+  const projX = x1 + t * dx;
+  const projY = y1 + t * dy;
+  return Math.hypot(px - projX, py - projY);
+}
+
 // A compact "symbol" for a channel's report page: just the two centers it
 // connects (with their own full gate lists, badged the same way as the main
 // chart) and the connecting line — a focused crop of the full bodygraph.
@@ -640,7 +650,16 @@ function miniChannelDiagram(ch, chart, structure) {
     .map((pos) => `<path d="${shapePath(pos)}" fill="${CHART_DUSTY_PEACH}" stroke="${CHART_OUTLINE}" stroke-width="1.5" />`)
     .join('\n');
   const line = `<line x1="${endA.x}" y1="${endA.y}" x2="${endB.x}" y2="${endB.y}" stroke="${CHART_BLACK}" stroke-width="3.5" />`;
-  const labels = allCells.map(({ gate, x, y }) => gateLabel(gate, x, y, activeGateSides[gate])).join('\n');
+  // If an unrelated activated gate happens to sit right on the connecting
+  // line's path, its black circle marker reads as if it were part of this
+  // channel. Drop just the circle (show it as a plain number instead) for
+  // any gate other than the two real endpoints that the line passes through.
+  const onLinePath = (x, y) => pointToSegmentDistance(x, y, endA.x, endA.y, endB.x, endB.y) < 13;
+  const labels = allCells.map(({ gate, x, y }) => {
+    const isEndpoint = gate === gA || gate === gB;
+    const sides = (!isEndpoint && onLinePath(x, y)) ? undefined : activeGateSides[gate];
+    return gateLabel(gate, x, y, sides);
+  }).join('\n');
 
   // Some channel pairs (e.g. Throat-Sacral) sit far apart vertically on the
   // full chart, which would otherwise stretch this crop into a very tall
