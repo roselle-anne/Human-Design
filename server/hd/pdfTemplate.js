@@ -141,31 +141,7 @@ function gateLabel(gate, x, y, sides) {
     <text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#FFFFFF" font-weight="600">${gate}</text>`;
 }
 
-// A faint decorative outline of a woman's silhouette behind the bodygraph —
-// purely illustrative, so anyone unfamiliar with Human Design can instantly
-// read the shapes as sitting inside a person. Stroke-only (no fill), so it
-// never competes with the shapes, lines, or gate numbers drawn on top of it.
-function buildFigureSilhouette() {
-  const s = 'stroke="#D79A88" stroke-width="2" fill="none" opacity="0.4" stroke-linecap="round" stroke-linejoin="round"';
-  return `
-    <ellipse cx="346" cy="100" rx="54" ry="62" ${s} />
-    <path d="M 320,158 C 318,176 318,196 324,216 L 368,216 C 374,196 374,176 372,158" ${s} />
-    <path d="
-      M 251,250
-      C 226,350 291,480 316,560
-      C 296,620 236,700 241,820
-      C 244,880 286,930 346,956
-      C 406,930 448,880 451,820
-      C 456,700 396,620 376,560
-      C 401,480 466,350 441,250
-      C 466,230 406,218 346,218
-      C 286,218 226,230 251,250
-      Z
-    " ${s} />
-  `;
-}
-
-function buildBodygraph(chart, structure) {
+function buildBodygraph(chart, structure, figureUrl) {
   const definedChannelKeys = new Set(
     chart.definedChannels.map((c) => c.gates.slice().sort((a, b) => a - b).join('-'))
   );
@@ -243,7 +219,7 @@ function buildBodygraph(chart, structure) {
   // .planet-icon-lg in style.css, sized to leave exactly this much room).
   return `<svg viewBox="0 0 700 990" width="585" height="827">
     <defs><clipPath id="darkCenterClip">${darkCenterClip}</clipPath></defs>
-    ${buildFigureSilhouette()}
+    ${figureUrl ? `<image href="${figureUrl}" x="0" y="0" width="700" height="990" opacity="0.85" preserveAspectRatio="xMidYMid slice" />` : ''}
     ${shapes}
     ${lines}
     ${lineOverlays}
@@ -399,7 +375,7 @@ function buildIntroPage(content) {
   </div>`;
 }
 
-function buildChartPage(chart, structure, name, birthInputs) {
+function buildChartPage(chart, structure, name, birthInputs, figureUrl) {
   const birthDateFormatted = new Date(`${birthInputs.date}T00:00:00`).toLocaleDateString('en-US', {
     year: 'numeric', month: 'long', day: 'numeric',
   });
@@ -407,7 +383,7 @@ function buildChartPage(chart, structure, name, birthInputs) {
     <h1 class="page-title chart-title">Human Design Chart</h1>
     <div class="chart-layout">
       ${planetColumn(chart.personality, 'personality')}
-      <div class="chart-center">${buildBodygraph(chart, structure)}</div>
+      <div class="chart-center">${buildBodygraph(chart, structure, figureUrl)}</div>
       ${planetColumn(chart.designActivations, 'design')}
     </div>
     <div class="chart-footer">
@@ -828,12 +804,14 @@ function buildDetailsPage(chart) {
  * @param {string} inlineCss - the app's style.css content, embedded directly
  *   so Puppeteer never depends on a network round-trip back to this server.
  * @param {string} logoUrl - absolute URL to the Embodiance logo image.
+ * @param {string} figureUrl - absolute URL to the decorative woman-silhouette
+ *   illustration drawn behind the bodygraph chart.
  */
-export function buildReportHtml(chart, content, structure, name, birthInputs, inlineCss, logoUrl) {
+export function buildReportHtml(chart, content, structure, name, birthInputs, inlineCss, logoUrl, figureUrl) {
   const pages = [
     buildCoverPage(name, birthInputs, logoUrl),
     buildIntroPage(content),
-    buildChartPage(chart, structure, name, birthInputs),
+    buildChartPage(chart, structure, name, birthInputs, figureUrl),
     buildUserDetailsPage(chart, content, name, birthInputs),
     buildChapterPage('Section', 'Type', content.sectionIntros.Type),
     buildFiveTypesOverviewPage(content),

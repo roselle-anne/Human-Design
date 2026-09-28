@@ -170,6 +170,11 @@ const styleCssPath = path.join(__dirname, '..', 'public', 'style.css');
 const logoPath = path.join(__dirname, '..', 'public', 'assets', 'logo-horizontal-color.png');
 const logoDataUri = `data:image/png;base64,${fs.readFileSync(logoPath).toString('base64')}`;
 
+// Same embed-as-data-URI approach as the logo above — a decorative woman's
+// silhouette drawn behind the bodygraph chart on the chart page.
+const figurePath = path.join(__dirname, '..', 'public', 'assets', 'chart-figure-silhouette.png');
+const figureDataUri = `data:image/png;base64,${fs.readFileSync(figurePath).toString('base64')}`;
+
 // Launching a fresh Chromium process per request measured at ~60s on
 // Render's free tier (0.5 CPU) — most of that is browser startup, not
 // actual rendering (56 pages renders in ~7s locally). Keeping one browser
@@ -219,7 +224,8 @@ app.get('/api/report.pdf', async (req, res) => {
       name ? String(name) : '',
       { date: String(date), time: String(time), timeZone: String(timeZone), place: place ? String(place) : '' },
       inlineCss,
-      logoDataUri
+      logoDataUri,
+      figureDataUri
     );
 
     // Temporary timing instrumentation: two "warm" production requests
