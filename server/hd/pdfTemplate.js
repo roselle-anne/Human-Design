@@ -174,12 +174,11 @@ function buildBodygraph(chart, structure) {
     return `<path d="${shapePath(pos)}" fill="${fill}" stroke="${CHART_OUTLINE}" stroke-width="1.25" />`;
   }).join('\n');
 
-  // A thin white knockout separates a channel line from the darker dusty-
-  // peach fill wherever the line actually crosses one of those centers —
-  // clipped to just the defined-center shapes, so it disappears the
-  // instant the line leaves them. Drawn as a same-width white copy of the
-  // line on top of the real one, only visible where the clip path lets it
-  // show through, so the line itself turns white rather than gaining a border.
+  // A peach (undefined-channel) line loses contrast against the darker
+  // dusty-peach center fill, so it turns white wherever it actually crosses
+  // one of those centers — clipped to just the defined-center shapes, so it
+  // disappears the instant the line leaves them. Black lines already read
+  // fine against that fill and are left alone.
   const darkCenterClip = Object.keys(CENTER_POS)
     .filter((name) => chart.centers[name])
     .map((name) => `<path d="${shapePath(CENTER_POS[name])}" />`)
@@ -203,7 +202,7 @@ function buildBodygraph(chart, structure) {
     `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${color}" stroke-width="${width}" opacity="${opacity}" />`
   ).join('\n');
   const lineOverlays = `<g clip-path="url(#darkCenterClip)">
-    ${lineSpecs.map(({ A, B, width }) =>
+    ${lineSpecs.filter(({ color }) => color === CHART_DUSTY_PEACH).map(({ A, B, width }) =>
       `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="#FFFFFF" stroke-width="${width}" />`
     ).join('\n')}
   </g>`;
@@ -267,7 +266,7 @@ function buildCentersMapPage() {
     <div class="page-eyebrow">Your Centers</div>
     <h1 class="report-title">Where the Centers Sit</h1>
     <p class="report-subject">A map of the bodygraph before we go center by center</p>
-    <svg viewBox="0 0 500 700" width="420" height="588" class="centers-map-svg">
+    <svg viewBox="0 0 700 990" width="420" height="594" class="centers-map-svg">
       ${lines}
       ${shapes}
     </svg>
