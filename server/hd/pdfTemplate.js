@@ -141,6 +141,30 @@ function gateLabel(gate, x, y, sides) {
     <text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#FFFFFF" font-weight="600">${gate}</text>`;
 }
 
+// A faint decorative outline of a woman's silhouette behind the bodygraph —
+// purely illustrative, so anyone unfamiliar with Human Design can instantly
+// read the shapes as sitting inside a person. Stroke-only (no fill), so it
+// never competes with the shapes, lines, or gate numbers drawn on top of it.
+function buildFigureSilhouette() {
+  const s = 'stroke="#D79A88" stroke-width="2" fill="none" opacity="0.4" stroke-linecap="round" stroke-linejoin="round"';
+  return `
+    <ellipse cx="346" cy="100" rx="54" ry="62" ${s} />
+    <path d="M 320,158 C 318,176 318,196 324,216 L 368,216 C 374,196 374,176 372,158" ${s} />
+    <path d="
+      M 251,250
+      C 226,350 291,480 316,560
+      C 296,620 236,700 241,820
+      C 244,880 286,930 346,956
+      C 406,930 448,880 451,820
+      C 456,700 396,620 376,560
+      C 401,480 466,350 441,250
+      C 466,230 406,218 346,218
+      C 286,218 226,230 251,250
+      Z
+    " ${s} />
+  `;
+}
+
 function buildBodygraph(chart, structure) {
   const definedChannelKeys = new Set(
     chart.definedChannels.map((c) => c.gates.slice().sort((a, b) => a - b).join('-'))
@@ -219,6 +243,7 @@ function buildBodygraph(chart, structure) {
   // .planet-icon-lg in style.css, sized to leave exactly this much room).
   return `<svg viewBox="0 0 700 990" width="585" height="827">
     <defs><clipPath id="darkCenterClip">${darkCenterClip}</clipPath></defs>
+    ${buildFigureSilhouette()}
     ${shapes}
     ${lines}
     ${lineOverlays}
