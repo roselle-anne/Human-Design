@@ -127,7 +127,7 @@ function gateGrid(gates, cx, cy, colsMax = 3, rowGap = 30, colGap = 40) {
 const CHART_DUSTY_PEACH = '#E6B1A1';
 const CHART_SOFT_PEACH = '#F4DED7';
 const CHART_BLACK = '#000000';
-const CHART_OUTLINE = '#222222';
+const CHART_OUTLINE = '#E6B1A1';
 const CHART_GRAY = '#333333';
 
 function gateLabel(gate, x, y, sides) {
@@ -171,7 +171,7 @@ function buildBodygraph(chart, structure, figureUrl) {
   const shapes = Object.keys(CENTER_POS).map((name) => {
     const pos = CENTER_POS[name];
     const fill = chart.centers[name] ? CHART_DUSTY_PEACH : CHART_SOFT_PEACH;
-    return `<path d="${shapePath(pos)}" fill="${fill}" stroke="${CHART_OUTLINE}" stroke-width="1.25" />`;
+    return `<path d="${shapePath(pos)}" fill="${fill}" stroke="${CHART_OUTLINE}" stroke-width="0.75" />`;
   }).join('\n');
 
   // A peach (undefined-channel) line loses contrast against the darker
@@ -648,7 +648,7 @@ function miniChannelDiagram(ch, chart, structure) {
   const h = maxY - minY;
 
   const shapes = [posA, posB]
-    .map((pos) => `<path d="${shapePath(pos)}" fill="${CHART_DUSTY_PEACH}" stroke="${CHART_OUTLINE}" stroke-width="1.5" />`)
+    .map((pos) => `<path d="${shapePath(pos)}" fill="${CHART_DUSTY_PEACH}" stroke="${CHART_OUTLINE}" stroke-width="0.9" />`)
     .join('\n');
   const line = `<line x1="${endA.x}" y1="${endA.y}" x2="${endB.x}" y2="${endB.y}" stroke="${CHART_BLACK}" stroke-width="3.5" />`;
   // If an unrelated activated gate happens to sit right on the connecting
