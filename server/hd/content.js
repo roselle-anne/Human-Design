@@ -1418,11 +1418,62 @@ export const CROSS_NAMES = Object.fromEntries(
   CROSS_NAME_ROWS.map(([name, g1, g2, g3, g4]) => [crossAxisKey(g1, g2, g3, g4), name])
 );
 
+// A dedicated, specific theme for each named Incarnation Cross — the actual
+// life-purpose flavor that cross name carries, independent of angle type.
+// Used as the reading's opening theme whenever the person's exact cross has
+// a recognized name, instead of only the generic Right/Left/Juxtaposition
+// angle description.
+export const CROSS_DETAIL = {
+  'Alignment': 'The Cross of Alignment is about bringing people and processes into the right order — you are here to notice when something is out of sequence or out of sync, and to quietly correct it until everything lines up the way it is meant to.',
+  'Conflict': 'The Cross of Conflict is not about causing disputes — it is about being positioned at the exact point where opposing views meet, so that friction becomes visible and can finally be worked through rather than avoided.',
+  'Confrontation': 'The Cross of Confrontation asks you to meet difficulty head-on rather than sidestep it — your presence has a way of forcing hidden tension into the open where it can actually be dealt with.',
+  'Conservation': 'The Cross of Conservation is about protecting and preserving what already works — resources, traditions, relationships — rather than chasing what is new, and making sure nothing valuable is carelessly thrown away.',
+  'Cycles': 'The Cross of Cycles ties your life to timing and seasons — you are here to recognize when something has run its natural course and when a new one is beginning, and to help others move with that rhythm instead of against it.',
+  'Dedication': 'The Cross of Dedication is about sustained, patient commitment — you are built to stay with something long after the initial excitement fades, and that steadiness is itself the contribution.',
+  'Defiance': 'The Cross of Defiance carries a refusal to simply go along with the accepted way of doing things — your life pushes back against convention, even when that is uncomfortable, because something genuinely needs to be questioned.',
+  'Demands': 'The Cross of Demands puts you in a position where you ask more of yourself and often of others — not out of harshness, but because you can see a higher standard is possible and worth insisting on.',
+  'Distraction': 'The Cross of Distraction has a gift for pulling attention away from what is stagnant or stuck — you interrupt fixed patterns, which can look disruptive in the moment but often opens room for something better.',
+  'Dominion': 'The Cross of Dominion is about rightful influence — stepping into a sphere where your judgment genuinely carries weight, and learning to hold that influence responsibly rather than avoiding or abusing it.',
+  'Duality': 'The Cross of Duality lives in the tension between two real, competing truths — your life is built to hold both sides of something at once, rather than collapsing the tension into a false either/or.',
+  'Education': 'The Cross of Education is about transmission — taking something you have lived through or mastered and making it usable for someone else, so the next person does not have to start from zero.',
+  'Endeavor': 'The Cross of Endeavor is about sustained effort toward a concrete outcome — you are wired for the long push of actually building something, not just imagining or discussing it.',
+  'Explanation': 'The Cross of Explanation gives you a gift for making the complicated plain — you are here to take something dense or confusing and hand it back to people in a form they can actually use.',
+  'Extremes': 'The Cross of Extremes pulls you toward the outer edges of experience rather than the comfortable middle — you learn (and often teach) through intensity, pushing past moderate answers to see what is really true.',
+  'Formulization': 'The Cross of Formulization is about turning raw experience into a repeatable method — you notice what works, distill it into a clear form, and hand it to others as something they can follow.',
+  'Habits': 'The Cross of Habits is about the power of repetition — you are here to understand how patterns get built (and broken), in yourself and others, and to use that understanding deliberately rather than let it run unconsciously.',
+  'Healing': 'The Cross of Healing is about restoration — helping people or situations recover something that was lost, damaged, or out of balance, often simply through your steady, attentive presence.',
+  'Identification': 'The Cross of Identification is about recognizing what is genuinely true of a person or situation, underneath the labels — you have a knack for seeing what something actually is, not just what it is assumed to be.',
+  'Incarnation': 'The Cross of Incarnation is about fully showing up in the specific, concrete life you actually have — not a hypothetical or idealized one — and treating that lived, particular experience as the real work.',
+  'Individualism': 'The Cross of Individualism carries a life built around going your own way — you are not here to blend into the crowd, and your value often comes precisely from the ways you refuse to conform.',
+  'Industry': 'The Cross of Industry is about practical productivity — turning ideas and effort into tangible, working results, and taking real satisfaction in seeing something actually get built or finished.',
+  'Informing': 'The Cross of Informing centers on keeping others in the loop — sharing what you know or what you are doing at the right moment, so people are never left working with an incomplete picture.',
+  'Laws': 'The Cross of Laws is about the structures that hold a group together — you are drawn to the rules, principles, or agreements that make cooperation possible, and to making sure they are fair and actually followed.',
+  'Masks': 'The Cross of Masks is about the gap between how something appears and what it actually is — you have an instinct for what is being presented versus what is real, in yourself and in others.',
+  'Maya': 'The Cross of Maya is about illusion and perception — you are here to notice how easily people (including yourself) can mistake appearance for truth, and to keep returning to what is actually real.',
+  'Migration': 'The Cross of Migration is built around movement — physical, social, or internal — you are not meant to stay fixed in one place or one way of being, and change of scenery often brings real clarity.',
+  'Obscuration': 'The Cross of Obscuration deals in what is hidden or unclear — you are drawn toward mystery and the parts of a situation that are not yet visible, often becoming the one who eventually brings clarity to it.',
+  'Penetration': 'The Cross of Penetration is about cutting straight through surface noise to what actually matters — you have little patience for going around a problem when you could go directly at it.',
+  'Planning': 'The Cross of Planning is about designing the path before walking it — you think in sequences and contingencies, and your contribution is often the structure that makes an outcome actually achievable.',
+  'Retreat': 'The Cross of Retreat is about knowing when to step back — recognizing that sometimes the wisest move is withdrawal, reflection, or timing your reappearance rather than staying in the fray.',
+  'Rulership': 'The Cross of Rulership carries real responsibility for others — not necessarily formal authority, but a life in which your decisions and example genuinely shape the people around you.',
+  'Service': 'The Cross of Service is built around meeting others\' practical needs — you find purpose less in personal recognition and more in the concrete difference your help actually makes.',
+  'Spirit': 'The Cross of Spirit is about emotional and inspirational depth — you are here to feel things fully and to communicate that feeling in a way that moves other people, not to stay neutral or detached.',
+  'The Alpha': 'The Cross of the Alpha carries a natural pull toward leading from the front — not by seeking a title, but because you are wired to go first, scout the way, and let others follow the trail you have already walked.',
+  'The Clarion': 'The Cross of the Clarion is about sounding a clear, unmistakable signal — your role is to say the thing plainly at the moment it needs saying, even when everyone else is staying quiet.',
+  'The Four Ways': 'The Cross of the Four Ways is built around synthesis — weighing genuinely different paths or perspectives and finding the route that actually integrates them, rather than picking just one.',
+  'The Sleeping Phoenix': 'The Cross of the Sleeping Phoenix is about dormant potential waking up — a life theme of appearing quiet or unremarkable for a time, then rising into something transformative once the right moment arrives.',
+  'The Sphinx': 'The Cross of the Sphinx carries an air of riddle and depth — you are not meant to be fully "figured out" at a glance, and the questions you raise for others often matter more than any easy answer you give.',
+  'Uncertainty': 'The Cross of Uncertainty is about staying honest in the face of not-knowing — rather than pretending to more confidence than you have, your value comes from admitting doubt and searching further because of it.',
+  'Upheaval': 'The Cross of Upheaval is built around disruption that clears the way for something new — your presence tends to shake loose what was stagnant, even when that is unsettling before it is helpful.',
+  'Wishes': 'The Cross of Wishes is about desire and its refinement — learning, often through trial and error, which of your wants are genuinely worth pursuing and which were never really yours to begin with.',
+};
+
 /**
  * A comprehensive, five-part Incarnation Cross reading, built from the
- * user's actual four gates (verified names/keynotes) and their angle
- * type's well-established general meaning — synthesized fresh per person
- * rather than a single fixed block of text per cross name.
+ * user's actual four gates (verified names/keynotes), their specific named
+ * cross's own theme (when recognized), and their angle type's well-
+ * established general meaning — synthesized fresh per person rather than a
+ * single fixed block of text for everyone who shares an angle type.
  */
 export function buildIncarnationCrossReading(cross, profile, gatesContent) {
   const angleType = crossAngleType(profile);
@@ -1442,8 +1493,12 @@ export function buildIncarnationCrossReading(cross, profile, gatesContent) {
     angleType,
     epithet: angleInfo.epithet,
     paragraphs: [
-      // 1. Overarching life theme / soul purpose
-      `${angleInfo.theme}${baseName ? ` For you specifically, that purpose carries the flavor of ${baseName} — a current running underneath everything else described below.` : ''}`,
+      // 1. Overarching life theme / soul purpose — the specific named
+      // cross's own theme when recognized, rather than only the generic
+      // angle-type description everyone who shares that angle also gets.
+      baseName && CROSS_DETAIL[baseName]
+        ? `${CROSS_DETAIL[baseName]} As a ${angleType} Cross — a ${angleInfo.epithet} — this theme is expressed through ${angleType === 'Right Angle' ? 'your own life and personal narrative first' : angleType === 'Left Angle' ? 'the people and circumstances that come across your path' : 'a fixed, less negotiable role you carry regardless of circumstance'}.`
+        : `${angleInfo.theme}${baseName ? ` For you specifically, that purpose carries the flavor of ${baseName} — a current running underneath everything else described below.` : ''}`,
       // 2. What each of the four gates contributes
       `Your four gates each contribute a specific piece: consciously, Gate ${cross.personalitySunGate} (${pSun.name}) brings ${trim(pSun.keynote).toLowerCase()}, balanced by Gate ${cross.personalityEarthGate} (${pEarth.name}) — ${trim(pEarth.keynote).toLowerCase()}. Unconsciously, Gate ${cross.designSunGate} (${dSun.name}) contributes ${trim(dSun.keynote).toLowerCase()}, balanced by Gate ${cross.designEarthGate} (${dEarth.name}) — ${trim(dEarth.keynote).toLowerCase()}. Together these four form the specific, non-repeatable combination your life's work draws on.`,
       // 3. How the angle shapes living the purpose
