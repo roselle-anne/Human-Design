@@ -435,9 +435,19 @@ p { line-height: 1.6; }
 /* Cover page */
 .cover-page {
   background: linear-gradient(160deg, var(--white) 0%, var(--soft-peach) 100%);
+  background-size: cover;
+  background-position: center;
   text-align: center;
   align-items: center;
   padding: 64px 32px;
+}
+/* A translucent panel behind the title text on the photo background pages,
+   so the sky image shows through while the text stays fully legible. */
+.title-panel {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 20px;
+  padding: 40px 44px;
+  backdrop-filter: blur(2px);
 }
 .cover-page img.title-logo { height: 64px; margin-bottom: 28px; }
 .cover-page .report-title { font-size: 38px; margin: 0 0 8px; color: var(--charcoal); }

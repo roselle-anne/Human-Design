@@ -280,7 +280,7 @@ const MAP_LABELS = {
   Sacral: 'Sacral', Spleen: 'Spleen', SolarPlexus: 'Solar Plexus', Root: 'Root',
 };
 
-function buildCentersMapPage() {
+function buildCentersMapPage(titleBgUrl) {
   const lines = CENTER_PAIRS.map(([a, b]) => {
     const A = CENTER_POS[a], B = CENTER_POS[b];
     return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="#158EA4" stroke-width="3" opacity="0.75" />`;
@@ -293,10 +293,12 @@ function buildCentersMapPage() {
       <text x="${pos.x}" y="${pos.y + 4}" text-anchor="middle" font-size="${fontSize}" font-weight="600" fill="#2A1E14">${label}</text>`;
   }).join('\n');
 
-  return `<div class="report-page cover-page centers-map-page">
-    <div class="page-eyebrow">Your Centers</div>
-    <h1 class="report-title">Where the Centers Sit</h1>
-    <p class="report-subject">A map of the bodygraph before we go center by center</p>
+  return `<div class="report-page cover-page centers-map-page" style="background-image:url('${titleBgUrl}')">
+    <div class="title-panel">
+      <div class="page-eyebrow">Your Centers</div>
+      <h1 class="report-title">Where the Centers Sit</h1>
+      <p class="report-subject">A map of the bodygraph before we go center by center</p>
+    </div>
     <svg viewBox="0 0 700 990" width="420" height="594" class="centers-map-svg">
       ${lines}
       ${shapes}
@@ -375,22 +377,24 @@ function planetColumn(activations, sideClass) {
   return `<div class="planet-column">${rows.join('')}</div>`;
 }
 
-function buildCoverPage(name, birthInputs, logoUrl) {
+function buildCoverPage(name, birthInputs, logoUrl, titleBgUrl) {
   const preparedDate = new Date().toLocaleDateString('en-US', {
     year: 'numeric', month: 'long', day: 'numeric',
   });
   const birthDateFormatted = new Date(`${birthInputs.date}T00:00:00`).toLocaleDateString('en-US', {
     year: 'numeric', month: 'long', day: 'numeric',
   });
-  return `<div class="report-page cover-page">
-    <img src="${logoUrl}" alt="Embodiance" class="title-logo" />
-    <div class="page-eyebrow">Human Design Report</div>
-    <h1 class="report-title">Your Bodygraph &amp; Chart Analysis</h1>
-    ${name ? `<p class="report-subject">Prepared for ${name}</p>` : ''}
-    <div class="title-meta">
-      <span><strong>Birth date:</strong> ${birthDateFormatted} at ${birthInputs.time}</span>
-      <span><strong>Place of birth:</strong> ${birthInputs.place || birthInputs.timeZone}</span>
-      <span><strong>Report prepared:</strong> ${preparedDate}</span>
+  return `<div class="report-page cover-page" style="background-image:url('${titleBgUrl}')">
+    <div class="title-panel">
+      <img src="${logoUrl}" alt="Embodiance" class="title-logo" />
+      <div class="page-eyebrow">Human Design Report</div>
+      <h1 class="report-title">Your Bodygraph &amp; Chart Analysis</h1>
+      ${name ? `<p class="report-subject">Prepared for ${name}</p>` : ''}
+      <div class="title-meta">
+        <span><strong>Birth date:</strong> ${birthDateFormatted} at ${birthInputs.time}</span>
+        <span><strong>Place of birth:</strong> ${birthInputs.place || birthInputs.timeZone}</span>
+        <span><strong>Report prepared:</strong> ${preparedDate}</span>
+      </div>
     </div>
   </div>`;
 }
@@ -474,11 +478,13 @@ function buildFiveTypesOverviewPage(content) {
 // Section title/divider pages reuse the cover page's exact gradient
 // background, title, and subtitle styling (report-title / report-subject),
 // just without the logo — per the requested "same layout and design".
-function buildChapterPage(eyebrow, title, body) {
-  return `<div class="report-page cover-page">
-    ${eyebrow ? `<div class="page-eyebrow">${eyebrow}</div>` : ''}
-    <h1 class="report-title">${title}</h1>
-    <p class="report-subject">${body}</p>
+function buildChapterPage(eyebrow, title, body, titleBgUrl) {
+  return `<div class="report-page cover-page" style="background-image:url('${titleBgUrl}')">
+    <div class="title-panel">
+      ${eyebrow ? `<div class="page-eyebrow">${eyebrow}</div>` : ''}
+      <h1 class="report-title">${title}</h1>
+      <p class="report-subject">${body}</p>
+    </div>
   </div>`;
 }
 
@@ -833,51 +839,57 @@ function buildDetailsPage(chart) {
  * @param {string} inlineCss - the app's style.css content, embedded directly
  *   so Puppeteer never depends on a network round-trip back to this server.
  * @param {string} logoUrl - absolute URL to the Embodiance logo image.
+ * @param {string} titleBgUrl - absolute URL to the sky-photo background used
+ *   behind the cover page and every chapter divider page.
  */
-export function buildReportHtml(chart, content, structure, name, birthInputs, inlineCss, logoUrl) {
+export function buildReportHtml(chart, content, structure, name, birthInputs, inlineCss, logoUrl, titleBgUrl) {
   const pages = [
-    buildCoverPage(name, birthInputs, logoUrl),
+    buildCoverPage(name, birthInputs, logoUrl, titleBgUrl),
     buildIntroPage(content),
     buildChartPage(chart, structure, name, birthInputs),
     buildUserDetailsPage(chart, content, name, birthInputs),
-    buildChapterPage('', 'Energy Type', content.sectionIntros.Type),
+    buildChapterPage('', 'Energy Type', content.sectionIntros.Type, titleBgUrl),
     buildFiveTypesOverviewPage(content),
     buildTypeHeroPage(chart, content),
     buildAuraPage(chart, content),
     buildStrategyPage(chart, content),
     buildNotSelfSignaturePage(chart, content),
-    buildChapterPage('', 'Authority', content.sectionIntros.Authority),
+    buildChapterPage('', 'Authority', content.sectionIntros.Authority, titleBgUrl),
     buildAuthorityPage(chart, content),
-    buildChapterPage('', 'Profile', content.sectionIntros.Profile),
+    buildChapterPage('', 'Profile', content.sectionIntros.Profile, titleBgUrl),
     buildProfilePage(chart, content),
     buildProfileLinePage(Number(chart.profile.split('/')[0]), 'How You Perceive Yourself', content),
     buildProfileLinePage(Number(chart.profile.split('/')[1]), 'How Others Perceive You', content),
-    buildChapterPage('', 'Definition', content.sectionIntros.Definition),
+    buildChapterPage('', 'Definition', content.sectionIntros.Definition, titleBgUrl),
     buildDefinitionPage(chart, content),
     buildChapterPage(
       '',
       'Understanding the Centers',
-      'The bodygraph is made up of 9 centers. A defined center is a consistent, reliable part of who you are — always "on," regardless of who you\'re with. An undefined center is where you take in and amplify the energy of others, which can be a source of wisdom or of conditioning depending on how aware of it you are. The following pages walk through each of your 9 centers.'
+      'The bodygraph is made up of 9 centers. A defined center is a consistent, reliable part of who you are — always "on," regardless of who you\'re with. An undefined center is where you take in and amplify the energy of others, which can be a source of wisdom or of conditioning depending on how aware of it you are. The following pages walk through each of your 9 centers.',
+      titleBgUrl
     ),
-    buildCentersMapPage(),
+    buildCentersMapPage(titleBgUrl),
     buildCentersConceptPage(),
     ...Object.entries(content.centers).map(([key, info]) => buildCenterPage(key, info, chart.centers[key], content, structure)),
     buildChapterPage(
       '',
       'Understanding the Channels',
-      'A channel forms when both gates at its two ends are activated, connecting two centers into a single, consistently defined circuit. Each channel carries its own theme — a fixed life-force current running through your design. The following pages cover each channel currently defined in your chart.'
+      'A channel forms when both gates at its two ends are activated, connecting two centers into a single, consistently defined circuit. Each channel carries its own theme — a fixed life-force current running through your design. The following pages cover each channel currently defined in your chart.',
+      titleBgUrl
     ),
     ...chart.definedChannels.map((ch) => buildChannelPage(ch, content, chart, structure)),
     buildChapterPage(
       '',
       'Understanding the Gates',
-      "The 64 gates are the building blocks beneath every center and channel — each one a specific theme activated by a planet's position at your exact birth moment (conscious/Personality) or roughly 88 days earlier (unconscious/Design). The following pages cover every gate activated anywhere in your chart."
+      "The 64 gates are the building blocks beneath every center and channel — each one a specific theme activated by a planet's position at your exact birth moment (conscious/Personality) or roughly 88 days earlier (unconscious/Design). The following pages cover every gate activated anywhere in your chart.",
+      titleBgUrl
     ),
     ...chart.activeGates.map((g) => buildGatePage(g, content, structure)),
     buildChapterPage(
       'Your Incarnation Cross',
       "The Cross of Your Life's Work",
-      'Your Incarnation Cross is formed by four gates: the Sun and Earth of your conscious Personality, and the Sun and Earth of your unconscious Design. Together, shaped by your profile, they describe a purpose that runs through your entire life — the role you are here to play.'
+      'Your Incarnation Cross is formed by four gates: the Sun and Earth of your conscious Personality, and the Sun and Earth of your unconscious Design. Together, shaped by your profile, they describe a purpose that runs through your entire life — the role you are here to play.',
+      titleBgUrl
     ),
     buildCrossPage(chart, content),
     buildDetailsPage(chart),
