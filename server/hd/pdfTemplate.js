@@ -961,6 +961,65 @@ function computeAge(dateStr) {
   return age;
 }
 
+// Simple schematic bodygraph, ported 1:1 from public/app.js's on-screen
+// "Bodygraph" panel (small viewBox, plain two-tone shapes/lines, no gate
+// numbers) — deliberately NOT the elaborate gate-numbered chart used
+// elsewhere in the full PDF report, so the Overview PDF visually matches
+// what a visitor already sees on the site.
+const SIMPLE_CENTER_POS = {
+  Head: { x: 200, y: 40, shape: 'triangle-down', w: 60, h: 40 },
+  Ajna: { x: 200, y: 110, shape: 'triangle-up', w: 60, h: 45 },
+  Throat: { x: 200, y: 195, shape: 'square', w: 70, h: 55 },
+  G: { x: 200, y: 285, shape: 'diamond', w: 70, h: 70 },
+  Heart: { x: 295, y: 250, shape: 'triangle-left', w: 45, h: 35 },
+  Sacral: { x: 200, y: 385, shape: 'square', w: 70, h: 55 },
+  Spleen: { x: 90, y: 320, shape: 'triangle-right', w: 55, h: 70 },
+  SolarPlexus: { x: 310, y: 345, shape: 'triangle-left', w: 55, h: 70 },
+  Root: { x: 200, y: 470, shape: 'square', w: 70, h: 55 },
+};
+
+function simpleShapePath({ x, y, shape, w, h }) {
+  const hw = w / 2, hh = h / 2;
+  switch (shape) {
+    case 'triangle-down':
+      return `M${x - hw},${y - hh} L${x + hw},${y - hh} L${x},${y + hh} Z`;
+    case 'triangle-up':
+      return `M${x - hw},${y + hh} L${x + hw},${y + hh} L${x},${y - hh} Z`;
+    case 'triangle-left':
+      return `M${x + hw},${y - hh} L${x + hw},${y + hh} L${x - hw},${y} Z`;
+    case 'triangle-right':
+      return `M${x - hw},${y - hh} L${x - hw},${y + hh} L${x + hw},${y} Z`;
+    case 'diamond':
+      return `M${x},${y - hh} L${x + hw},${y} L${x},${y + hh} L${x - hw},${y} Z`;
+    default:
+      return `M${x - hw},${y - hh} L${x + hw},${y - hh} L${x + hw},${y + hh} L${x - hw},${y + hh} Z`;
+  }
+}
+
+function buildSimpleBodygraph(chart) {
+  const definedGatePairKeys = new Set(
+    chart.definedChannels.map((c) => c.centers.slice().sort().join('|'))
+  );
+
+  const lines = CENTER_PAIRS.map(([a, b]) => {
+    const A = SIMPLE_CENTER_POS[a], B = SIMPLE_CENTER_POS[b];
+    const defined = definedGatePairKeys.has([a, b].sort().join('|'));
+    return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${defined ? '#158EA4' : '#E4D6CE'}" stroke-width="${defined ? 4 : 2}" />`;
+  }).join('\n');
+
+  const shapes = Object.entries(SIMPLE_CENTER_POS).map(([name, pos]) => {
+    const defined = chart.centers[name];
+    const label = name === 'SolarPlexus' ? 'Solar Plexus' : name;
+    return `<path d="${simpleShapePath(pos)}" fill="${defined ? '#158EA4' : '#FBF3EF'}" stroke="#E6B1A1" stroke-width="1.5" opacity="${defined ? 0.95 : 0.9}" />
+      <text x="${pos.x}" y="${pos.y + 3}" text-anchor="middle" font-size="${label.length > 6 ? 8 : 10}" fill="${defined ? '#FFFFFF' : '#8A7A72'}">${label}</text>`;
+  }).join('\n');
+
+  return `<svg viewBox="0 0 400 540" width="280" height="378">
+    ${lines}
+    ${shapes}
+  </svg>`;
+}
+
 /**
  * A short, single-page PDF of just the on-screen "Overview" summary — the
  * same rows shown in the web report's Overview panel — for anyone who wants
@@ -1005,6 +1064,11 @@ export function buildOverviewReportHtml(chart, content, structure, name, birthIn
   .overview-pdf-grid .overview-value { font-size: 14px !important; margin-top: 1px !important; }
   .overview-pdf-grid .overview-desc { font-size: 10.5px !important; line-height: 1.35 !important; margin: 3px 0 0 !important; }
   .overview-title-logo { display: block; margin: 0 auto 6px; max-width: 160px; }
+  .overview-pdf-bodygraph-wrap { display: flex; align-items: center; justify-content: center; gap: 28px; margin-top: 8px; }
+  .overview-pdf-bodygraph-wrap .legend { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; font-size: 12px; }
+  .overview-pdf-bodygraph-wrap .legend > div { display: flex; align-items: center; gap: 6px; }
+  .overview-pdf-bodygraph-wrap .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+  .overview-pdf-bodygraph-wrap p { max-width: 240px; font-size: 11.5px; line-height: 1.4; text-align: left; }
 </style>
 </head>
 <body>
@@ -1013,7 +1077,16 @@ export function buildOverviewReportHtml(chart, content, structure, name, birthIn
   <div class="page-eyebrow" style="text-align:center;margin-bottom:4px;">Human Design Report</div>
   <h1 class="page-title" style="text-align:center;font-size:26px;margin-bottom:4px;">${name ? `${name}'s` : 'Your'} Bodygraph</h1>
   <p class="page-footnote" style="text-align:center;margin-bottom:12px;">Prepared ${preparedDate}</p>
-  <div style="display:flex;justify-content:center;">${buildBodygraph(chart, structure)}</div>
+  <div class="overview-pdf-bodygraph-wrap">
+    <div>${buildSimpleBodygraph(chart)}</div>
+    <div>
+      <div class="legend">
+        <div><span class="dot" style="background:#158EA4"></span>Defined</div>
+        <div><span class="dot" style="background:#E4D6CE"></span>Undefined</div>
+      </div>
+      <p>Schematic bodygraph: centers and connecting channels colored by definition. Exact gate numbers and which specific channel(s) connect each pair are listed in the tables below.</p>
+    </div>
+  </div>
 </div>
 <div class="report-page last-page">
   <div class="page-eyebrow" style="text-align:center;margin-bottom:4px;">Human Design Report</div>

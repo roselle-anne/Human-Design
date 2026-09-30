@@ -1352,15 +1352,15 @@ export const DEFINITION_INFO = {
 // The specific poetic base names (e.g. "The Sleeping Phoenix") are also
 // standard, universal Human Design terminology — identical across every
 // provider — rather than any one company's proprietary text. CROSS_NAMES
-// below is a **partial** table (~100 of the 192 total names), built from
-// cross-referencing multiple independent public sources and verified
-// against the one example we could fully confirm. Where a user's specific
-// four gates aren't in this partial table, buildIncarnationCrossReading
-// falls back to an accurate, ungraded "Your {Angle Type} Cross" title
-// rather than guessing a name — the full interpretation still renders
-// either way, since it's built from each gate's own verified name/keynote
-// plus the angle-type's well-established general meaning, not from
-// per-cross text we don't have.
+// below is the **complete** table of all 192 Incarnation Crosses (64 gates
+// x 3 angle geometries), cross-checked against multiple independent public
+// sources and verified against a known real example (a 3/5 profile with
+// Personality Sun/Earth 59/55 and Design Sun/Earth 20/34, correctly
+// resolving to the Right Angle Cross of The Sleeping Phoenix). CROSS_DETAIL
+// below still only has a specific written theme for a subset of these names
+// — buildIncarnationCrossReading falls back to the angle-type's own
+// well-established general meaning for any correctly-named cross that
+// doesn't have its own theme yet.
 const RIGHT_ANGLE_PROFILES = new Set(['1/3', '1/4', '2/4', '2/5', '3/5', '3/6', '4/6']);
 const LEFT_ANGLE_PROFILES = new Set(['5/1', '5/2', '6/2', '6/3']);
 
@@ -1401,44 +1401,84 @@ export const CROSS_ANGLE_INFO = {
   },
 };
 
-// Partial table of base cross names, keyed by a canonical, order-independent
-// combination of the two gate-axes involved (see crossAxisKey). Sourced and
-// cross-checked as described above.
+// The complete table of all 192 Incarnation Crosses (64 gates x 3 angle
+// geometries), sourced from Ra Uru Hu's standard published Quarters/Crosses
+// structure — the same 192-cross list used industry-wide, not any one
+// provider's proprietary content. Each row is [name, type, g1, g2, g3, g4]
+// where type is 'RAX' | 'LAX' | 'JX'. The type matters for the lookup key
+// (not just the 4 gates): a Left Angle and Juxtaposition Cross can share the
+// exact same four gates yet carry different names (e.g. Masks vs.
+// Listening), since the geometry itself — not just the axis — is part of
+// what a Cross's name identifies.
 const CROSS_NAME_ROWS = [
-  ['Beginnings', 53, 54, 42, 32], ['Bargains', 37, 40, 5, 35], ['Caring', 27, 28, 19, 33],
-  ['Behavior', 10, 15, 18, 17], ['Ambition', 54, 53, 32, 42], ['Alertness', 44, 24, 7, 13],
-  ['Assimilation', 23, 43, 30, 29], ['Articulation', 12, 11, 25, 46], ['Completion', 42, 32, 60, 56],
-  ['Commitment', 29, 30, 20, 34], ['Mutation', 3, 50, 41, 31], ['Moods', 55, 59, 9, 16],
-  ['The Now', 20, 34, 37, 40], ['Need', 19, 33, 1, 2], ['Opposition', 38, 39, 57, 51],
-  ['Opinions', 17, 18, 38, 39], ['Possession', 45, 26, 36, 6], ['Oppression', 47, 22, 12, 11],
-  ['Principles', 49, 4, 14, 8], ['Power', 34, 20, 40, 37], ['Provocation', 39, 38, 51, 57],
-  ['Rationalization', 24, 44, 13, 7], ['Retreat', 33, 19, 2, 1], ['Risks', 28, 27, 33, 19],
-  ['Self-Expression', 1, 2, 4, 49], ['Serendipity', 46, 25, 52, 58], ['Shock', 51, 57, 61, 62],
-  ['Stillness', 52, 58, 21, 48], ['Stimulation', 56, 60, 27, 28], ['Strategy', 59, 55, 16, 9],
-  ['Vitality', 58, 52, 48, 21], ['Values', 50, 3, 31, 41], ['The Trickster', 26, 45, 6, 36],
-  ['Thinking', 61, 62, 50, 3], ['Control', 21, 48, 54, 53], ['Correction', 18, 17, 39, 38],
-  ['Crisis', 36, 6, 10, 15], ['Denial', 40, 37, 35, 5], ['Conflict', 6, 36, 15, 10],
-  ['Confusion', 64, 63, 45, 26], ['Conservation', 32, 42, 56, 60], ['Contribution', 8, 14, 55, 59],
-  ['Depth', 48, 21, 53, 54], ['Detail', 62, 61, 3, 50], ['Fates', 30, 29, 34, 20],
-  ['Fantasy', 41, 31, 44, 24], ['Extremes', 15, 10, 17, 18], ['Experimentation', 16, 9, 63, 64],
-  ['Experience', 35, 5, 22, 47], ['Empowering', 14, 8, 59, 55], ['The Driver', 2, 1, 49, 4],
-  ['Doubts', 63, 64, 26, 45], ['Formulization', 4, 49, 8, 14], ['Focus', 9, 16, 64, 63],
-  ['Interaction', 7, 13, 23, 43], ['Intuition', 57, 51, 62, 61], ['Innocence', 25, 46, 58, 52],
-  ['Insight', 43, 23, 29, 30], ['Ideas', 11, 12, 46, 25], ['Influence', 31, 41, 24, 44],
-  ['Grace', 22, 47, 11, 12], ['Habits', 5, 35, 47, 22], ['Limitation', 60, 56, 28, 27],
-  ['Listening', 13, 7, 43, 23], ['The Alpha', 41, 31, 44, 24], ['Alignment', 28, 27, 33, 19],
-  ['The Clarion', 57, 51, 62, 61], ['Cycles', 53, 54, 42, 32], ['Confrontation', 45, 26, 36, 6],
-  ['Defiance', 2, 1, 49, 4], ['Dedication', 23, 43, 30, 29], ['Demands', 52, 58, 21, 48],
-  ['Endeavor', 48, 21, 53, 54], ['Duality', 34, 20, 40, 37], ['Education', 11, 12, 46, 25],
-  ['Distraction', 60, 56, 28, 27], ['Dominion', 64, 63, 45, 26], ['Industry', 30, 29, 34, 20],
-  ['Incarnation', 24, 44, 13, 7], ['Individualism', 39, 38, 51, 57], ['Healing', 25, 46, 58, 52],
-  ['Identification', 16, 9, 63, 64], ['Masks', 13, 7, 43, 23], ['Migration', 37, 40, 5, 35],
-  ['Informing', 22, 47, 11, 12], ['Obscuration', 62, 61, 3, 50], ['Wishes', 3, 50, 41, 31],
-  ['Upheaval', 17, 18, 38, 39], ['Uncertainty', 8, 14, 55, 59], ['Spirit', 55, 59, 9, 16],
-  ['Explanation', 49, 4, 43, 23], ['The Four Ways', 24, 44, 19, 33], ['Laws', 3, 50, 60, 56],
-  ['Planning', 40, 37, 16, 9], ['Rulership', 47, 22, 45, 26], ['Service', 17, 18, 58, 52],
-  ['Maya', 62, 61, 42, 32], ['Penetration', 53, 54, 51, 57], ['The Sleeping Phoenix', 20, 34, 55, 59],
-  ['The Sphinx', 2, 1, 13, 7],
+  // Quarter 1: Initiation
+  ['The Sphinx', 'RAX', 13, 7, 1, 2], ['Masks', 'LAX', 13, 7, 43, 23], ['Listening', 'JX', 13, 7, 43, 23],
+  ['Explanation', 'RAX', 49, 4, 43, 23], ['Revolution', 'LAX', 49, 4, 14, 8], ['Principles', 'JX', 49, 4, 14, 8],
+  ['Contagion', 'RAX', 30, 29, 14, 8], ['Industry', 'LAX', 30, 29, 34, 20], ['Fates', 'JX', 30, 29, 34, 20],
+  ['The Sleeping Phoenix', 'RAX', 55, 59, 34, 20], ['Spirit', 'LAX', 55, 59, 9, 16], ['Moods', 'JX', 55, 59, 9, 16],
+  ['Planning', 'RAX', 37, 40, 9, 16], ['Migration', 'LAX', 37, 40, 5, 35], ['Bargains', 'JX', 37, 40, 5, 35],
+  ['Consciousness', 'RAX', 63, 64, 5, 35], ['Dominion', 'LAX', 63, 64, 26, 45], ['Doubts', 'JX', 63, 64, 26, 45],
+  ['Rulership', 'RAX', 22, 47, 26, 45], ['Informing', 'LAX', 22, 47, 11, 12], ['Grace', 'JX', 22, 47, 11, 12],
+  ['Eden', 'RAX', 36, 6, 11, 12], ['The Plane', 'LAX', 36, 6, 10, 15], ['Crisis', 'JX', 36, 6, 10, 15],
+  ['The Vessel of Love', 'RAX', 25, 46, 10, 15], ['Healing', 'LAX', 25, 46, 58, 52], ['Innocence', 'JX', 25, 46, 58, 52],
+  ['Service', 'RAX', 17, 18, 58, 52], ['Upheaval', 'LAX', 17, 18, 38, 39], ['Opinions', 'JX', 17, 18, 38, 39],
+  ['Tension', 'RAX', 21, 48, 38, 39], ['Endeavor', 'LAX', 21, 48, 54, 53], ['Control', 'JX', 21, 48, 54, 53],
+  ['Penetration', 'RAX', 51, 57, 54, 53], ['The Clarion', 'LAX', 51, 57, 61, 62], ['Shock', 'JX', 51, 57, 61, 62],
+  ['Maya', 'RAX', 42, 32, 61, 62], ['Limitation', 'LAX', 42, 32, 60, 56], ['Completion', 'JX', 42, 32, 60, 56],
+  ['Laws', 'RAX', 3, 50, 60, 56], ['Wishes', 'LAX', 3, 50, 41, 31], ['Mutation', 'JX', 3, 50, 41, 31],
+  ['The Unexpected', 'RAX', 27, 28, 41, 31], ['Alignment', 'LAX', 27, 28, 19, 33], ['Caring', 'JX', 27, 28, 19, 33],
+  ['The Four Ways', 'RAX', 24, 44, 19, 33], ['Incarnation', 'LAX', 24, 44, 13, 7], ['Rationalization', 'JX', 24, 44, 13, 7],
+  // Quarter 2: Civilization
+  ['The Sphinx', 'RAX', 2, 1, 13, 7], ['Defiance', 'LAX', 2, 1, 49, 4], ['The Driver', 'JX', 2, 1, 49, 4],
+  ['Explanation', 'RAX', 23, 43, 49, 4], ['Dedication', 'LAX', 23, 43, 30, 29], ['Assimilation', 'JX', 23, 43, 30, 29],
+  ['Contagion', 'RAX', 8, 14, 30, 29], ['Uncertainty', 'LAX', 8, 14, 55, 59], ['Contribution', 'JX', 8, 14, 55, 59],
+  ['The Sleeping Phoenix', 'RAX', 20, 34, 55, 59], ['Duality', 'LAX', 20, 34, 37, 40], ['The Now', 'JX', 20, 34, 37, 40],
+  ['Planning', 'RAX', 16, 9, 37, 40], ['Identification', 'LAX', 16, 9, 63, 64], ['Experimentation', 'JX', 16, 9, 63, 64],
+  ['Consciousness', 'RAX', 35, 5, 63, 64], ['Separation', 'LAX', 35, 5, 22, 47], ['Experience', 'JX', 35, 5, 22, 47],
+  ['Rulership', 'RAX', 45, 26, 22, 47], ['Confrontation', 'LAX', 45, 26, 36, 6], ['Possession', 'JX', 45, 26, 36, 6],
+  ['Eden', 'RAX', 12, 11, 36, 6], ['Education', 'LAX', 12, 11, 25, 46], ['Articulation', 'JX', 12, 11, 25, 46],
+  ['The Vessel of Love', 'RAX', 15, 10, 25, 46], ['Prevention', 'LAX', 15, 10, 17, 18], ['Extremes', 'JX', 15, 10, 17, 18],
+  ['Service', 'RAX', 52, 58, 17, 18], ['Demands', 'LAX', 52, 58, 21, 48], ['Stillness', 'JX', 52, 58, 21, 48],
+  ['Tension', 'RAX', 39, 38, 21, 48], ['Individualism', 'LAX', 39, 38, 51, 57], ['Provocation', 'JX', 39, 38, 51, 57],
+  ['Penetration', 'RAX', 53, 54, 51, 57], ['Cycles', 'LAX', 53, 54, 42, 32], ['Beginnings', 'JX', 53, 54, 42, 32],
+  ['Maya', 'RAX', 62, 61, 42, 32], ['Obscuration', 'LAX', 62, 61, 3, 50], ['Detail', 'JX', 62, 61, 3, 50],
+  ['Laws', 'RAX', 56, 60, 3, 50], ['Distraction', 'LAX', 56, 60, 27, 28], ['Stimulation', 'JX', 56, 60, 27, 28],
+  ['The Unexpected', 'RAX', 31, 41, 27, 28], ['The Alpha', 'LAX', 31, 41, 24, 44], ['Influence', 'JX', 31, 41, 24, 44],
+  ['The Four Ways', 'RAX', 33, 19, 24, 44], ['Refinement', 'LAX', 33, 19, 2, 1], ['Retreat', 'JX', 33, 19, 2, 1],
+  // Quarter 3: Duality
+  ['The Sphinx', 'RAX', 7, 13, 2, 1], ['Masks', 'LAX', 7, 13, 23, 43], ['Interaction', 'JX', 7, 13, 23, 43],
+  ['Explanation', 'RAX', 4, 49, 23, 43], ['Revolution', 'LAX', 4, 49, 8, 14], ['Formulization', 'JX', 4, 49, 8, 14],
+  ['Contagion', 'RAX', 29, 30, 8, 14], ['Industry', 'LAX', 29, 30, 20, 34], ['Commitment', 'JX', 29, 30, 20, 34],
+  ['The Sleeping Phoenix', 'RAX', 59, 55, 20, 34], ['Spirit', 'LAX', 59, 55, 16, 9], ['Strategy', 'JX', 59, 55, 16, 9],
+  ['Planning', 'RAX', 40, 37, 16, 9], ['Migration', 'LAX', 40, 37, 35, 5], ['Denial', 'JX', 40, 37, 35, 5],
+  ['Consciousness', 'RAX', 64, 63, 35, 5], ['Dominion', 'LAX', 64, 63, 45, 26], ['Confusion', 'JX', 64, 63, 45, 26],
+  ['Rulership', 'RAX', 47, 22, 45, 26], ['Informing', 'LAX', 47, 22, 12, 11], ['Oppression', 'JX', 47, 22, 12, 11],
+  ['Eden', 'RAX', 6, 36, 12, 11], ['The Plane', 'LAX', 6, 36, 15, 10], ['Conflict', 'JX', 6, 36, 15, 10],
+  ['The Vessel of Love', 'RAX', 46, 25, 15, 10], ['Healing', 'LAX', 46, 25, 52, 58], ['Serendipity', 'JX', 46, 25, 52, 58],
+  ['Service', 'RAX', 18, 17, 52, 58], ['Upheaval', 'LAX', 18, 17, 39, 38], ['Correction', 'JX', 18, 17, 39, 38],
+  ['Tension', 'RAX', 48, 21, 39, 38], ['Endeavor', 'LAX', 48, 21, 53, 54], ['Depth', 'JX', 48, 21, 53, 54],
+  ['Penetration', 'RAX', 57, 51, 53, 54], ['The Clarion', 'LAX', 57, 51, 62, 61], ['Intuition', 'JX', 57, 51, 62, 61],
+  ['Maya', 'RAX', 32, 42, 62, 61], ['Limitation', 'LAX', 32, 42, 56, 60], ['Conservation', 'JX', 32, 42, 56, 60],
+  ['Laws', 'RAX', 50, 3, 56, 60], ['Wishes', 'LAX', 50, 3, 31, 41], ['Values', 'JX', 50, 3, 31, 41],
+  ['The Unexpected', 'RAX', 28, 27, 31, 41], ['Alignment', 'LAX', 28, 27, 33, 19], ['Risks', 'JX', 28, 27, 33, 19],
+  ['The Four Ways', 'RAX', 44, 24, 33, 19], ['Incarnation', 'LAX', 44, 24, 7, 13], ['Alertness', 'JX', 44, 24, 7, 13],
+  // Quarter 4: Mutation
+  ['The Sphinx', 'RAX', 1, 2, 7, 13], ['Defiance', 'LAX', 1, 2, 4, 49], ['Self Expression', 'JX', 1, 2, 4, 49],
+  ['Explanation', 'RAX', 43, 23, 4, 49], ['Dedication', 'LAX', 43, 23, 29, 30], ['Insight', 'JX', 43, 23, 29, 30],
+  ['Contagion', 'RAX', 14, 8, 29, 30], ['Uncertainty', 'LAX', 14, 8, 59, 55], ['Empowering', 'JX', 14, 8, 59, 55],
+  ['The Sleeping Phoenix', 'RAX', 34, 20, 59, 55], ['Duality', 'LAX', 34, 20, 40, 37], ['Power', 'JX', 34, 20, 40, 37],
+  ['Planning', 'RAX', 9, 16, 40, 37], ['Identification', 'LAX', 9, 16, 64, 63], ['Focus', 'JX', 9, 16, 64, 63],
+  ['Consciousness', 'RAX', 5, 35, 64, 63], ['Separation', 'LAX', 5, 35, 47, 22], ['Habits', 'JX', 5, 35, 47, 22],
+  ['Rulership', 'RAX', 26, 45, 47, 22], ['Confrontation', 'LAX', 26, 45, 6, 36], ['The Trickster', 'JX', 26, 45, 6, 36],
+  ['Eden', 'RAX', 11, 12, 6, 36], ['Education', 'LAX', 11, 12, 46, 25], ['Ideas', 'JX', 11, 12, 46, 25],
+  ['The Vessel of Love', 'RAX', 10, 15, 46, 25], ['Prevention', 'LAX', 10, 15, 18, 17], ['Behavior', 'JX', 10, 15, 18, 17],
+  ['Service', 'RAX', 58, 52, 18, 17], ['Demands', 'LAX', 58, 52, 48, 21], ['Vitality', 'JX', 58, 52, 48, 21],
+  ['Tension', 'RAX', 38, 39, 48, 21], ['Individualism', 'LAX', 38, 39, 57, 51], ['Opposition', 'JX', 38, 39, 57, 51],
+  ['Penetration', 'RAX', 54, 53, 57, 51], ['Cycles', 'LAX', 54, 53, 32, 42], ['Ambition', 'JX', 54, 53, 32, 42],
+  ['Maya', 'RAX', 61, 62, 32, 42], ['Obscuration', 'LAX', 61, 62, 50, 3], ['Thinking', 'JX', 61, 62, 50, 3],
+  ['Laws', 'RAX', 60, 56, 50, 3], ['Distraction', 'LAX', 60, 56, 28, 27], ['Limitation', 'JX', 60, 56, 28, 27],
+  ['The Unexpected', 'RAX', 41, 31, 28, 27], ['The Alpha', 'LAX', 41, 31, 44, 24], ['Fantasy', 'JX', 41, 31, 44, 24],
+  ['The Four Ways', 'RAX', 19, 33, 44, 24], ['Refinement', 'LAX', 19, 33, 1, 2], ['Need', 'JX', 19, 33, 1, 2],
 ];
 
 function crossAxisKey(g1, g2, g3, g4) {
@@ -1447,8 +1487,13 @@ function crossAxisKey(g1, g2, g3, g4) {
   return [axisA, axisB].sort().join('|');
 }
 
+// A Left Angle and Juxtaposition Cross can land on the exact same four
+// gates yet carry different names, so the type (RAX/LAX/JX) is part of the
+// lookup key, not just the axis.
+const ANGLE_TYPE_CODE = { 'Right Angle': 'RAX', 'Left Angle': 'LAX', Juxtaposition: 'JX' };
+
 export const CROSS_NAMES = Object.fromEntries(
-  CROSS_NAME_ROWS.map(([name, g1, g2, g3, g4]) => [crossAxisKey(g1, g2, g3, g4), name])
+  CROSS_NAME_ROWS.map(([name, type, g1, g2, g3, g4]) => [`${type}|${crossAxisKey(g1, g2, g3, g4)}`, name])
 );
 
 // A dedicated, specific theme for each named Incarnation Cross — the actual
@@ -1511,8 +1556,8 @@ export const CROSS_DETAIL = {
 export function buildIncarnationCrossReading(cross, profile, gatesContent) {
   const angleType = crossAngleType(profile);
   const angleInfo = CROSS_ANGLE_INFO[angleType];
-  const key = crossAxisKey(cross.personalitySunGate, cross.personalityEarthGate, cross.designSunGate, cross.designEarthGate);
-  const baseName = CROSS_NAMES[key];
+  const axisKey = crossAxisKey(cross.personalitySunGate, cross.personalityEarthGate, cross.designSunGate, cross.designEarthGate);
+  const baseName = CROSS_NAMES[`${ANGLE_TYPE_CODE[angleType]}|${axisKey}`];
   const title = baseName ? `${angleType} Cross of ${baseName}` : `Your ${angleType} Cross`;
 
   const pSun = gatesContent[cross.personalitySunGate];
