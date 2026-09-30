@@ -265,27 +265,6 @@ function renderReport(name, birthInputs, data) {
   </section>`);
   reportContent.appendChild(bodygraphSection);
 
-  const gatesSection = el(`<section class="panel">
-    <h2>Activated Gates</h2>
-    <p class="legend"><span class="side-badge personality">Personality</span> conscious, from your exact birth moment &nbsp;&nbsp; <span class="side-badge design">Design</span> unconscious, from ~88° of solar arc before birth</p>
-    <div class="table-scroll">
-      <table class="gates-table">
-        <tr><th>Gate</th><th>Name</th><th>Center</th><th>Side(s)</th><th>Keynote</th></tr>
-        ${chart.activeGates.map((g) => {
-          const info = content.gates[g.gate];
-          return `<tr>
-            <td>${g.gate}</td>
-            <td>${info.name}</td>
-            <td>${g.center}</td>
-            <td>${g.sides.map((s) => `<span class="side-badge ${s}">${s === 'personality' ? 'P' : 'D'}</span>`).join('')}</td>
-            <td>${info.keynote}</td>
-          </tr>`;
-        }).join('')}
-      </table>
-    </div>
-  </section>`);
-  reportContent.appendChild(gatesSection);
-
   const downloadSection = el(`<section class="panel download-section">
     <button type="button" class="btn-download" id="download-pdf-btn">
       <span class="btn-download-icon">&#8595;</span>
@@ -295,6 +274,14 @@ function renderReport(name, birthInputs, data) {
       <div class="download-progress-fill" id="download-progress-fill"></div>
     </div>
     <p class="actions-hint" id="download-hint">Takes a few seconds to generate the full report.</p>
+    <button type="button" class="btn-download btn-download-secondary" id="download-overview-btn">
+      <span class="btn-download-icon">&#8595;</span>
+      <span class="btn-download-label">Download Overview (PDF)</span>
+    </button>
+    <div class="download-progress-track" id="overview-progress-track" hidden>
+      <div class="download-progress-fill" id="overview-progress-fill"></div>
+    </div>
+    <p class="actions-hint" id="overview-hint">A one-page summary of the Overview above.</p>
   </section>`);
   reportContent.appendChild(downloadSection);
 
@@ -307,7 +294,27 @@ function renderReport(name, birthInputs, data) {
   reportContent.appendChild(timesSection);
 
   document.getElementById('download-pdf-btn').addEventListener('click', () => {
-    downloadReportPDF(name, birthInputs);
+    downloadPDF('/api/report.pdf', name, birthInputs, {
+      btnId: 'download-pdf-btn',
+      trackId: 'download-progress-track',
+      fillId: 'download-progress-fill',
+      hintId: 'download-hint',
+      defaultHint: 'Takes a few seconds to generate the full report.',
+      loadingHint: 'Generating your report…',
+      fallbackFilename: 'Human-Design-Report.pdf',
+    });
+  });
+
+  document.getElementById('download-overview-btn').addEventListener('click', () => {
+    downloadPDF('/api/overview.pdf', name, birthInputs, {
+      btnId: 'download-overview-btn',
+      trackId: 'overview-progress-track',
+      fillId: 'overview-progress-fill',
+      hintId: 'overview-hint',
+      defaultHint: 'A one-page summary of the Overview above.',
+      loadingHint: 'Generating your overview…',
+      fallbackFilename: 'Human-Design-Overview.pdf',
+    });
   });
 
   result.scrollIntoView({ behavior: 'smooth' });
@@ -315,24 +322,23 @@ function renderReport(name, birthInputs, data) {
 
 // The paginated PDF is rendered server-side by a real headless Chromium
 // (see server/hd/pdfTemplate.js). We fetch it (rather than a plain
-// navigation) so we can show a progress indicator while the ~56-page
-// document is generated, then hand the browser the finished file as a
-// Blob download once it arrives. No client-side rendering (canvas
-// rasterization, window.print()) involved, so it isn't subject to browser
-// quirks or iframe-embedding permission restrictions.
-const DEFAULT_HINT = 'Takes a few seconds to generate the full report.';
-
-async function downloadReportPDF(name, birthInputs) {
-  const btn = document.getElementById('download-pdf-btn');
-  const track = document.getElementById('download-progress-track');
-  const fill = document.getElementById('download-progress-fill');
-  const hint = document.getElementById('download-hint');
+// navigation) so we can show a progress indicator while the document is
+// generated, then hand the browser the finished file as a Blob download
+// once it arrives. No client-side rendering (canvas rasterization,
+// window.print()) involved, so it isn't subject to browser quirks or
+// iframe-embedding permission restrictions. Shared by both the full report
+// and the shorter one-page overview download.
+async function downloadPDF(endpoint, name, birthInputs, ui) {
+  const btn = document.getElementById(ui.btnId);
+  const track = document.getElementById(ui.trackId);
+  const fill = document.getElementById(ui.fillId);
+  const hint = document.getElementById(ui.hintId);
 
   btn.disabled = true;
   btn.classList.add('is-loading');
   track.hidden = false;
   fill.style.width = '0%';
-  hint.textContent = 'Generating your report…';
+  hint.textContent = ui.loadingHint;
 
   // There's no real progress feed from a server-rendered PDF, so this
   // eases toward — but never quite reaches — 90%, then snaps to 100% the
@@ -352,8 +358,8 @@ async function downloadReportPDF(name, birthInputs) {
     if (name) params.set('name', name);
     if (birthInputs.place) params.set('place', birthInputs.place);
 
-    const res = await fetch(`/api/report.pdf?${params.toString()}`);
-    if (!res.ok) throw new Error('Failed to generate the report.');
+    const res = await fetch(`${endpoint}?${params.toString()}`);
+    if (!res.ok) throw new Error('Failed to generate the PDF.');
     const blob = await res.blob();
 
     clearInterval(ticker);
@@ -361,7 +367,7 @@ async function downloadReportPDF(name, birthInputs) {
 
     const disposition = res.headers.get('Content-Disposition') || '';
     const match = disposition.match(/filename="?([^"]+)"?/);
-    const filename = match ? match[1] : 'Human-Design-Report.pdf';
+    const filename = match ? match[1] : ui.fallbackFilename;
 
     const blobUrl = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -377,7 +383,7 @@ async function downloadReportPDF(name, birthInputs) {
       fill.style.width = '0%';
       btn.disabled = false;
       btn.classList.remove('is-loading');
-      hint.textContent = DEFAULT_HINT;
+      hint.textContent = ui.defaultHint;
     }, 700);
   } catch (err) {
     clearInterval(ticker);
@@ -385,7 +391,7 @@ async function downloadReportPDF(name, birthInputs) {
     fill.style.width = '0%';
     btn.disabled = false;
     btn.classList.remove('is-loading');
-    hint.textContent = 'Something went wrong generating the report — please try again.';
+    hint.textContent = 'Something went wrong generating the PDF — please try again.';
   }
 }
 

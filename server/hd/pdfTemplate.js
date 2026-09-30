@@ -882,3 +882,99 @@ ${pages.join('\n')}
 </body>
 </html>`;
 }
+
+function ordinalSuffix(day) {
+  if (day % 10 === 1 && day !== 11) return 'st';
+  if (day % 10 === 2 && day !== 12) return 'nd';
+  if (day % 10 === 3 && day !== 13) return 'rd';
+  return 'th';
+}
+
+function formatOrdinalLocal(dateStr, timeStr) {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const monthName = new Date(2000, month - 1, 1).toLocaleDateString('en-US', { month: 'long' });
+  return `${day}${ordinalSuffix(day)} ${monthName} ${year}${timeStr ? ` @ ${timeStr}` : ''}`;
+}
+
+function formatOrdinalInTimeZone(isoUTC, timeZone) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone, year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+  }).formatToParts(new Date(isoUTC));
+  const map = Object.fromEntries(parts.map((p) => [p.type, p.value]));
+  const day = Number(map.day);
+  return `${day}${ordinalSuffix(day)} ${map.month} ${map.year} @ ${map.hour}:${map.minute}`;
+}
+
+function computeAge(dateStr) {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const today = new Date();
+  let age = today.getFullYear() - year;
+  const hadBirthdayThisYear = (today.getMonth() + 1 > month) || (today.getMonth() + 1 === month && today.getDate() >= day);
+  if (!hadBirthdayThisYear) age -= 1;
+  return age;
+}
+
+/**
+ * A short, single-page PDF of just the on-screen "Overview" summary — the
+ * same rows shown in the web report's Overview panel — for anyone who wants
+ * a quick reference without the full multi-page report.
+ */
+export function buildOverviewReportHtml(chart, content, name, birthInputs, inlineCss, logoUrl) {
+  const rows = [
+    ['Name', name || '—'],
+    ['Birth Date', formatOrdinalLocal(birthInputs.date, birthInputs.time)],
+    ['Age', String(computeAge(birthInputs.date))],
+    ['Design Date', formatOrdinalInTimeZone(chart.design.utc, birthInputs.timeZone)],
+    ['Type', chart.type, content.typeInfo.shortSummary],
+    ['Strategy', content.typeInfo.strategy, content.typeDetailForChart.strategyParagraphs[0]],
+    ['Inner Authority', chart.authority, content.authorityInfo.description],
+    ['Definition', chart.definition, content.definitionInfoForChart.summary],
+    ['Profile', chart.profile, content.profileNarrative],
+    ['Incarnation Cross', `${content.crossReading.title} (${chart.incarnationCross.personalitySunGate}/${chart.incarnationCross.personalityEarthGate} | ${chart.incarnationCross.designSunGate}/${chart.incarnationCross.designEarthGate})`, content.crossReading.paragraphs[0].split(' For you specifically')[0]],
+    ['Signature', content.typeInfo.signature, content.typeDetailForChart.signatureParagraphs[0]],
+    ['Not-Self Theme', content.typeInfo.notSelf, content.typeDetailForChart.notSelfParagraphs[0]],
+  ];
+
+  const preparedDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,500&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+<style>${inlineCss}</style>
+<style>
+  /* Squeezed to fit a single A4 page: the on-screen Overview panel's
+     spacing/type scale is generous for scrolling, but this PDF has one
+     fixed page to work with, so rows run in two columns at a tighter
+     scale rather than one long single-column list. */
+  body { padding: 0; background: #fff; }
+  .report-page { box-shadow: none !important; padding: 24px 32px !important; min-height: 0 !important; }
+  .overview-pdf-grid { column-count: 2; column-gap: 28px; margin-top: 8px; }
+  .overview-pdf-grid .overview-row { break-inside: avoid; padding: 7px 0 !important; }
+  .overview-pdf-grid .overview-label { font-size: 10.5px !important; }
+  .overview-pdf-grid .overview-value { font-size: 14px !important; margin-top: 1px !important; }
+  .overview-pdf-grid .overview-desc { font-size: 10.5px !important; line-height: 1.35 !important; margin: 3px 0 0 !important; }
+  .overview-title-logo { display: block; margin: 0 auto 6px; max-width: 160px; }
+</style>
+</head>
+<body>
+<div class="report-page last-page">
+  <img src="${logoUrl}" alt="Embodiance" class="overview-title-logo" />
+  <div class="page-eyebrow" style="text-align:center;margin-bottom:4px;">Human Design Report</div>
+  <h1 class="page-title" style="text-align:center;font-size:26px;margin-bottom:4px;">${name ? `${name}'s` : 'Your'} Overview</h1>
+  <p class="page-footnote" style="text-align:center;margin-bottom:0;">Prepared ${preparedDate}</p>
+  <section class="panel overview-panel overview-pdf-grid">
+    ${rows.map(([label, value, desc]) => `
+      <div class="overview-row">
+        <div class="overview-label">${label}</div>
+        <div class="overview-value">${value}</div>
+        ${desc ? `<p class="overview-desc">${desc}</p>` : ''}
+      </div>`).join('')}
+  </section>
+</div>
+</body>
+</html>`;
+}

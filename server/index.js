@@ -7,7 +7,7 @@ import tzLookup from 'tz-lookup';
 import { calculateChart } from './hd/calculate.js';
 import { CENTERS, CHANNELS } from './hd/structure.js';
 import { TYPES, TYPE_DETAIL, AUTHORITIES, AUTHORITY_DETAIL, CENTERS_INFO, CENTER_DEEP_DIVE, GATES, GATE_DEEP_DIVE, GATE_DETAIL, CHANNEL_THEMES, CHANNEL_DETAIL, DEFINITION_INFO, PROFILE_LINES, PROFILE_LINE_DETAIL, SECTION_INTROS, HD_INTRO_PARAGRAPHS, profileDescription, buildIncarnationCrossReading } from './hd/content.js';
-import { buildReportHtml } from './hd/pdfTemplate.js';
+import { buildReportHtml, buildOverviewReportHtml } from './hd/pdfTemplate.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -271,6 +271,61 @@ app.get('/api/report.pdf', async (req, res) => {
     const safeName = name ? `-${String(name).replace(/[^a-z0-9]+/gi, '-')}` : '';
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="Human-Design-Report${safeName}.pdf"`);
+    res.send(pdfBuffer);
+  } catch (err) {
+    if (page) await page.close().catch(() => {});
+    console.error(err);
+    res.status(500).json({ error: 'Failed to generate PDF', detail: String(err) });
+  }
+});
+
+// A short, single-page PDF of just the on-screen Overview panel, for anyone
+// who wants a quick reference without the full multi-page report.
+app.get('/api/overview.pdf', async (req, res) => {
+  let page;
+  try {
+    const { date, time, timeZone, name, place } = req.query;
+    if (!date || !time || !timeZone) {
+      return res.status(400).json({ error: 'date, time, and timeZone are required' });
+    }
+    const birthUTC = localToUTC(String(date), String(time), String(timeZone));
+    if (Number.isNaN(birthUTC.getTime())) {
+      return res.status(400).json({ error: 'Invalid date/time/timeZone' });
+    }
+
+    console.log(`[overview generated] name="${name || ''}" date=${date} time=${time} timeZone=${timeZone} at=${new Date().toISOString()}`);
+
+    const { chart, content } = await buildChartAndContent(birthUTC);
+    const inlineCss = fs.readFileSync(styleCssPath, 'utf8');
+
+    const html = buildOverviewReportHtml(
+      chart,
+      content,
+      name ? String(name) : '',
+      { date: String(date), time: String(time), timeZone: String(timeZone), place: place ? String(place) : '' },
+      inlineCss,
+      logoDataUri
+    );
+
+    const browser = await getBrowser();
+    page = await browser.newPage();
+    page.setDefaultTimeout(90000);
+    await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 90000 });
+    await Promise.race([
+      page.evaluateHandle('document.fonts.ready'),
+      new Promise((resolve) => setTimeout(resolve, 5000)),
+    ]);
+    const pdfBuffer = await page.pdf({
+      format: 'a4',
+      printBackground: true,
+      margin: { top: '10mm', bottom: '10mm', left: '10mm', right: '10mm' },
+      timeout: 90000,
+    });
+    await page.close();
+
+    const safeName = name ? `-${String(name).replace(/[^a-z0-9]+/gi, '-')}` : '';
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="Human-Design-Overview${safeName}.pdf"`);
     res.send(pdfBuffer);
   } catch (err) {
     if (page) await page.close().catch(() => {});
