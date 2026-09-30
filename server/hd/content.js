@@ -642,6 +642,39 @@ export const CENTER_DEEP_DIVE = {
   },
 };
 
+// Illustrative template for the six Human Design "Variables" (PHS) fields.
+// NOT computed per-visitor: real values require Color/Tone arc-subdivision
+// math and a verified Color-to-category lookup table this app does not yet
+// have a trustworthy source for (see the caveat shown alongside this
+// content). Kept as a single fixed example so the section's layout and
+// wording are ready to wire up to real per-person values later.
+export const VARIABLES_TEMPLATE = [
+  {
+    label: 'Digestion', value: 'InDirect',
+    description: "To digest food and information well and effectively, the light in your environment is key for you. You are very sensitive to the type of light, so you will absorb nutrients better if you eat somewhere out of direct sunlight during the day and in indirect light at night.",
+  },
+  {
+    label: 'Sense', value: 'Judgment',
+    description: "Your mind is always reviewing, comparing, contrasting and analysing the information it has about experiences or people in order to create its opinions and judgements about them, whether they are correct or not.",
+  },
+  {
+    label: 'Design Sense', value: 'Inner Vision',
+    description: "The sense that allows you to sensorially experience the information that comes to you is the inner vision. Minimalism and practicality is the key for you. You don't need anything external to stimulate you, allow yourself to close your eyes and go inside, visualise food, things, words or people to know if they are for you or not.",
+  },
+  {
+    label: 'Motivation', value: 'Guilt',
+    description: "When you are in the right environment for you and you see the world as you are meant to, you are driven by the right motivation, and in your case, it is Guilt. You see what needs to be fixed and you are driven to do it, to get into things, take action and fix what needs to be fixed to make it better.",
+  },
+  {
+    label: 'Perspective', value: 'Personal',
+    description: "When you are in the right environment for you, you see the world as you are meant to. And in your case, you are meant to see everything through your own context and process, what that something or that person means to you, what it implies from your point of view and for you...",
+  },
+  {
+    label: 'Environment', value: 'Shores',
+    description: "The most nurturing kind of environment for you and the one that will help you develop your potential, as long as you follow your Strategy and your Authority, will be a place that is on the edge between two completely different places or from which you can look towards a completely different place than the one you are in at the moment.",
+  },
+];
+
 export const PROFILE_LINES = {
   1: {
     keyword: 'Investigator',
