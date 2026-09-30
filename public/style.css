@@ -312,7 +312,7 @@ p { line-height: 1.6; }
 .title-page .report-subject {
   font-size: 22px;
   font-style: italic;
-  color: var(--dusty-peach);
+  color: #b8735c;
   margin: 0 0 24px;
 }
 .title-page .title-meta {
@@ -405,7 +405,7 @@ p { line-height: 1.6; }
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--ocean-teal);
-  font-size: 13px;
+  font-size: 16px;
   margin-bottom: 10px;
 }
 .report-page .page-title {
@@ -441,7 +441,7 @@ p { line-height: 1.6; }
 .cover-page .report-subject {
   font-size: 22px;
   font-style: italic;
-  color: var(--dusty-peach);
+  color: #b8735c;
   margin: 0 0 24px;
 }
 .cover-page .title-meta {

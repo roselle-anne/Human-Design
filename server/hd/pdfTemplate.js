@@ -256,7 +256,7 @@ function buildBodygraph(chart, structure) {
     return [
       `<path d="${path(0)}" stroke="${edgeColor}" stroke-width="${width + 1.5}" opacity="${opacity}" fill="none" stroke-linecap="round" />`,
       `<path d="${path(0)}" stroke="${color}" stroke-width="${width}" opacity="${opacity}" fill="none" stroke-linecap="round" />`,
-      `<path d="${path(-width * 0.16)}" stroke="${highlightColor}" stroke-width="${width * 0.3}" opacity="${opacity * 0.8}" fill="none" stroke-linecap="round" />`,
+      `<path d="${path(0)}" stroke="${highlightColor}" stroke-width="${width * 0.3}" opacity="${opacity * 0.8}" fill="none" stroke-linecap="round" />`,
     ].join('\n');
   }).join('\n');
 
@@ -496,7 +496,7 @@ function buildFiveTypesOverviewPage(content) {
 // just without the logo — per the requested "same layout and design".
 function buildChapterPage(eyebrow, title, body) {
   return `<div class="report-page cover-page">
-    <div class="page-eyebrow">${eyebrow}</div>
+    ${eyebrow ? `<div class="page-eyebrow">${eyebrow}</div>` : ''}
     <h1 class="report-title">${title}</h1>
     <p class="report-subject">${body}</p>
   </div>`;
@@ -861,19 +861,19 @@ export function buildReportHtml(chart, content, structure, name, birthInputs, in
     buildIntroPage(content),
     buildChartPage(chart, structure, name, birthInputs),
     buildUserDetailsPage(chart, content, name, birthInputs),
-    buildChapterPage('Section', 'Type', content.sectionIntros.Type),
+    buildChapterPage('', 'Energy Type', content.sectionIntros.Type),
     buildFiveTypesOverviewPage(content),
     buildTypeHeroPage(chart, content),
     buildAuraPage(chart, content),
     buildStrategyPage(chart, content),
     buildNotSelfSignaturePage(chart, content),
-    buildChapterPage('Section', 'Authority', content.sectionIntros.Authority),
+    buildChapterPage('', 'Authority', content.sectionIntros.Authority),
     buildAuthorityPage(chart, content),
-    buildChapterPage('Section', 'Profile', content.sectionIntros.Profile),
+    buildChapterPage('', 'Profile', content.sectionIntros.Profile),
     buildProfilePage(chart, content),
     buildProfileLinePage(Number(chart.profile.split('/')[0]), 'How You Perceive Yourself', content),
     buildProfileLinePage(Number(chart.profile.split('/')[1]), 'How Others Perceive You', content),
-    buildChapterPage('Section', 'Definition', content.sectionIntros.Definition),
+    buildChapterPage('', 'Definition', content.sectionIntros.Definition),
     buildDefinitionPage(chart, content),
     buildChapterPage(
       'Your Centers',

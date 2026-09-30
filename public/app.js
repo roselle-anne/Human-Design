@@ -4,6 +4,12 @@ let placeMatches = [];
 let chosenPlace = null; // { displayName, lat, lon, timeZone }
 let placeSearchController = null;
 let placeSearchDebounce = null;
+// Tracked explicitly rather than checked via `document.activeElement` at
+// render time — on mobile, the async fetch in searchPlaces can complete
+// after the input has briefly lost focus (keyboard/viewport adjustments),
+// which made the dropdown silently never appear even though there were
+// valid matches.
+let placeDropdownOpen = false;
 
 // Geocoding happens directly from the browser (not proxied through our own
 // server — see the /api/timezone-from-coords comment in server/index.js for
@@ -33,11 +39,12 @@ function renderPlaceOptions() {
   // selecting it. Forcing a minimum of 2 keeps this an always-open inline
   // listbox regardless of match count.
   placeSelect.size = Math.max(2, Math.min(placeMatches.length, 6));
-  placeSelect.style.display = placeMatches.length && document.activeElement === placeSearch ? 'block' : 'none';
+  placeSelect.style.display = placeMatches.length && placeDropdownOpen ? 'block' : 'none';
 }
 
 placeSearch.addEventListener('input', () => {
   chosenPlace = null;
+  placeDropdownOpen = true;
   clearTimeout(placeSearchDebounce);
   const query = placeSearch.value.trim();
   if (query.length < 2) {
@@ -51,6 +58,7 @@ placeSearch.addEventListener('input', () => {
 });
 placeSelect.addEventListener('change', async () => {
   const picked = placeMatches[Number(placeSelect.value)] || null;
+  placeDropdownOpen = false;
   placeSelect.style.display = 'none';
   chosenPlace = null;
   if (!picked) return;
@@ -68,11 +76,20 @@ placeSelect.addEventListener('change', async () => {
     status.textContent = 'Error: ' + err.message;
   }
 });
+placeSearch.addEventListener('focus', () => {
+  if (placeMatches.length) {
+    placeDropdownOpen = true;
+    renderPlaceOptions();
+  }
+});
 document.addEventListener('click', (e) => {
   // .contains (not strict equality) so a click on an <option> — a
   // descendant of placeSelect, not placeSelect itself — doesn't get
   // treated as "clicked outside" and hide the list before it can register.
-  if (!placeSearch.contains(e.target) && !placeSelect.contains(e.target)) placeSelect.style.display = 'none';
+  if (!placeSearch.contains(e.target) && !placeSelect.contains(e.target)) {
+    placeDropdownOpen = false;
+    placeSelect.style.display = 'none';
+  }
 });
 
 // ---- Bodygraph layout (schematic, not pixel-exact to any single source) ----
@@ -420,8 +437,8 @@ document.getElementById('birth-form').addEventListener('submit', async (e) => {
   const date = document.getElementById('date').value;
   const time = document.getElementById('time').value;
 
-  if (!date || !time || !chosenPlace) {
-    status.textContent = 'Please fill in date, time, and select your place of birth from the list.';
+  if (!name || !date || !time || !chosenPlace) {
+    status.textContent = 'Please fill in your full name, date, time, and select your place of birth from the list.';
     return;
   }
   const timeZone = chosenPlace.timeZone;
