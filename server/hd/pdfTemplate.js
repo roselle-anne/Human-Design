@@ -915,11 +915,13 @@ export function buildReportHtml(chart, content, structure, name, birthInputs, in
      screen-UI affordance, so it's dropped here rather than tuned. */
   .report-page { box-shadow: none !important; }
   /* The 24px margin-bottom between "cards" left a visible gap of plain
-     background below the sky photo on title/chapter pages, since a margin
-     sits outside an element's own background. Each page already becomes
-     its own physical page via page-break-after, so the gap serves no
-     purpose here — drop it so the photo reaches the true bottom edge. */
-  .cover-page { margin-bottom: 0 !important; min-height: 1047px !important; }
+     background at the bottom of every page — most obvious against the sky
+     photo on title/chapter pages, but present everywhere — since a margin
+     sits outside an element's own background/border. Each page already
+     becomes its own physical page via page-break-after, so the gap serves
+     no purpose here — drop it everywhere so each page's own background
+     reaches the true bottom edge. */
+  .report-page { margin-bottom: 0 !important; min-height: 1047px !important; }
 </style>
 </head>
 <body>

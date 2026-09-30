@@ -450,7 +450,7 @@ p { line-height: 1.6; }
   backdrop-filter: blur(2px);
 }
 .cover-page img.title-logo { height: 64px; margin-bottom: 28px; }
-.cover-page .report-title { font-size: 38px; margin: 0 0 8px; color: var(--charcoal); }
+.cover-page .report-title { font-size: 48px; margin: 0 0 8px; color: var(--charcoal); }
 .cover-page .report-subject {
   font-size: 22px;
   font-style: italic;
