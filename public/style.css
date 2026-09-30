@@ -663,7 +663,7 @@ p { line-height: 1.6; }
 .type-row p { margin: 0; font-size: 14px; }
 
 /* Profile line pages: eyebrow framing + Potentials/Challenges subheadings */
-.report-page .page-eyebrow.line-eyebrow { color: #158EA4; }
+.report-page .page-eyebrow.line-eyebrow { color: #158EA4; font-size: 20px; }
 .line-body { text-align: left; }
 .line-body p { margin-bottom: 14px; }
 .line-body h2 {

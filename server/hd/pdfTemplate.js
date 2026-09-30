@@ -598,7 +598,6 @@ function buildDefinitionPage(chart, content) {
   const info = content.definitionInfoForChart;
   const paragraphs = info?.paragraphs?.length ? info.paragraphs : (info ? [info.summary] : []);
   return `<div class="report-page center-text">
-    <div class="page-eyebrow">Definition</div>
     <h1 class="page-title">${chart.definition}</h1>
     <div class="page-body">
       ${paragraphs.map((p) => `<p>${p}</p>`).join('')}
@@ -876,7 +875,7 @@ export function buildReportHtml(chart, content, structure, name, birthInputs, in
     buildChapterPage('', 'Definition', content.sectionIntros.Definition),
     buildDefinitionPage(chart, content),
     buildChapterPage(
-      'Your Centers',
+      '',
       'Understanding the Centers',
       'The bodygraph is made up of 9 centers. A defined center is a consistent, reliable part of who you are — always "on," regardless of who you\'re with. An undefined center is where you take in and amplify the energy of others, which can be a source of wisdom or of conditioning depending on how aware of it you are. The following pages walk through each of your 9 centers.'
     ),
@@ -884,13 +883,13 @@ export function buildReportHtml(chart, content, structure, name, birthInputs, in
     buildCentersConceptPage(),
     ...Object.entries(content.centers).map(([key, info]) => buildCenterPage(key, info, chart.centers[key], content, structure)),
     buildChapterPage(
-      'Your Channels',
+      '',
       'Understanding the Channels',
       'A channel forms when both gates at its two ends are activated, connecting two centers into a single, consistently defined circuit. Each channel carries its own theme — a fixed life-force current running through your design. The following pages cover each channel currently defined in your chart.'
     ),
     ...chart.definedChannels.map((ch) => buildChannelPage(ch, content, chart, structure)),
     buildChapterPage(
-      'Your Gates',
+      '',
       'Understanding the Gates',
       "The 64 gates are the building blocks beneath every center and channel — each one a specific theme activated by a planet's position at your exact birth moment (conscious/Personality) or roughly 88 days earlier (unconscious/Design). The following pages cover every gate activated anywhere in your chart."
     ),
