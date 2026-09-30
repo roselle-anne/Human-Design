@@ -196,6 +196,10 @@ function buildBodygraph(chart, structure, figureUrl) {
   // so a line only reads in the open space between centers — never cutting
   // across a shape's fill or its gate numbers. Whatever portion of a line
   // happens to fall inside a shape's outline is simply hidden underneath it.
+  // Each channel is a bundle of 3 parallel curved strands (a "tube") that
+  // bows outward away from the chart's center, the way real meridian/chakra
+  // charts render connections as rounded bands rather than straight wires.
+  const chartCenter = { x: 346, y: 510 };
   const lineSpecs = structure.channels.map((ch) => {
     const [gA, gB] = ch.gates;
     const A = gatePos[gA];
@@ -203,13 +207,35 @@ function buildBodygraph(chart, structure, figureUrl) {
     if (!A || !B) return null;
     const defined = definedChannelKeys.has([gA, gB].slice().sort((a, b) => a - b).join('-'));
     return defined
-      ? { A, B, color: CHART_BLACK, width: 3.5, opacity: 1 }
-      : { A, B, color: CHART_DUSTY_PEACH, width: 2.5, opacity: 0.85 };
+      ? { A, B, color: CHART_BLACK, width: 1.4, opacity: 0.9 }
+      : { A, B, color: CHART_DUSTY_PEACH, width: 1.4, opacity: 0.75 };
   }).filter(Boolean);
 
-  const lines = lineSpecs.map(({ A, B, color, width, opacity }) =>
-    `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${color}" stroke-width="${width}" opacity="${opacity}" />`
-  ).join('\n');
+  const lines = lineSpecs.map(({ A, B, color, width, opacity }) => {
+    const dx = B.x - A.x;
+    const dy = B.y - A.y;
+    const len = Math.hypot(dx, dy) || 1;
+    const nx = -dy / len;
+    const ny = dx / len;
+    const mx = (A.x + B.x) / 2;
+    const my = (A.y + B.y) / 2;
+    // Bow the control point away from the chart's center, proportional to
+    // how far out the channel already sits, so outer channels arc into a
+    // big rounded boundary while inner ones stay gently curved.
+    const outX = mx - chartCenter.x;
+    const outY = my - chartCenter.y;
+    const outLen = Math.hypot(outX, outY) || 1;
+    const bow = Math.min(70, 24 + outLen * 0.18);
+    const cx = mx + (outX / outLen) * bow;
+    const cy = my + (outY / outLen) * bow;
+    const strandOffsets = [-3, 0, 3];
+    return strandOffsets.map((offset) => {
+      const ax = A.x + nx * offset, ay = A.y + ny * offset;
+      const bx = B.x + nx * offset, by = B.y + ny * offset;
+      const ccx = cx + nx * offset, ccy = cy + ny * offset;
+      return `<path d="M ${ax},${ay} Q ${ccx},${ccy} ${bx},${by}" stroke="${color}" stroke-width="${width}" opacity="${opacity}" fill="none" stroke-linecap="round" />`;
+    }).join('\n');
+  }).join('\n');
 
   const gateNumbers = Object.values(cellsByCenter)
     .flat()
