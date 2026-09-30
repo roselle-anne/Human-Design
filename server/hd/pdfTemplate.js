@@ -130,6 +130,19 @@ const CHART_BLACK = '#000000';
 const CHART_OUTLINE = '#E6B1A1';
 const CHART_GRAY = '#333333';
 
+// Blends a hex color toward white (positive ratio) or black (negative
+// ratio) — used to derive a tube's shaded edge and lit highlight from its
+// single base color rather than hand-picking every shade.
+function shadeColor(hex, ratio) {
+  const n = parseInt(hex.slice(1), 16);
+  let r = (n >> 16) & 0xff, g = (n >> 8) & 0xff, b = n & 0xff;
+  const mix = (channel) => ratio >= 0
+    ? Math.round(channel + (255 - channel) * ratio)
+    : Math.round(channel * (1 + ratio));
+  r = mix(r); g = mix(g); b = mix(b);
+  return `#${[r, g, b].map((v) => Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0')).join('')}`;
+}
+
 // Each of the 9 centers gets its own signature warm tone (sampled from the
 // reference chart) rather than one flat color for every defined center and
 // another for every undefined one — a richer, more jewel-toned look while
@@ -148,6 +161,68 @@ const CENTER_COLORS = {
   Root: { defined: '#dba575', undefined: '#edd2ba' },
 };
 
+// A hand-drawn woman's outline sized and shaped to hug this exact chart's
+// own footprint — head sized to the Head/Ajna triangles, shoulders reaching
+// just past the Heart triangle, waist pulled in at the G diamond, and hips
+// flaring out to just past the Spleen/Solar Plexus triangles — rather than
+// a separate illustration that only roughly lines up. Stroke-only (no
+// fill), so it never competes with the shapes, lines, or gate numbers drawn
+// on top of it.
+// Converts a sequence of points into a smooth Catmull-Rom-through-cubic-
+// Bezier path — every point is hit exactly, with continuous, natural
+// tangents in between, rather than manually guessed control points that
+// tend to pinch or bulge unnaturally at each anchor.
+function smoothPath(points, closed = false) {
+  const n = points.length;
+  const get = (i) => points[((i % n) + n) % n];
+  let d = `M ${points[0].x},${points[0].y}`;
+  const segCount = closed ? n : n - 1;
+  for (let i = 0; i < segCount; i++) {
+    const p0 = closed ? get(i - 1) : points[Math.max(i - 1, 0)];
+    const p1 = get(i);
+    const p2 = get(i + 1);
+    const p3 = closed ? get(i + 2) : points[Math.min(i + 2, n - 1)];
+    const c1x = p1.x + (p2.x - p0.x) / 6;
+    const c1y = p1.y + (p2.y - p0.y) / 6;
+    const c2x = p2.x - (p3.x - p1.x) / 6;
+    const c2y = p2.y - (p3.y - p1.y) / 6;
+    d += ` C ${c1x},${c1y} ${c2x},${c2y} ${p2.x},${p2.y}`;
+  }
+  if (closed) d += ' Z';
+  return d;
+}
+
+// A hand-fit woman's outline sized to hug this exact chart's own footprint
+// — head sized to the Head/Ajna triangles, shoulders and hips reaching just
+// past the Heart/Spleen/Solar Plexus triangles, waist pulled in at the G
+// diamond — rather than a separate illustration that only roughly lines up.
+// The body is one smooth spline through a symmetric set of anchor points
+// (right-side profile, mirrored for the left) so it reads as an actual
+// continuous silhouette rather than a hand-guessed, pinched bezier curve.
+// Stroke-only (no fill), so it never competes with the shapes, lines, or
+// gate numbers drawn on top of it.
+function buildFigureSilhouette() {
+  const s = 'stroke="#D9A48D" stroke-width="2" fill="none" opacity="0.55" stroke-linecap="round" stroke-linejoin="round"';
+  const cx = 346;
+  // Right-side profile, shoulder to bottom-center — mirrored for the left.
+  const right = [
+    { x: 355, y: 322 },
+    { x: 504, y: 350 },
+    { x: 486, y: 470 },
+    { x: 424, y: 562 },
+    { x: 468, y: 700 },
+    { x: 430, y: 830 },
+    { x: cx, y: 955 },
+  ];
+  const left = right.slice(0, -1).reverse().map((p) => ({ x: 2 * cx - p.x, y: p.y }));
+  const body = smoothPath([...right, ...left], true);
+  return `
+    <ellipse cx="${cx}" cy="140" rx="90" ry="110" ${s} />
+    <path d="M 320,246 C 318,268 318,290 324,318 L 368,318 C 374,290 374,268 372,246" ${s} />
+    <path d="${body}" ${s} />
+  `;
+}
+
 function gateLabel(gate, x, y, sides) {
   if (!sides) {
     // A thin white halo (painted before the fill) keeps a plain gate number
@@ -159,7 +234,7 @@ function gateLabel(gate, x, y, sides) {
     <text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#FFFFFF" font-weight="600">${gate}</text>`;
 }
 
-function buildBodygraph(chart, structure, figureUrl) {
+function buildBodygraph(chart, structure) {
   const definedChannelKeys = new Set(
     chart.definedChannels.map((c) => c.gates.slice().sort((a, b) => a - b).join('-'))
   );
@@ -196,9 +271,11 @@ function buildBodygraph(chart, structure, figureUrl) {
   // so a line only reads in the open space between centers — never cutting
   // across a shape's fill or its gate numbers. Whatever portion of a line
   // happens to fall inside a shape's outline is simply hidden underneath it.
-  // Each channel is a bundle of 3 parallel curved strands (a "tube") that
-  // bows outward away from the chart's center, the way real meridian/chakra
-  // charts render connections as rounded bands rather than straight wires.
+  // Each channel bows outward away from the chart's center into a smooth
+  // curve, the way real meridian/chakra charts render connections as
+  // rounded bands rather than straight wires, and is shaded like an actual
+  // 3D tube: a darker edge, the base color, and a lit highlight running
+  // slightly off-center — rather than flat parallel strokes.
   const chartCenter = { x: 346, y: 510 };
   const lineSpecs = structure.channels.map((ch) => {
     const [gA, gB] = ch.gates;
@@ -207,8 +284,8 @@ function buildBodygraph(chart, structure, figureUrl) {
     if (!A || !B) return null;
     const defined = definedChannelKeys.has([gA, gB].slice().sort((a, b) => a - b).join('-'));
     return defined
-      ? { A, B, color: CHART_BLACK, width: 1.4, opacity: 0.9 }
-      : { A, B, color: CHART_DUSTY_PEACH, width: 1.4, opacity: 0.75 };
+      ? { A, B, color: CHART_BLACK, width: 4.5, opacity: 0.95 }
+      : { A, B, color: CHART_DUSTY_PEACH, width: 4, opacity: 0.85 };
   }).filter(Boolean);
 
   const lines = lineSpecs.map(({ A, B, color, width, opacity }) => {
@@ -228,13 +305,18 @@ function buildBodygraph(chart, structure, figureUrl) {
     const bow = Math.min(70, 24 + outLen * 0.18);
     const cx = mx + (outX / outLen) * bow;
     const cy = my + (outY / outLen) * bow;
-    const strandOffsets = [-3, 0, 3];
-    return strandOffsets.map((offset) => {
+    const path = (offset) => {
       const ax = A.x + nx * offset, ay = A.y + ny * offset;
       const bx = B.x + nx * offset, by = B.y + ny * offset;
       const ccx = cx + nx * offset, ccy = cy + ny * offset;
-      return `<path d="M ${ax},${ay} Q ${ccx},${ccy} ${bx},${by}" stroke="${color}" stroke-width="${width}" opacity="${opacity}" fill="none" stroke-linecap="round" />`;
-    }).join('\n');
+      return `M ${ax},${ay} Q ${ccx},${ccy} ${bx},${by}`;
+    };
+    const edgeColor = shadeColor(color, -0.55);
+    const highlightColor = shadeColor(color, 0.65);
+    return [
+      `<path d="${path(0)}" stroke="${edgeColor}" stroke-width="${width}" opacity="${opacity}" fill="none" stroke-linecap="round" />`,
+      `<path d="${path(-width * 0.18)}" stroke="${highlightColor}" stroke-width="${width * 0.4}" opacity="${opacity}" fill="none" stroke-linecap="round" />`,
+    ].join('\n');
   }).join('\n');
 
   const gateNumbers = Object.values(cellsByCenter)
@@ -248,7 +330,7 @@ function buildBodygraph(chart, structure, figureUrl) {
   // the planetary columns on one printable PDF page (see .chart-page /
   // .planet-icon-lg in style.css, sized to leave exactly this much room).
   return `<svg viewBox="0 0 700 990" width="585" height="827">
-    ${figureUrl ? `<image href="${figureUrl}" x="0" y="0" width="700" height="990" opacity="0.85" preserveAspectRatio="xMidYMid slice" />` : ''}
+    ${buildFigureSilhouette()}
     ${lines}
     ${shapes}
     ${gateNumbers}
@@ -403,7 +485,7 @@ function buildIntroPage(content) {
   </div>`;
 }
 
-function buildChartPage(chart, structure, name, birthInputs, figureUrl) {
+function buildChartPage(chart, structure, name, birthInputs) {
   const birthDateFormatted = new Date(`${birthInputs.date}T00:00:00`).toLocaleDateString('en-US', {
     year: 'numeric', month: 'long', day: 'numeric',
   });
@@ -411,7 +493,7 @@ function buildChartPage(chart, structure, name, birthInputs, figureUrl) {
     <h1 class="page-title chart-title">Human Design Chart</h1>
     <div class="chart-layout">
       ${planetColumn(chart.personality, 'personality')}
-      <div class="chart-center">${buildBodygraph(chart, structure, figureUrl)}</div>
+      <div class="chart-center">${buildBodygraph(chart, structure)}</div>
       ${planetColumn(chart.designActivations, 'design')}
     </div>
     <div class="chart-footer">
@@ -832,14 +914,12 @@ function buildDetailsPage(chart) {
  * @param {string} inlineCss - the app's style.css content, embedded directly
  *   so Puppeteer never depends on a network round-trip back to this server.
  * @param {string} logoUrl - absolute URL to the Embodiance logo image.
- * @param {string} figureUrl - absolute URL to the decorative woman-silhouette
- *   illustration drawn behind the bodygraph chart.
  */
-export function buildReportHtml(chart, content, structure, name, birthInputs, inlineCss, logoUrl, figureUrl) {
+export function buildReportHtml(chart, content, structure, name, birthInputs, inlineCss, logoUrl) {
   const pages = [
     buildCoverPage(name, birthInputs, logoUrl),
     buildIntroPage(content),
-    buildChartPage(chart, structure, name, birthInputs, figureUrl),
+    buildChartPage(chart, structure, name, birthInputs),
     buildUserDetailsPage(chart, content, name, birthInputs),
     buildChapterPage('Section', 'Type', content.sectionIntros.Type),
     buildFiveTypesOverviewPage(content),
@@ -947,7 +1027,7 @@ function computeAge(dateStr) {
  * same rows shown in the web report's Overview panel — for anyone who wants
  * a quick reference without the full multi-page report.
  */
-export function buildOverviewReportHtml(chart, content, structure, name, birthInputs, inlineCss, logoUrl, figureUrl) {
+export function buildOverviewReportHtml(chart, content, structure, name, birthInputs, inlineCss, logoUrl) {
   const rows = [
     ['Name', name || '—'],
     ['Birth Date', formatOrdinalLocal(birthInputs.date, birthInputs.time)],
@@ -994,7 +1074,7 @@ export function buildOverviewReportHtml(chart, content, structure, name, birthIn
   <div class="page-eyebrow" style="text-align:center;margin-bottom:4px;">Human Design Report</div>
   <h1 class="page-title" style="text-align:center;font-size:26px;margin-bottom:4px;">${name ? `${name}'s` : 'Your'} Bodygraph</h1>
   <p class="page-footnote" style="text-align:center;margin-bottom:12px;">Prepared ${preparedDate}</p>
-  <div style="display:flex;justify-content:center;">${buildBodygraph(chart, structure, figureUrl)}</div>
+  <div style="display:flex;justify-content:center;">${buildBodygraph(chart, structure)}</div>
 </div>
 <div class="report-page last-page">
   <div class="page-eyebrow" style="text-align:center;margin-bottom:4px;">Human Design Report</div>
