@@ -251,10 +251,8 @@ function buildBodygraph(chart, structure) {
       const ccx = cx + nx * offset, ccy = cy + ny * offset;
       return `M ${ax},${ay} Q ${ccx},${ccy} ${bx},${by}`;
     };
-    const edgeColor = shadeColor(color, 0.35);
     const highlightColor = shadeColor(color, 0.6);
     return [
-      `<path d="${path(0)}" stroke="${edgeColor}" stroke-width="${width + 1.5}" opacity="${opacity}" fill="none" stroke-linecap="round" />`,
       `<path d="${path(0)}" stroke="${color}" stroke-width="${width}" opacity="${opacity}" fill="none" stroke-linecap="round" />`,
       `<path d="${path(0)}" stroke="${highlightColor}" stroke-width="${width * 0.3}" opacity="${opacity * 0.8}" fill="none" stroke-linecap="round" />`,
     ].join('\n');
