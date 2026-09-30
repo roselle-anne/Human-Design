@@ -161,68 +161,6 @@ const CENTER_COLORS = {
   Root: { defined: '#dba575', undefined: '#edd2ba' },
 };
 
-// A hand-drawn woman's outline sized and shaped to hug this exact chart's
-// own footprint — head sized to the Head/Ajna triangles, shoulders reaching
-// just past the Heart triangle, waist pulled in at the G diamond, and hips
-// flaring out to just past the Spleen/Solar Plexus triangles — rather than
-// a separate illustration that only roughly lines up. Stroke-only (no
-// fill), so it never competes with the shapes, lines, or gate numbers drawn
-// on top of it.
-// Converts a sequence of points into a smooth Catmull-Rom-through-cubic-
-// Bezier path — every point is hit exactly, with continuous, natural
-// tangents in between, rather than manually guessed control points that
-// tend to pinch or bulge unnaturally at each anchor.
-function smoothPath(points, closed = false) {
-  const n = points.length;
-  const get = (i) => points[((i % n) + n) % n];
-  let d = `M ${points[0].x},${points[0].y}`;
-  const segCount = closed ? n : n - 1;
-  for (let i = 0; i < segCount; i++) {
-    const p0 = closed ? get(i - 1) : points[Math.max(i - 1, 0)];
-    const p1 = get(i);
-    const p2 = get(i + 1);
-    const p3 = closed ? get(i + 2) : points[Math.min(i + 2, n - 1)];
-    const c1x = p1.x + (p2.x - p0.x) / 6;
-    const c1y = p1.y + (p2.y - p0.y) / 6;
-    const c2x = p2.x - (p3.x - p1.x) / 6;
-    const c2y = p2.y - (p3.y - p1.y) / 6;
-    d += ` C ${c1x},${c1y} ${c2x},${c2y} ${p2.x},${p2.y}`;
-  }
-  if (closed) d += ' Z';
-  return d;
-}
-
-// A hand-fit woman's outline sized to hug this exact chart's own footprint
-// — head sized to the Head/Ajna triangles, shoulders and hips reaching just
-// past the Heart/Spleen/Solar Plexus triangles, waist pulled in at the G
-// diamond — rather than a separate illustration that only roughly lines up.
-// The body is one smooth spline through a symmetric set of anchor points
-// (right-side profile, mirrored for the left) so it reads as an actual
-// continuous silhouette rather than a hand-guessed, pinched bezier curve.
-// Stroke-only (no fill), so it never competes with the shapes, lines, or
-// gate numbers drawn on top of it.
-function buildFigureSilhouette() {
-  const s = 'stroke="#D9A48D" stroke-width="2" fill="none" opacity="0.55" stroke-linecap="round" stroke-linejoin="round"';
-  const cx = 346;
-  // Right-side profile, shoulder to bottom-center — mirrored for the left.
-  const right = [
-    { x: 355, y: 322 },
-    { x: 504, y: 350 },
-    { x: 486, y: 470 },
-    { x: 424, y: 562 },
-    { x: 468, y: 700 },
-    { x: 430, y: 830 },
-    { x: cx, y: 955 },
-  ];
-  const left = right.slice(0, -1).reverse().map((p) => ({ x: 2 * cx - p.x, y: p.y }));
-  const body = smoothPath([...right, ...left], true);
-  return `
-    <ellipse cx="${cx}" cy="140" rx="90" ry="110" ${s} />
-    <path d="M 320,246 C 318,268 318,290 324,318 L 368,318 C 374,290 374,268 372,246" ${s} />
-    <path d="${body}" ${s} />
-  `;
-}
-
 function gateLabel(gate, x, y, sides) {
   if (!sides) {
     // A thin white halo (painted before the fill) keeps a plain gate number
@@ -273,9 +211,11 @@ function buildBodygraph(chart, structure) {
   // happens to fall inside a shape's outline is simply hidden underneath it.
   // Each channel bows outward away from the chart's center into a smooth
   // curve, the way real meridian/chakra charts render connections as
-  // rounded bands rather than straight wires, and is shaded like an actual
-  // 3D tube: a darker edge, the base color, and a lit highlight running
-  // slightly off-center — rather than flat parallel strokes.
+  // rounded bands rather than straight wires. The tube is drawn wide enough
+  // to roughly match a gate-number circle (22px across) rather than a thin
+  // wire, with a thin, light (not dark) edge and a subtle highlight for a
+  // gentle 3D roundness — the tube's own true color carries the band, not a
+  // darkened rim.
   const chartCenter = { x: 346, y: 510 };
   const lineSpecs = structure.channels.map((ch) => {
     const [gA, gB] = ch.gates;
@@ -284,8 +224,8 @@ function buildBodygraph(chart, structure) {
     if (!A || !B) return null;
     const defined = definedChannelKeys.has([gA, gB].slice().sort((a, b) => a - b).join('-'));
     return defined
-      ? { A, B, color: CHART_BLACK, width: 4.5, opacity: 0.95 }
-      : { A, B, color: CHART_DUSTY_PEACH, width: 4, opacity: 0.85 };
+      ? { A, B, color: CHART_BLACK, width: 16, opacity: 0.95 }
+      : { A, B, color: CHART_DUSTY_PEACH, width: 14, opacity: 0.85 };
   }).filter(Boolean);
 
   const lines = lineSpecs.map(({ A, B, color, width, opacity }) => {
@@ -311,11 +251,12 @@ function buildBodygraph(chart, structure) {
       const ccx = cx + nx * offset, ccy = cy + ny * offset;
       return `M ${ax},${ay} Q ${ccx},${ccy} ${bx},${by}`;
     };
-    const edgeColor = shadeColor(color, -0.55);
-    const highlightColor = shadeColor(color, 0.65);
+    const edgeColor = shadeColor(color, 0.35);
+    const highlightColor = shadeColor(color, 0.6);
     return [
-      `<path d="${path(0)}" stroke="${edgeColor}" stroke-width="${width}" opacity="${opacity}" fill="none" stroke-linecap="round" />`,
-      `<path d="${path(-width * 0.18)}" stroke="${highlightColor}" stroke-width="${width * 0.4}" opacity="${opacity}" fill="none" stroke-linecap="round" />`,
+      `<path d="${path(0)}" stroke="${edgeColor}" stroke-width="${width + 1.5}" opacity="${opacity}" fill="none" stroke-linecap="round" />`,
+      `<path d="${path(0)}" stroke="${color}" stroke-width="${width}" opacity="${opacity}" fill="none" stroke-linecap="round" />`,
+      `<path d="${path(-width * 0.16)}" stroke="${highlightColor}" stroke-width="${width * 0.3}" opacity="${opacity * 0.8}" fill="none" stroke-linecap="round" />`,
     ].join('\n');
   }).join('\n');
 
@@ -330,7 +271,6 @@ function buildBodygraph(chart, structure) {
   // the planetary columns on one printable PDF page (see .chart-page /
   // .planet-icon-lg in style.css, sized to leave exactly this much room).
   return `<svg viewBox="0 0 700 990" width="585" height="827">
-    ${buildFigureSilhouette()}
     ${lines}
     ${shapes}
     ${gateNumbers}
