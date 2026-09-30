@@ -130,6 +130,24 @@ const CHART_BLACK = '#000000';
 const CHART_OUTLINE = '#E6B1A1';
 const CHART_GRAY = '#333333';
 
+// Each of the 9 centers gets its own signature warm tone (sampled from the
+// reference chart) rather than one flat color for every defined center and
+// another for every undefined one — a richer, more jewel-toned look while
+// staying in the same blush/peach/gold family. The undefined variant is
+// just the defined one blended lighter, same relationship as the old flat
+// dusty/soft peach pair.
+const CENTER_COLORS = {
+  Head: { defined: '#f5d8c2', undefined: '#faebe0' },
+  Ajna: { defined: '#ebb0a4', undefined: '#f5d7d1' },
+  Throat: { defined: '#f2ccb7', undefined: '#f8e5db' },
+  G: { defined: '#eec4ae', undefined: '#f6e1d6' },
+  Heart: { defined: '#dd9989', undefined: '#eeccc4' },
+  Spleen: { defined: '#e1a07f', undefined: '#f0cfbf' },
+  SolarPlexus: { defined: '#efbd9c', undefined: '#f7decd' },
+  Sacral: { defined: '#da8476', undefined: '#ecc1ba' },
+  Root: { defined: '#dba575', undefined: '#edd2ba' },
+};
+
 function gateLabel(gate, x, y, sides) {
   if (!sides) {
     // A thin white halo (painted before the fill) keeps a plain gate number
@@ -165,28 +183,19 @@ function buildBodygraph(chart, structure, figureUrl) {
     cells.forEach(({ gate, x, y }) => { gatePos[gate] = { x, y }; });
   });
 
-  // A defined center is filled with the more saturated dusty peach; an
-  // undefined/open one gets the lighter soft peach — the same two-tone
-  // distinction the reference chart draws with gold vs. plain tan.
+  // Each center is filled with its own signature tone — the richer,
+  // saturated version when defined, a lighter tint of that same hue when
+  // undefined/open.
   const shapes = Object.keys(CENTER_POS).map((name) => {
     const pos = CENTER_POS[name];
-    const fill = chart.centers[name] ? CHART_DUSTY_PEACH : CHART_SOFT_PEACH;
+    const fill = chart.centers[name] ? CENTER_COLORS[name].defined : CENTER_COLORS[name].undefined;
     return `<path d="${shapePath(pos)}" fill="${fill}" stroke="${CHART_OUTLINE}" stroke-width="0.75" />`;
   }).join('\n');
 
-  // A peach (undefined-channel) line loses contrast against the darker
-  // dusty-peach center fill, so it turns white wherever it actually crosses
-  // one of those centers — clipped to just the defined-center shapes, so it
-  // disappears the instant the line leaves them. Black lines already read
-  // fine against that fill and are left alone.
-  const darkCenterClip = Object.keys(CENTER_POS)
-    .filter((name) => chart.centers[name])
-    .map((name) => `<path d="${shapePath(CENTER_POS[name])}" />`)
-    .join('\n');
-
-  // Lines are drawn on top of the (opaque) shapes, so a defined channel's
-  // thick line is visibly traceable crossing right up to its gate dot,
-  // rather than being hidden underneath the shape fill.
+  // Channel lines are drawn BEHIND the (opaque) shapes rather than on top,
+  // so a line only reads in the open space between centers — never cutting
+  // across a shape's fill or its gate numbers. Whatever portion of a line
+  // happens to fall inside a shape's outline is simply hidden underneath it.
   const lineSpecs = structure.channels.map((ch) => {
     const [gA, gB] = ch.gates;
     const A = gatePos[gA];
@@ -201,11 +210,6 @@ function buildBodygraph(chart, structure, figureUrl) {
   const lines = lineSpecs.map(({ A, B, color, width, opacity }) =>
     `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${color}" stroke-width="${width}" opacity="${opacity}" />`
   ).join('\n');
-  const lineOverlays = `<g clip-path="url(#darkCenterClip)">
-    ${lineSpecs.filter(({ color }) => color === CHART_DUSTY_PEACH).map(({ A, B, width }) =>
-      `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="#FFFFFF" stroke-width="${width}" />`
-    ).join('\n')}
-  </g>`;
 
   const gateNumbers = Object.values(cellsByCenter)
     .flat()
@@ -218,11 +222,9 @@ function buildBodygraph(chart, structure, figureUrl) {
   // the planetary columns on one printable PDF page (see .chart-page /
   // .planet-icon-lg in style.css, sized to leave exactly this much room).
   return `<svg viewBox="0 0 700 990" width="585" height="827">
-    <defs><clipPath id="darkCenterClip">${darkCenterClip}</clipPath></defs>
     ${figureUrl ? `<image href="${figureUrl}" x="0" y="0" width="700" height="990" opacity="0.85" preserveAspectRatio="xMidYMid slice" />` : ''}
-    ${shapes}
     ${lines}
-    ${lineOverlays}
+    ${shapes}
     ${gateNumbers}
   </svg>`;
 }
@@ -919,7 +921,7 @@ function computeAge(dateStr) {
  * same rows shown in the web report's Overview panel — for anyone who wants
  * a quick reference without the full multi-page report.
  */
-export function buildOverviewReportHtml(chart, content, name, birthInputs, inlineCss, logoUrl) {
+export function buildOverviewReportHtml(chart, content, structure, name, birthInputs, inlineCss, logoUrl, figureUrl) {
   const rows = [
     ['Name', name || '—'],
     ['Birth Date', formatOrdinalLocal(birthInputs.date, birthInputs.time)],
@@ -961,11 +963,16 @@ export function buildOverviewReportHtml(chart, content, name, birthInputs, inlin
 </style>
 </head>
 <body>
-<div class="report-page last-page">
+<div class="report-page center-text">
   <img src="${logoUrl}" alt="Embodiance" class="overview-title-logo" />
   <div class="page-eyebrow" style="text-align:center;margin-bottom:4px;">Human Design Report</div>
+  <h1 class="page-title" style="text-align:center;font-size:26px;margin-bottom:4px;">${name ? `${name}'s` : 'Your'} Bodygraph</h1>
+  <p class="page-footnote" style="text-align:center;margin-bottom:12px;">Prepared ${preparedDate}</p>
+  <div style="display:flex;justify-content:center;">${buildBodygraph(chart, structure, figureUrl)}</div>
+</div>
+<div class="report-page last-page">
+  <div class="page-eyebrow" style="text-align:center;margin-bottom:4px;">Human Design Report</div>
   <h1 class="page-title" style="text-align:center;font-size:26px;margin-bottom:4px;">${name ? `${name}'s` : 'Your'} Overview</h1>
-  <p class="page-footnote" style="text-align:center;margin-bottom:0;">Prepared ${preparedDate}</p>
   <section class="panel overview-panel overview-pdf-grid">
     ${rows.map(([label, value, desc]) => `
       <div class="overview-row">

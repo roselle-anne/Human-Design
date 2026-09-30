@@ -297,15 +297,18 @@ app.get('/api/overview.pdf', async (req, res) => {
     console.log(`[overview generated] name="${name || ''}" date=${date} time=${time} timeZone=${timeZone} at=${new Date().toISOString()}`);
 
     const { chart, content } = await buildChartAndContent(birthUTC);
+    const structure = { centers: CENTERS, channels: CHANNELS };
     const inlineCss = fs.readFileSync(styleCssPath, 'utf8');
 
     const html = buildOverviewReportHtml(
       chart,
       content,
+      structure,
       name ? String(name) : '',
       { date: String(date), time: String(time), timeZone: String(timeZone), place: place ? String(place) : '' },
       inlineCss,
-      logoDataUri
+      logoDataUri,
+      figureDataUri
     );
 
     const browser = await getBrowser();
