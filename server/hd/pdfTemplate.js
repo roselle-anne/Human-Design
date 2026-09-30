@@ -130,19 +130,6 @@ const CHART_BLACK = '#000000';
 const CHART_OUTLINE = '#E6B1A1';
 const CHART_GRAY = '#333333';
 
-// Blends a hex color toward white (positive ratio) or black (negative
-// ratio) — used to derive a tube's shaded edge and lit highlight from its
-// single base color rather than hand-picking every shade.
-function shadeColor(hex, ratio) {
-  const n = parseInt(hex.slice(1), 16);
-  let r = (n >> 16) & 0xff, g = (n >> 8) & 0xff, b = n & 0xff;
-  const mix = (channel) => ratio >= 0
-    ? Math.round(channel + (255 - channel) * ratio)
-    : Math.round(channel * (1 + ratio));
-  r = mix(r); g = mix(g); b = mix(b);
-  return `#${[r, g, b].map((v) => Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0')).join('')}`;
-}
-
 // Each of the 9 centers gets its own signature warm tone (sampled from the
 // reference chart) rather than one flat color for every defined center and
 // another for every undefined one — a richer, more jewel-toned look while
@@ -213,9 +200,8 @@ function buildBodygraph(chart, structure) {
   // curve, the way real meridian/chakra charts render connections as
   // rounded bands rather than straight wires. The tube is drawn wide enough
   // to roughly match a gate-number circle (22px across) rather than a thin
-  // wire, with a thin, light (not dark) edge and a subtle highlight for a
-  // gentle 3D roundness — the tube's own true color carries the band, not a
-  // darkened rim.
+  // wire, as one flat stroke in its own true color — no edge or highlight
+  // shading, which read as an unwanted border rather than depth.
   const chartCenter = { x: 346, y: 510 };
   const lineSpecs = structure.channels.map((ch) => {
     const [gA, gB] = ch.gates;
@@ -251,11 +237,7 @@ function buildBodygraph(chart, structure) {
       const ccx = cx + nx * offset, ccy = cy + ny * offset;
       return `M ${ax},${ay} Q ${ccx},${ccy} ${bx},${by}`;
     };
-    const highlightColor = shadeColor(color, 0.6);
-    return [
-      `<path d="${path(0)}" stroke="${color}" stroke-width="${width}" opacity="${opacity}" fill="none" stroke-linecap="round" />`,
-      `<path d="${path(0)}" stroke="${highlightColor}" stroke-width="${width * 0.3}" opacity="${opacity * 0.8}" fill="none" stroke-linecap="round" />`,
-    ].join('\n');
+    return `<path d="${path(0)}" stroke="${color}" stroke-width="${width}" opacity="${opacity}" fill="none" stroke-linecap="round" />`;
   }).join('\n');
 
   const gateNumbers = Object.values(cellsByCenter)
