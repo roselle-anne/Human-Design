@@ -417,6 +417,9 @@ p { line-height: 1.6; }
   color: var(--muted);
   margin: 0 0 20px;
 }
+/* The center page's theme line ("Inspiration & mental pressure") right
+   under its hero banner — called out in teal like the other headings. */
+.center-hero + .page-stats { color: var(--ocean-teal); }
 .report-page .page-body {
   font-size: 17px;
   max-width: 620px;
@@ -485,13 +488,22 @@ p { line-height: 1.6; }
 .deep-dive-label {
   font-family: var(--font-heading);
   font-weight: 600;
-  color: var(--dusty-peach);
+  color: var(--ocean-teal);
   font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin-bottom: 6px;
 }
 .deep-dive-block p { margin: 0; }
+/* Affirmations (both center and gate pages) sit in their own blush panel
+   rather than running directly on the page background, with white text so
+   it reads clearly against that darker fill. */
+.affirmations-panel {
+  background: var(--dusty-peach);
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+.affirmations-panel .deep-dive-label { color: #FFFFFF; }
 .affirmations {
   margin: 0;
   padding-left: 20px;
@@ -501,6 +513,7 @@ p { line-height: 1.6; }
   color: var(--dusty-peach);
   margin-bottom: 4px;
 }
+.affirmations-panel .affirmations li { color: #FFFFFF; }
 
 /* Type hero page: oval gradient badge instead of a plain title */
 .type-badge {

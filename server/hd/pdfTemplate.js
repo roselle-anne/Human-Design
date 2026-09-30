@@ -630,7 +630,7 @@ function buildCenterPage(key, info, defined, content, structure) {
         <div class="deep-dive-label">Potentials</div>
         <p>${deepDive.potentials}</p>
       </div>
-      <div class="deep-dive-block">
+      <div class="deep-dive-block affirmations-panel">
         <div class="deep-dive-label">Affirmations</div>
         <ul class="affirmations">
           ${deepDive.affirmations.map((a) => `<li>${a}</li>`).join('')}
@@ -795,7 +795,7 @@ function buildGatePage(g, content, structure) {
     ${deepDive ? `<p class="page-body">${deepDive}</p>` : ''}
     ${detail?.affirmations?.length ? `
     <div class="deep-dive">
-      <div class="deep-dive-block">
+      <div class="deep-dive-block affirmations-panel">
         <div class="deep-dive-label">Affirmations</div>
         <ul class="affirmations">
           ${detail.affirmations.map((a) => `<li>${a}</li>`).join('')}
