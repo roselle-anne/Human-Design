@@ -159,7 +159,7 @@ function gateLabel(gate, x, y, sides) {
     <text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#FFFFFF" font-weight="600">${gate}</text>`;
 }
 
-export function buildBodygraph(chart, structure) {
+function buildBodygraph(chart, structure) {
   const definedChannelKeys = new Set(
     chart.definedChannels.map((c) => c.gates.slice().sort((a, b) => a - b).join('-'))
   );
@@ -283,13 +283,13 @@ const MAP_LABELS = {
 function buildCentersMapPage(titleBgUrl) {
   const lines = CENTER_PAIRS.map(([a, b]) => {
     const A = CENTER_POS[a], B = CENTER_POS[b];
-    return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="#158EA4" stroke-width="3" opacity="0.75" />`;
+    return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="#E6B1A1" stroke-width="3" opacity="0.75" />`;
   }).join('\n');
 
   const shapes = Object.entries(CENTER_POS).map(([name, pos]) => {
     const label = MAP_LABELS[name];
     const fontSize = label.length > 8 ? 10.5 : 13;
-    return `<path d="${shapePath(pos)}" fill="#158EA4" stroke="#FFFFFF" stroke-width="1.5" />
+    return `<path d="${shapePath(pos)}" fill="#E6B1A1" stroke="#FFFFFF" stroke-width="1.5" />
       <text x="${pos.x}" y="${pos.y + 4}" text-anchor="middle" font-size="${fontSize}" font-weight="600" fill="#2A1E14">${label}</text>`;
   }).join('\n');
 
@@ -409,17 +409,25 @@ function buildIntroPage(content) {
   </div>`;
 }
 
+// Full chart layout — planetary columns flanking the bodygraph — shared by
+// the full PDF report's chart page, the Overview PDF, and the on-screen web
+// report (via the bodygraphSvg field in /api/chart's response), so all
+// three always show the exact same chart rather than three near-copies.
+export function buildChartLayoutHtml(chart, structure) {
+  return `<div class="chart-layout">
+    ${planetColumn(chart.personality, 'personality')}
+    <div class="chart-center">${buildBodygraph(chart, structure)}</div>
+    ${planetColumn(chart.designActivations, 'design')}
+  </div>`;
+}
+
 function buildChartPage(chart, structure, name, birthInputs) {
   const birthDateFormatted = new Date(`${birthInputs.date}T00:00:00`).toLocaleDateString('en-US', {
     year: 'numeric', month: 'long', day: 'numeric',
   });
   return `<div class="report-page chart-page">
     <h1 class="page-title chart-title">Human Design Chart</h1>
-    <div class="chart-layout">
-      ${planetColumn(chart.personality, 'personality')}
-      <div class="chart-center">${buildBodygraph(chart, structure)}</div>
-      ${planetColumn(chart.designActivations, 'design')}
-    </div>
+    ${buildChartLayoutHtml(chart, structure)}
     <div class="chart-footer">
       ${name ? `<div class="chart-name">${name}</div>` : ''}
       <div class="chart-date">${birthDateFormatted}${birthInputs.time ? ` @ ${birthInputs.time}` : ''}</div>
@@ -452,7 +460,7 @@ function buildUserDetailsPage(chart, content, name, birthInputs) {
         </div>`).join('')}
       <div class="detail-row detail-row-cross">
         <span class="detail-label">Incarnation Cross</span>
-        <span class="detail-value">Gates ${cross.personalitySunGate}/${cross.personalityEarthGate} | ${cross.designSunGate}/${cross.designEarthGate}</span>
+        <span class="detail-value">${content.crossReading.title}<br />Gates ${cross.personalitySunGate}/${cross.personalityEarthGate} | ${cross.designSunGate}/${cross.designEarthGate}</span>
       </div>
     </div>
   </div>`;
@@ -682,10 +690,25 @@ function miniChannelDiagram(ch, chart, structure) {
   const w = maxX - minX;
   const h = maxY - minY;
 
-  const shapes = [posA, posB]
-    .map((pos) => `<path d="${shapePath(pos)}" fill="${CHART_DUSTY_PEACH}" stroke="${CHART_OUTLINE}" stroke-width="0.9" />`)
+  // Same per-center signature coloring and bowed tube-line style as the
+  // main bodygraph, so a channel page's diagram reads as a focused crop of
+  // that same chart rather than a separate, flatter-looking diagram.
+  const shapes = [[nameA, posA], [nameB, posB]]
+    .map(([name, pos]) => {
+      const fill = chart.centers[name] ? CENTER_COLORS[name].defined : CENTER_COLORS[name].undefined;
+      return `<path d="${shapePath(pos)}" fill="${fill}" stroke="${CHART_OUTLINE}" stroke-width="0.75" />`;
+    })
     .join('\n');
-  const line = `<line x1="${endA.x}" y1="${endA.y}" x2="${endB.x}" y2="${endB.y}" stroke="${CHART_BLACK}" stroke-width="3.5" />`;
+  const chartCenter = { x: 346, y: 510 };
+  const mx = (endA.x + endB.x) / 2;
+  const my = (endA.y + endB.y) / 2;
+  const outX = mx - chartCenter.x;
+  const outY = my - chartCenter.y;
+  const outLen = Math.hypot(outX, outY) || 1;
+  const bow = Math.min(70, 24 + outLen * 0.18);
+  const cx = mx + (outX / outLen) * bow;
+  const cy = my + (outY / outLen) * bow;
+  const line = `<path d="M ${endA.x},${endA.y} Q ${cx},${cy} ${endB.x},${endB.y}" stroke="${CHART_BLACK}" stroke-width="16" opacity="0.95" fill="none" stroke-linecap="round" />`;
   // If an unrelated activated gate happens to sit right on the connecting
   // line's path, its black circle marker reads as if it were part of this
   // channel. Drop just the circle (show it as a plain number instead) for
@@ -705,8 +728,8 @@ function miniChannelDiagram(ch, chart, structure) {
   const maxH = 260;
   const scale = Math.min(maxW / w, maxH / h);
   return `<svg viewBox="${minX} ${minY} ${w} ${h}" width="${Math.round(w * scale)}" height="${Math.round(h * scale)}">
-    ${shapes}
     ${line}
+    ${shapes}
     ${labels}
   </svg>`;
 }
@@ -961,65 +984,6 @@ function computeAge(dateStr) {
   return age;
 }
 
-// Simple schematic bodygraph, ported 1:1 from public/app.js's on-screen
-// "Bodygraph" panel (small viewBox, plain two-tone shapes/lines, no gate
-// numbers) — deliberately NOT the elaborate gate-numbered chart used
-// elsewhere in the full PDF report, so the Overview PDF visually matches
-// what a visitor already sees on the site.
-const SIMPLE_CENTER_POS = {
-  Head: { x: 200, y: 40, shape: 'triangle-down', w: 60, h: 40 },
-  Ajna: { x: 200, y: 110, shape: 'triangle-up', w: 60, h: 45 },
-  Throat: { x: 200, y: 195, shape: 'square', w: 70, h: 55 },
-  G: { x: 200, y: 285, shape: 'diamond', w: 70, h: 70 },
-  Heart: { x: 295, y: 250, shape: 'triangle-left', w: 45, h: 35 },
-  Sacral: { x: 200, y: 385, shape: 'square', w: 70, h: 55 },
-  Spleen: { x: 90, y: 320, shape: 'triangle-right', w: 55, h: 70 },
-  SolarPlexus: { x: 310, y: 345, shape: 'triangle-left', w: 55, h: 70 },
-  Root: { x: 200, y: 470, shape: 'square', w: 70, h: 55 },
-};
-
-function simpleShapePath({ x, y, shape, w, h }) {
-  const hw = w / 2, hh = h / 2;
-  switch (shape) {
-    case 'triangle-down':
-      return `M${x - hw},${y - hh} L${x + hw},${y - hh} L${x},${y + hh} Z`;
-    case 'triangle-up':
-      return `M${x - hw},${y + hh} L${x + hw},${y + hh} L${x},${y - hh} Z`;
-    case 'triangle-left':
-      return `M${x + hw},${y - hh} L${x + hw},${y + hh} L${x - hw},${y} Z`;
-    case 'triangle-right':
-      return `M${x - hw},${y - hh} L${x - hw},${y + hh} L${x + hw},${y} Z`;
-    case 'diamond':
-      return `M${x},${y - hh} L${x + hw},${y} L${x},${y + hh} L${x - hw},${y} Z`;
-    default:
-      return `M${x - hw},${y - hh} L${x + hw},${y - hh} L${x + hw},${y + hh} L${x - hw},${y + hh} Z`;
-  }
-}
-
-function buildSimpleBodygraph(chart) {
-  const definedGatePairKeys = new Set(
-    chart.definedChannels.map((c) => c.centers.slice().sort().join('|'))
-  );
-
-  const lines = CENTER_PAIRS.map(([a, b]) => {
-    const A = SIMPLE_CENTER_POS[a], B = SIMPLE_CENTER_POS[b];
-    const defined = definedGatePairKeys.has([a, b].sort().join('|'));
-    return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${defined ? '#158EA4' : '#E4D6CE'}" stroke-width="${defined ? 4 : 2}" />`;
-  }).join('\n');
-
-  const shapes = Object.entries(SIMPLE_CENTER_POS).map(([name, pos]) => {
-    const defined = chart.centers[name];
-    const label = name === 'SolarPlexus' ? 'Solar Plexus' : name;
-    return `<path d="${simpleShapePath(pos)}" fill="${defined ? '#158EA4' : '#FBF3EF'}" stroke="#E6B1A1" stroke-width="1.5" opacity="${defined ? 0.95 : 0.9}" />
-      <text x="${pos.x}" y="${pos.y + 3}" text-anchor="middle" font-size="${label.length > 6 ? 8 : 10}" fill="${defined ? '#FFFFFF' : '#8A7A72'}">${label}</text>`;
-  }).join('\n');
-
-  return `<svg viewBox="0 0 400 540" width="280" height="378">
-    ${lines}
-    ${shapes}
-  </svg>`;
-}
-
 /**
  * A short, single-page PDF of just the on-screen "Overview" summary — the
  * same rows shown in the web report's Overview panel — for anyone who wants
@@ -1064,11 +1028,14 @@ export function buildOverviewReportHtml(chart, content, structure, name, birthIn
   .overview-pdf-grid .overview-value { font-size: 14px !important; margin-top: 1px !important; }
   .overview-pdf-grid .overview-desc { font-size: 10.5px !important; line-height: 1.35 !important; margin: 3px 0 0 !important; }
   .overview-title-logo { display: block; margin: 0 auto 6px; max-width: 160px; }
-  .overview-pdf-bodygraph-wrap { display: flex; align-items: center; justify-content: center; gap: 28px; margin-top: 8px; }
-  .overview-pdf-bodygraph-wrap .legend { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; font-size: 12px; }
-  .overview-pdf-bodygraph-wrap .legend > div { display: flex; align-items: center; gap: 6px; }
-  .overview-pdf-bodygraph-wrap .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
-  .overview-pdf-bodygraph-wrap p { max-width: 240px; font-size: 11.5px; line-height: 1.4; text-align: left; }
+  /* The full chart layout (planet columns + bodygraph) is sized for its own
+     dedicated page in the full report; scaled down here so it still fits
+     on one page alongside this page's header. CSS zoom (unlike transform:
+     scale, which only repaints smaller without shrinking the box used for
+     page-break/pagination math) actually shrinks the laid-out box, which is
+     what keeps this on a single printed page. Chromium-only, which is fine
+     since Puppeteer always renders this PDF in Chromium. */
+  .overview-pdf-chart { zoom: 0.72; }
 </style>
 </head>
 <body>
@@ -1077,16 +1044,7 @@ export function buildOverviewReportHtml(chart, content, structure, name, birthIn
   <div class="page-eyebrow" style="text-align:center;margin-bottom:4px;">Human Design Report</div>
   <h1 class="page-title" style="text-align:center;font-size:26px;margin-bottom:4px;">${name ? `${name}'s` : 'Your'} Bodygraph</h1>
   <p class="page-footnote" style="text-align:center;margin-bottom:12px;">Prepared ${preparedDate}</p>
-  <div class="overview-pdf-bodygraph-wrap">
-    <div>${buildSimpleBodygraph(chart)}</div>
-    <div>
-      <div class="legend">
-        <div><span class="dot" style="background:#158EA4"></span>Defined</div>
-        <div><span class="dot" style="background:#E4D6CE"></span>Undefined</div>
-      </div>
-      <p>Schematic bodygraph: centers and connecting channels colored by definition. Exact gate numbers and which specific channel(s) connect each pair are listed in the tables below.</p>
-    </div>
-  </div>
+  <div class="overview-pdf-chart">${buildChartLayoutHtml(chart, structure)}</div>
 </div>
 <div class="report-page last-page">
   <div class="page-eyebrow" style="text-align:center;margin-bottom:4px;">Human Design Report</div>

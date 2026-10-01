@@ -210,7 +210,7 @@ function buildTitlePage(name, birthInputs) {
 }
 
 function renderReport(name, birthInputs, data) {
-  const { chart, content, bodygraphSvg } = data;
+  const { chart, content, chartLayoutHtml } = data;
   const result = document.getElementById('result');
   result.innerHTML = '';
   result.hidden = false;
@@ -222,7 +222,7 @@ function renderReport(name, birthInputs, data) {
 
   const bodygraphSection = el(`<section class="panel bodygraph-panel">
     <h2>Bodygraph</h2>
-    <div class="bodygraph-wrap centered">${bodygraphSvg}</div>
+    ${chartLayoutHtml}
   </section>`);
   reportContent.appendChild(bodygraphSection);
 

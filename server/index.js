@@ -7,7 +7,7 @@ import tzLookup from 'tz-lookup';
 import { calculateChart } from './hd/calculate.js';
 import { CENTERS, CHANNELS } from './hd/structure.js';
 import { TYPES, TYPE_DETAIL, AUTHORITIES, AUTHORITY_DETAIL, CENTERS_INFO, CENTER_DEEP_DIVE, GATES, GATE_DEEP_DIVE, GATE_DETAIL, CHANNEL_THEMES, CHANNEL_DETAIL, DEFINITION_INFO, PROFILE_LINES, PROFILE_LINE_DETAIL, SECTION_INTROS, HD_INTRO_PARAGRAPHS, VARIABLES_TEMPLATE, profileDescription, buildIncarnationCrossReading } from './hd/content.js';
-import { buildReportHtml, buildOverviewReportHtml, buildBodygraph } from './hd/pdfTemplate.js';
+import { buildReportHtml, buildOverviewReportHtml, buildChartLayoutHtml } from './hd/pdfTemplate.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -149,10 +149,10 @@ app.post('/api/chart', async (req, res) => {
       chart,
       content,
       structure,
-      // The exact same chart SVG used in the full PDF report, so the
-      // on-screen report shows one authoritative bodygraph rather than a
-      // second, simplified rendering of the same data.
-      bodygraphSvg: buildBodygraph(chart, structure),
+      // The exact same chart layout (planet columns + bodygraph) used on the
+      // full PDF report's chart page, so the on-screen report, the full PDF,
+      // and the Overview PDF all show one authoritative chart.
+      chartLayoutHtml: buildChartLayoutHtml(chart, structure),
     });
   } catch (err) {
     console.error(err);
