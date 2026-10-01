@@ -92,69 +92,6 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// ---- Bodygraph layout (schematic, not pixel-exact to any single source) ----
-const CENTER_POS = {
-  Head: { x: 200, y: 40, shape: 'triangle-down', w: 60, h: 40 },
-  Ajna: { x: 200, y: 110, shape: 'triangle-up', w: 60, h: 45 },
-  Throat: { x: 200, y: 195, shape: 'square', w: 70, h: 55 },
-  G: { x: 200, y: 285, shape: 'diamond', w: 70, h: 70 },
-  Heart: { x: 295, y: 250, shape: 'triangle-left', w: 45, h: 35 },
-  Sacral: { x: 200, y: 385, shape: 'square', w: 70, h: 55 },
-  Spleen: { x: 90, y: 320, shape: 'triangle-right', w: 55, h: 70 },
-  SolarPlexus: { x: 310, y: 345, shape: 'triangle-left', w: 55, h: 70 },
-  Root: { x: 200, y: 470, shape: 'square', w: 70, h: 55 },
-};
-
-const CENTER_PAIRS = [
-  ['G', 'Throat'], ['G', 'Sacral'], ['Sacral', 'Root'], ['Ajna', 'Head'],
-  ['SolarPlexus', 'Sacral'], ['G', 'Spleen'], ['Ajna', 'Throat'],
-  ['Throat', 'SolarPlexus'], ['Throat', 'Spleen'], ['Spleen', 'Root'],
-  ['Root', 'SolarPlexus'], ['Throat', 'Sacral'], ['Heart', 'Throat'],
-  ['G', 'Heart'], ['Heart', 'Spleen'], ['Sacral', 'Spleen'], ['Heart', 'SolarPlexus'],
-];
-
-function shapePath({ x, y, shape, w, h }) {
-  const hw = w / 2, hh = h / 2;
-  switch (shape) {
-    case 'triangle-down':
-      return `M${x - hw},${y - hh} L${x + hw},${y - hh} L${x},${y + hh} Z`;
-    case 'triangle-up':
-      return `M${x - hw},${y + hh} L${x + hw},${y + hh} L${x},${y - hh} Z`;
-    case 'triangle-left':
-      return `M${x + hw},${y - hh} L${x + hw},${y + hh} L${x - hw},${y} Z`;
-    case 'triangle-right':
-      return `M${x - hw},${y - hh} L${x - hw},${y + hh} L${x + hw},${y} Z`;
-    case 'diamond':
-      return `M${x},${y - hh} L${x + hw},${y} L${x},${y + hh} L${x - hw},${y} Z`;
-    default:
-      return `M${x - hw},${y - hh} L${x + hw},${y - hh} L${x + hw},${y + hh} L${x - hw},${y + hh} Z`;
-  }
-}
-
-function buildBodygraph(chart, structure) {
-  const definedGatePairKeys = new Set(
-    chart.definedChannels.map((c) => c.centers.slice().sort().join('|'))
-  );
-
-  const lines = CENTER_PAIRS.map(([a, b]) => {
-    const A = CENTER_POS[a], B = CENTER_POS[b];
-    const defined = definedGatePairKeys.has([a, b].sort().join('|'));
-    return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${defined ? '#158EA4' : '#E4D6CE'}" stroke-width="${defined ? 4 : 2}" />`;
-  }).join('\n');
-
-  const shapes = Object.entries(CENTER_POS).map(([name, pos]) => {
-    const defined = chart.centers[name];
-    const label = name === 'SolarPlexus' ? 'Solar Plexus' : name;
-    return `<path d="${shapePath(pos)}" fill="${defined ? '#158EA4' : '#FBF3EF'}" stroke="#E6B1A1" stroke-width="1.5" opacity="${defined ? 0.95 : 0.9}" />
-      <text x="${pos.x}" y="${pos.y + 3}" text-anchor="middle" font-size="${label.length > 6 ? 8 : 10}" fill="${defined ? '#FFFFFF' : '#8A7A72'}">${label}</text>`;
-  }).join('\n');
-
-  return `<svg viewBox="0 0 400 540" width="380" height="513">
-    ${lines}
-    ${shapes}
-  </svg>`;
-}
-
 // ---- Report rendering ----
 function el(html) {
   const t = document.createElement('template');
@@ -273,7 +210,7 @@ function buildTitlePage(name, birthInputs) {
 }
 
 function renderReport(name, birthInputs, data) {
-  const { chart, content, structure } = data;
+  const { chart, content, bodygraphSvg } = data;
   const result = document.getElementById('result');
   result.innerHTML = '';
   result.hidden = false;
@@ -283,22 +220,13 @@ function renderReport(name, birthInputs, data) {
 
   reportContent.appendChild(el(buildTitlePage(name, birthInputs)));
 
-  reportContent.appendChild(el(buildOverviewSection(name, birthInputs, chart, content)));
-
-  const bodygraphSection = el(`<section class="panel">
+  const bodygraphSection = el(`<section class="panel bodygraph-panel">
     <h2>Bodygraph</h2>
-    <div class="bodygraph-wrap">
-      <div>${buildBodygraph(chart, structure)}</div>
-      <div>
-        <div class="legend">
-          <div><span class="dot" style="background:#158EA4"></span>Defined</div>
-          <div><span class="dot" style="background:#E4D6CE"></span>Undefined</div>
-        </div>
-        <p style="max-width:280px">Schematic bodygraph: centers and connecting channels colored by definition. Exact gate numbers and which specific channel(s) connect each pair are listed in the tables below.</p>
-      </div>
-    </div>
+    <div class="bodygraph-wrap centered">${bodygraphSvg}</div>
   </section>`);
   reportContent.appendChild(bodygraphSection);
+
+  reportContent.appendChild(el(buildOverviewSection(name, birthInputs, chart, content)));
 
   const downloadSection = el(`<section class="panel download-section">
     <button type="button" class="btn-download" id="download-pdf-btn">

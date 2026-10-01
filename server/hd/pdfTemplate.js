@@ -159,7 +159,7 @@ function gateLabel(gate, x, y, sides) {
     <text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#FFFFFF" font-weight="600">${gate}</text>`;
 }
 
-function buildBodygraph(chart, structure) {
+export function buildBodygraph(chart, structure) {
   const definedChannelKeys = new Set(
     chart.definedChannels.map((c) => c.gates.slice().sort((a, b) => a - b).join('-'))
   );
