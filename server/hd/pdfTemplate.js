@@ -28,7 +28,7 @@ const CENTER_POS = {
   Ajna: { x: 346, y: 228, shape: 'triangle-down', w: 149, h: 114, cols: 3, offsetY: -18 },
   Throat: { x: 346, y: 390, shape: 'square', w: 155, h: 119, cols: 3 },
   G: { x: 346, y: 560, shape: 'diamond', w: 180, h: 180, cols: 2 },
-  Heart: { x: 512, y: 465, shape: 'triangle-left', w: 114, h: 89, cols: 2, offsetX: 16 },
+  Heart: { x: 475, y: 590, shape: 'triangle-left', w: 114, h: 89, cols: 2, offsetX: 16 },
   Sacral: { x: 346, y: 745, shape: 'square', w: 155, h: 119, cols: 3 },
   // Spleen and Solar Plexus mirror each other's x-distance from the central
   // x=346 axis, and sit lower than G's own center — closer to Sacral's
@@ -189,7 +189,7 @@ function buildBodygraph(chart, structure) {
   const shapes = Object.keys(CENTER_POS).map((name) => {
     const pos = CENTER_POS[name];
     const fill = chart.centers[name] ? CENTER_COLORS[name].defined : CENTER_COLORS[name].undefined;
-    return `<path d="${shapePath(pos)}" fill="${fill}" stroke="${CHART_OUTLINE}" stroke-width="0.75" />`;
+    return `<path d="${shapePath(pos)}" fill="${fill}" stroke="#fff9ef" stroke-width="2" />`;
   }).join('\n');
 
   // Channel lines are drawn BEHIND the (opaque) shapes rather than on top,
@@ -198,10 +198,9 @@ function buildBodygraph(chart, structure) {
   // happens to fall inside a shape's outline is simply hidden underneath it.
   // Each channel bows outward away from the chart's center into a smooth
   // curve, the way real meridian/chakra charts render connections as
-  // rounded bands rather than straight wires. The tube is drawn wide enough
-  // to roughly match a gate-number circle (22px across) rather than a thin
-  // wire, as one flat stroke in its own true color — no edge or highlight
-  // shading, which read as an unwanted border rather than depth.
+  // rounded bands rather than straight wires. Slim ivory channels keep
+  // the figure visible; defined connections use a contrasting plum tone.
+  // A subtle peach edge keeps ivory visible on light PDF backgrounds.
   const chartCenter = { x: 346, y: 510 };
   const lineSpecs = structure.channels.map((ch) => {
     const [gA, gB] = ch.gates;
@@ -210,8 +209,8 @@ function buildBodygraph(chart, structure) {
     if (!A || !B) return null;
     const defined = definedChannelKeys.has([gA, gB].slice().sort((a, b) => a - b).join('-'));
     return defined
-      ? { A, B, color: CHART_BLACK, width: 16, opacity: 0.95 }
-      : { A, B, color: CHART_DUSTY_PEACH, width: 14, opacity: 0.85 };
+      ? { A, B, color: '#945d70', width: 8, opacity: 1 }
+      : { A, B, color: '#fff8eb', width: 6, opacity: 1 };
   }).filter(Boolean);
 
   const lines = lineSpecs.map(({ A, B, color, width, opacity }) => {
@@ -237,7 +236,8 @@ function buildBodygraph(chart, structure) {
       const ccx = cx + nx * offset, ccy = cy + ny * offset;
       return `M ${ax},${ay} Q ${ccx},${ccy} ${bx},${by}`;
     };
-    return `<path d="${path(0)}" stroke="${color}" stroke-width="${width}" opacity="${opacity}" fill="none" stroke-linecap="round" />`;
+    return `<path d="${path(0)}" stroke="#c99c8a" stroke-width="${width + 2}" opacity="0.65" fill="none" stroke-linecap="round" />
+      <path d="${path(0)}" stroke="${color}" stroke-width="${width}" opacity="${opacity}" fill="none" stroke-linecap="round" />`;
   }).join('\n');
 
   const gateNumbers = Object.values(cellsByCenter)
@@ -250,11 +250,85 @@ function buildBodygraph(chart, structure) {
   // height below is chosen to be the largest size that still fits next to
   // the planetary columns on one printable PDF page (see .chart-page /
   // .planet-icon-lg in style.css, sized to leave exactly this much room).
-  return `<svg viewBox="0 0 700 990" width="585" height="827">
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 990" width="585" height="827" role="img" aria-label="Human Design bodygraph with a human silhouette, nine centers and personal gate activations">
+    ${bodygraphFigure()}
     ${lines}
     ${shapes}
     ${gateNumbers}
+    <g font-family="Arial, sans-serif" font-size="11" fill="#674b47">
+      <path d="M 153 978 h 22" stroke="#945d70" stroke-width="5" stroke-linecap="round" />
+      <text x="182" y="982">Defined channel</text>
+      <circle cx="325" cy="978" r="5" fill="#000" />
+      <text x="337" y="982">Active gate</text>
+      <path d="M 440 978 h 22" stroke="#c99c8a" stroke-width="7" />
+      <path d="M 440 978 h 22" stroke="#fff8eb" stroke-width="5" />
+      <text x="470" y="982">Undefined channel</text>
+    </g>
   </svg>`;
+}
+
+// Decorative vector artwork lives in the same coordinate system as the
+// chart. It is embedded in every rendering, including offline PDF output;
+// no remote image or separately scaled background can drift out of place.
+function bodygraphFigure() {
+  return `<defs>
+    <radialGradient id="bodygraph-glow" cx="50%" cy="42%" r="66%">
+      <stop offset="0" stop-color="#f8e5ce" />
+      <stop offset="0.68" stop-color="#f3d7ca" />
+      <stop offset="1" stop-color="#fffaf5" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="bodygraph-skin" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#f9e3cb" /><stop offset="0.5" stop-color="#eabca9" />
+      <stop offset="1" stop-color="#f8e4d4" />
+    </linearGradient>
+    <linearGradient id="bodygraph-hair" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#dca99c" /><stop offset="1" stop-color="#f4d7bd" />
+    </linearGradient>
+  </defs>
+  <g class="bodygraph-figure" aria-hidden="true">
+    <ellipse cx="350" cy="498" rx="345" ry="478" fill="url(#bodygraph-glow)" />
+    <ellipse cx="350" cy="493" rx="326" ry="455" fill="none" stroke="#dcb779" stroke-width="1.3" opacity="0.6" />
+    <!-- Long flowing hair frames the profile and follows the shoulders. -->
+    <path d="M 263 77 C 285 27 377 24 418 73 C 459 115 438 180 464 226
+      C 493 269 464 288 493 326 C 521 364 537 392 522 445
+      C 493 420 451 406 420 382 L 311 306 L 267 155 Z"
+      fill="url(#bodygraph-hair)" stroke="#fff5e7" stroke-width="2" />
+    <!-- Continuous face, neck, shoulders, arms and torso silhouette. -->
+    <path d="M 305 62 C 274 65 251 86 248 119
+      C 246 138 253 149 245 163 L 226 189
+      Q 215 200 229 205 L 240 207 Q 244 212 234 218
+      Q 230 224 241 230 Q 233 237 244 243
+      C 247 251 241 266 252 271 C 267 278 289 274 302 272
+      C 318 301 313 327 292 345
+      C 261 365 190 373 157 408 C 124 444 115 502 103 558
+      C 89 631 65 725 44 816 L 18 959
+      Q 57 973 99 959 L 165 732
+      C 178 692 188 671 192 660 C 202 739 205 776 189 823
+      C 173 868 150 914 143 960 L 558 960
+      C 551 913 523 866 510 821 C 495 775 497 725 506 660
+      C 518 692 526 718 537 751 L 602 959 Q 641 973 680 959
+      L 649 813 C 629 724 606 630 593 558
+      C 581 499 571 440 541 407 C 513 376 449 369 415 349
+      C 393 334 388 306 395 276 C 409 237 425 205 423 160
+      C 421 99 380 55 337 56 Z"
+      fill="url(#bodygraph-skin)" fill-opacity="0.67" stroke="#fffaf0" stroke-width="2.4" stroke-linejoin="round" />
+    <g fill="none" stroke="#fff5e7" stroke-width="1.4" opacity="0.8" stroke-linecap="round">
+      <path d="M 264 132 Q 274 124 290 133 M 253 154 Q 267 146 277 154 M 257 159 l 13 3" />
+      <path d="M 304 69 C 328 96 383 99 395 155 C 407 208 380 245 399 295 C 414 333 449 342 463 373" />
+      <path d="M 340 53 C 399 78 426 118 413 182 C 402 235 433 253 428 294 C 423 331 478 352 484 390" />
+      <path d="M 369 53 C 436 92 429 147 438 196 C 451 242 455 269 446 300 C 439 338 502 365 506 405" />
+      <path d="M 414 99 C 457 174 434 195 463 251 C 483 288 458 311 482 340" />
+      <path d="M 290 281 C 310 316 286 344 261 355 M 303 294 C 321 326 311 351 287 366" />
+      <path d="M 292 358 Q 253 387 206 393 M 410 360 Q 449 385 491 394" />
+      <path d="M 162 480 C 145 591 126 669 101 758 M 536 480 C 553 591 572 669 597 758" />
+      <path d="M 219 835 Q 201 893 191 941 M 480 835 Q 498 893 510 941" />
+    </g>
+    <g fill="#fff5df" stroke="#dab87e" stroke-width="0.5">
+      <path d="M 350 6 l 3 13 13 3 -13 3 -3 13 -3 -13 -13 -3 13 -3 Z" />
+      <path d="M 30 465 l 3 12 12 3 -12 3 -3 12 -3 -12 -12 -3 12 -3 Z" />
+      <path d="M 670 465 l 3 12 12 3 -12 3 -3 12 -3 -12 -12 -3 12 -3 Z" />
+    </g>
+  </g>`;
 }
 
 // A small standalone icon of a single center's own shape, dusty-peach
@@ -696,7 +770,7 @@ function miniChannelDiagram(ch, chart, structure) {
   const shapes = [[nameA, posA], [nameB, posB]]
     .map(([name, pos]) => {
       const fill = chart.centers[name] ? CENTER_COLORS[name].defined : CENTER_COLORS[name].undefined;
-      return `<path d="${shapePath(pos)}" fill="${fill}" stroke="${CHART_OUTLINE}" stroke-width="0.75" />`;
+      return `<path d="${shapePath(pos)}" fill="${fill}" stroke="#fff9ef" stroke-width="2" />`;
     })
     .join('\n');
   const chartCenter = { x: 346, y: 510 };
@@ -708,7 +782,9 @@ function miniChannelDiagram(ch, chart, structure) {
   const bow = Math.min(70, 24 + outLen * 0.18);
   const cx = mx + (outX / outLen) * bow;
   const cy = my + (outY / outLen) * bow;
-  const line = `<path d="M ${endA.x},${endA.y} Q ${cx},${cy} ${endB.x},${endB.y}" stroke="${CHART_BLACK}" stroke-width="16" opacity="0.95" fill="none" stroke-linecap="round" />`;
+  const linePath = `M ${endA.x},${endA.y} Q ${cx},${cy} ${endB.x},${endB.y}`;
+  const line = `<path d="${linePath}" stroke="#c99c8a" stroke-width="10" opacity="0.65" fill="none" stroke-linecap="round" />
+    <path d="${linePath}" stroke="#945d70" stroke-width="8" fill="none" stroke-linecap="round" />`;
   // If an unrelated activated gate happens to sit right on the connecting
   // line's path, its black circle marker reads as if it were part of this
   // channel. Drop just the circle (show it as a plain number instead) for
