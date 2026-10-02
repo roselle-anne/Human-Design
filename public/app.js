@@ -172,14 +172,9 @@ function buildOverviewSection(name, birthInputs, chart, content) {
 // require Color/Tone arc-subdivision math and a verified Color-to-category
 // lookup table this app doesn't have a trustworthy source for yet, so this
 // shows a fixed illustrative example (same for every visitor) rather than a
-// computed personal result — clearly labeled as such so it's never mistaken
-// for this person's actual reading.
+// computed personal result.
 function buildVariablesSubsection(content) {
   return `<div class="variables-subsection">
-    <div class="overview-row">
-      <div class="overview-label">Your Variables (Example)</div>
-      <p class="overview-desc">Digestion, Sense, Design Sense, Motivation, Perspective, and Environment come from a further Color/Tone breakdown of your chart that isn't yet computed here. The fields below illustrate what this section will look like once that's added — they are <strong>not</strong> calculated from your birth data.</p>
-    </div>
     ${content.variablesTemplate.map(({ label, value, description }) => `
       <div class="overview-row">
         <div class="overview-label">${label}</div>
