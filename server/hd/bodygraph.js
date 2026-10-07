@@ -127,8 +127,12 @@ function chartElements(chart, structure) {
     if(gates.some(([gate])=>!structure.centers[center].gates.includes(gate))) throw new Error('Incorrect bodygraph gate placement');
     return gates.map(([g,x,y])=>{
       const color=activationColor(active[g]);
+      // Only a gate that's actually on an active (personality/design)
+      // channel keeps the white-on-color treatment; every other gate's
+      // number is plain black, not white-on-pale, which was barely legible.
+      const textColor=active[g]?'#fff':'#000';
       return '<circle data-gate="'+g+'" data-active="'+Boolean(active[g])+'" cx="'+x+'" cy="'+y+'" r="15" fill="'+color+'"/>'
-        + '<text x="'+x+'" y="'+y+'" fill="#fff" font-size="20" font-weight="'+(active[g]?'600':'400')+'" text-anchor="middle" dominant-baseline="central">'+g+'</text>';
+        + '<text x="'+x+'" y="'+y+'" fill="'+textColor+'" font-size="20" font-weight="'+(active[g]?'600':'400')+'" text-anchor="middle" dominant-baseline="central">'+g+'</text>';
     }).join('');
   }).join('');
   return { gradients, channels, centers, labels };
