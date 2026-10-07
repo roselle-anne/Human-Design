@@ -29,14 +29,16 @@
         <input type="date" id="date" required />
       </label>
       <label>
-        Birth time <span class="hint">(as exact as possible — even a few minutes shifts gates)</span>
+        Birth time
         <input type="time" id="time" required step="60" />
         <span class="hint">Don't know your exact birth time? <a href="mailto:courtneyhall088@gmail.com">Reach out</a> and we'll help you find it.</span>
       </label>
-      <label>
+      <label class="place-field">
         Place of birth
-        <input type="text" id="place-search" placeholder="Type a city, e.g. Singapore" autocomplete="off" />
-        <select id="place-select" size="6" style="display:none"></select>
+        <div class="place-autocomplete">
+          <input type="text" id="place-search" placeholder="Type a city, e.g. Singapore" autocomplete="off" />
+          <ul id="place-select" class="place-options" hidden></ul>
+        </div>
       </label>
       <button type="submit">Generate Chart</button>
     </form>

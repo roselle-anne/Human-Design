@@ -103,7 +103,10 @@ function channelPaths(a,b,c) {
   return [path(A,C,D,B),path(A,E,I,M),path(M,J,H,B)];
 }
 
-export function buildBodygraph(chart, structure) {
+// Shared by the full chart and by a cropped single-channel/center excerpt,
+// so every rendering of the graph — the main chart or a small page icon —
+// draws centers, channels and gate labels the exact same way.
+function chartElements(chart, structure) {
   const active=Object.fromEntries(chart.activeGates.map(g=>[g.gate,g.sides]));
   // Reject a stale route table instead of silently displaying a wrong graph.
   const expected=new Set(structure.channels.map(c=>c.gates.slice().sort((a,b)=>a-b).join('-')));
@@ -122,7 +125,60 @@ export function buildBodygraph(chart, structure) {
   const centers=Object.entries(CENTERS).map(([name,p])=>'<path data-center="'+name+'" data-defined="'+Boolean(chart.centers[name])+'" d="'+centerPath(p)+'" fill="url(#bodygraph-v2-'+name+')" stroke="'+p[6]+'" stroke-width="2.5"/>').join('');
   const labels=Object.entries(GATES).map(([center,gates])=>{
     if(gates.some(([gate])=>!structure.centers[center].gates.includes(gate))) throw new Error('Incorrect bodygraph gate placement');
-    return gates.map(([g,x,y])=>'<text data-gate="'+g+'" data-active="'+Boolean(active[g])+'" x="'+x+'" y="'+y+'" fill="#3d3932" font-size="20" font-weight="'+(active[g]?'600':'400')+'" text-anchor="middle" dominant-baseline="central">'+g+'</text>').join('');
+    return gates.map(([g,x,y])=>{
+      const color=activationColor(active[g]);
+      return '<circle data-gate="'+g+'" data-active="'+Boolean(active[g])+'" cx="'+x+'" cy="'+y+'" r="15" fill="'+color+'"/>'
+        + '<text x="'+x+'" y="'+y+'" fill="#fff" font-size="20" font-weight="'+(active[g]?'600':'400')+'" text-anchor="middle" dominant-baseline="central">'+g+'</text>';
+    }).join('');
   }).join('');
+  return { gradients, channels, centers, labels };
+}
+
+export function buildBodygraph(chart, structure) {
+  const { gradients, channels, centers, labels } = chartElements(chart, structure);
   return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="75 70 875 1400" width="517" height="827" role="img" aria-label="Human Design chart with flowing human silhouette and individually routed channels" style="font-family:Arial,sans-serif"><defs>'+gradients+'</defs><image href="'+figure+'" x="0" y="0" width="1024" height="1536"/>'+channels+centers+labels+'</svg>';
+}
+
+// A tight crop around one or two centers — same gradient-filled shapes,
+// routed channel ribbons and white-on-color gate circles as the main
+// chart, viewBox-cropped to just the relevant area. The background
+// silhouette photo is deliberately left out here: it's a ~1.4MB asset, and
+// inlining it again on every one of dozens of channel pages would bloat
+// the PDF response by tens of megabytes for no visible benefit at this
+// crop size.
+export function buildBodygraphCrop(chart, structure, centerNames, { maxWidth = 230, maxHeight = 260, pad = 55 } = {}) {
+  const { gradients, channels, centers, labels } = chartElements(chart, structure);
+  const boxes = centerNames.map((name) => {
+    const [x, y, w, h] = CENTERS[name];
+    return [x - w / 2 - pad, y - h / 2 - pad, x + w / 2 + pad, y + h / 2 + pad];
+  });
+  const minX = Math.min(...boxes.map((b) => b[0]));
+  const minY = Math.min(...boxes.map((b) => b[1]));
+  const maxX = Math.max(...boxes.map((b) => b[2]));
+  const maxY = Math.max(...boxes.map((b) => b[3]));
+  const w = maxX - minX, h = maxY - minY;
+  const scale = Math.min(maxWidth / w, maxHeight / h);
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+minX+' '+minY+' '+w+' '+h+'" width="'+Math.round(w*scale)+'" height="'+Math.round(h*scale)+'" style="font-family:Arial,sans-serif"><defs>'+gradients+'</defs>'+channels+centers+labels+'</svg>';
+}
+
+// A generic, unpersonalized orientation map of all 9 centers over the same
+// silhouette — no chart data, no gates, no channel activations — used once
+// as a "where things sit" page before the report walks through centers
+// individually.
+export function buildBodygraphMap() {
+  const gradients=Object.entries(CENTERS).map(([name,p])=>
+    '<linearGradient id="bodygraph-map-'+name+'" x1="0" y1="0" x2="1" y2="1"><stop stop-color="'+p[5]+'"/><stop offset="1" stop-color="'+tint(p[5],0.12)+'"/></linearGradient>'
+  ).join('');
+  const channels=ROUTES.map(([a,b,c])=>{
+    const [d]=channelPaths(a,b,c);
+    return '<path d="'+d+'" fill="none" stroke-linecap="butt" stroke="'+PALETTE.inactive+'" stroke-width="13"/>';
+  }).join('');
+  const MAP_LABELS={Head:'Head',Ajna:'Ajna',Throat:'Throat',G:'Self / G',Heart:'Ego / Heart',Sacral:'Sacral',Spleen:'Spleen',SolarPlexus:'Solar Plexus',Root:'Root'};
+  const centers=Object.entries(CENTERS).map(([name,p])=>{
+    const [x,y]=[p[0],p[1]];
+    const label=MAP_LABELS[name];
+    return '<path d="'+centerPath(p)+'" fill="url(#bodygraph-map-'+name+')" stroke="'+p[6]+'" stroke-width="2.5"/>'
+      + '<text x="'+x+'" y="'+y+'" fill="#4a362f" font-size="22" font-weight="600" text-anchor="middle" dominant-baseline="central">'+label+'</text>';
+  }).join('');
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="75 70 875 1400" width="340" height="544" role="img" aria-label="Map of the nine Human Design centers" style="font-family:Arial,sans-serif"><defs>'+gradients+'</defs><image href="'+figure+'" x="0" y="0" width="1024" height="1536"/>'+channels+centers+'</svg>';
 }

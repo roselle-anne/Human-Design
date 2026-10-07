@@ -1,4 +1,4 @@
-import { buildBodygraph } from './bodygraph.js';
+import { buildBodygraph, buildBodygraphCrop, buildBodygraphMap } from './bodygraph.js';
 // Server-side HTML template for the paginated PDF report, rendered by a
 // real headless Chromium (Puppeteer) rather than any client-side browser
 // API. Ported directly from the client's public/app.js page builders —
@@ -45,14 +45,6 @@ const CENTER_POS = {
   SolarPlexus: { x: 547, y: 680, shape: 'triangle-left', w: 158, h: 190, cols: 4, offsetX: 12, colGap: 34 },
   Root: { x: 346, y: 900, shape: 'square', w: 155, h: 119, cols: 3 },
 };
-
-const CENTER_PAIRS = [
-  ['G', 'Throat'], ['G', 'Sacral'], ['Sacral', 'Root'], ['Ajna', 'Head'],
-  ['SolarPlexus', 'Sacral'], ['G', 'Spleen'], ['Ajna', 'Throat'],
-  ['Throat', 'SolarPlexus'], ['Throat', 'Spleen'], ['Spleen', 'Root'],
-  ['Root', 'SolarPlexus'], ['Throat', 'Sacral'], ['Heart', 'Throat'],
-  ['G', 'Heart'], ['Heart', 'Spleen'], ['Sacral', 'Spleen'], ['Heart', 'SolarPlexus'],
-];
 
 function shapeVertices({ x, y, shape, w, h }) {
   const hw = w / 2, hh = h / 2;
@@ -122,44 +114,6 @@ function gateGrid(gates, cx, cy, colsMax = 3, rowGap = 30, colGap = 40) {
   return cells;
 }
 
-// The whole chart uses only the brand peach tones (dusty for defined
-// centers, blush for undefined) plus black and a dark outline gray —
-// matching the approved Embodiance palette exactly.
-const CHART_DUSTY_PEACH = '#E6B1A1';
-const CHART_SOFT_PEACH = '#F4DED7';
-const CHART_BLACK = '#000000';
-const CHART_OUTLINE = '#E6B1A1';
-const CHART_GRAY = '#333333';
-
-// Each of the 9 centers gets its own signature warm tone (sampled from the
-// reference chart) rather than one flat color for every defined center and
-// another for every undefined one — a richer, more jewel-toned look while
-// staying in the same blush/peach/gold family. The undefined variant is
-// just the defined one blended lighter, same relationship as the old flat
-// dusty/soft peach pair.
-const CENTER_COLORS = {
-  Head: { defined: '#f5d8c2', undefined: '#faebe0' },
-  Ajna: { defined: '#ebb0a4', undefined: '#f5d7d1' },
-  Throat: { defined: '#f2ccb7', undefined: '#f8e5db' },
-  G: { defined: '#eec4ae', undefined: '#f6e1d6' },
-  Heart: { defined: '#dd9989', undefined: '#eeccc4' },
-  Spleen: { defined: '#e1a07f', undefined: '#f0cfbf' },
-  SolarPlexus: { defined: '#efbd9c', undefined: '#f7decd' },
-  Sacral: { defined: '#da8476', undefined: '#ecc1ba' },
-  Root: { defined: '#dba575', undefined: '#edd2ba' },
-};
-
-function gateLabel(gate, x, y, sides) {
-  if (!sides) {
-    // A thin white halo (painted before the fill) keeps a plain gate number
-    // legible on the rare occasion a channel line happens to pass directly
-    // behind it, rather than the line visually cutting through the digits.
-    return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="15" fill="${CHART_GRAY}" stroke="#FFFFFF" stroke-width="1.5" paint-order="stroke" stroke-linejoin="round">${gate}</text>`;
-  }
-  return `<circle cx="${x}" cy="${y}" r="11" fill="${CHART_BLACK}" />
-    <text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#FFFFFF" font-weight="600">${gate}</text>`;
-}
-
 // A small standalone icon of a single center's own shape, dusty-peach
 // outlined, with its fixed gate numbers inside — used in each center
 // page's header banner as a compact "which shape is this" reference.
@@ -178,34 +132,14 @@ function miniCenterIcon(centerName, gates) {
 // A location map of all 9 centers on the bodygraph, labeled but without any
 // gate numbers — an orientation page shown once before the individual
 // center-by-center pages.
-const MAP_LABELS = {
-  Head: 'Head', Ajna: 'Ajna', Throat: 'Throat', G: 'Self / G', Heart: 'Ego / Heart',
-  Sacral: 'Sacral', Spleen: 'Spleen', SolarPlexus: 'Solar Plexus', Root: 'Root',
-};
-
 function buildCentersMapPage(titleBgUrl) {
-  const lines = CENTER_PAIRS.map(([a, b]) => {
-    const A = CENTER_POS[a], B = CENTER_POS[b];
-    return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="#E6B1A1" stroke-width="3" opacity="0.75" />`;
-  }).join('\n');
-
-  const shapes = Object.entries(CENTER_POS).map(([name, pos]) => {
-    const label = MAP_LABELS[name];
-    const fontSize = label.length > 8 ? 10.5 : 13;
-    return `<path d="${shapePath(pos)}" fill="#E6B1A1" stroke="#FFFFFF" stroke-width="1.5" />
-      <text x="${pos.x}" y="${pos.y + 4}" text-anchor="middle" font-size="${fontSize}" font-weight="600" fill="#2A1E14">${label}</text>`;
-  }).join('\n');
-
   return `<div class="report-page cover-page centers-map-page" style="background-image:url('${titleBgUrl}')">
     <div class="title-panel">
       <div class="page-eyebrow">Your Centers</div>
       <h1 class="report-title">Where the Centers Sit</h1>
       <p class="report-subject">A map of the bodygraph before we go center by center</p>
     </div>
-    <svg viewBox="0 0 700 990" width="420" height="594" class="centers-map-svg">
-      ${lines}
-      ${shapes}
-    </svg>
+    ${buildBodygraphMap()}
   </div>`;
 }
 
@@ -540,103 +474,12 @@ function sparkleIcon(size = 18) {
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" class="sparkle-icon"><path d="M12 0 L14 10 L24 12 L14 14 L12 24 L10 14 L0 12 L10 10 Z" fill="#158EA4"/></svg>`;
 }
 
-function shapeBBox(pos) {
-  return [pos.x - pos.w / 2, pos.y - pos.h / 2, pos.x + pos.w / 2, pos.y + pos.h / 2];
-}
-
-function pointToSegmentDistance(px, py, x1, y1, x2, y2) {
-  const dx = x2 - x1;
-  const dy = y2 - y1;
-  const lengthSq = dx * dx + dy * dy;
-  const t = lengthSq === 0 ? 0 : Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / lengthSq));
-  const projX = x1 + t * dx;
-  const projY = y1 + t * dy;
-  return Math.hypot(px - projX, py - projY);
-}
-
-// A compact "symbol" for a channel's report page: just the two centers it
-// connects (with their own full gate lists, badged the same way as the main
-// chart) and the connecting line — a focused crop of the full bodygraph.
-// Gate positions use the exact same per-shape offsetX/offsetY/cols/gaps as
-// the main bodygraph, and the connecting line runs between the channel's
-// actual two gate dots — not the shapes' centers — matching how the main
-// chart already connects channels precisely to their gates.
+// A compact "symbol" for a channel's report page: a tight crop of the same
+// shared chart renderer used for the main bodygraph, centered on just the
+// two centers this channel connects — same gradient-filled shapes, same
+// routed ribbon, same white-on-color gate circles, just cropped in.
 function miniChannelDiagram(ch, chart, structure) {
-  const [nameA, nameB] = ch.centers;
-  const posA = CENTER_POS[nameA];
-  const posB = CENTER_POS[nameB];
-  const activeGateSides = Object.fromEntries(chart.activeGates.map((g) => [g.gate, g.sides]));
-
-  const cellsFor = (name, pos) => gateGrid(
-    structure.centers[name].gates,
-    pos.x + (pos.offsetX || 0),
-    pos.y + (pos.offsetY || 0),
-    pos.cols,
-    pos.rowGap || 30,
-    pos.colGap || 40
-  );
-  const cellsA = cellsFor(nameA, posA);
-  const cellsB = cellsFor(nameB, posB);
-  const allCells = [...cellsA, ...cellsB];
-  const gatePos = Object.fromEntries(allCells.map(({ gate, x, y }) => [gate, { x, y }]));
-  const [gA, gB] = ch.gates;
-  const endA = gatePos[gA];
-  const endB = gatePos[gB];
-
-  const [ax0, ay0, ax1, ay1] = shapeBBox(posA);
-  const [bx0, by0, bx1, by1] = shapeBBox(posB);
-  const pad = 20;
-  const minX = Math.min(ax0, bx0, ...allCells.map((c) => c.x)) - pad;
-  const maxX = Math.max(ax1, bx1, ...allCells.map((c) => c.x)) + pad;
-  const minY = Math.min(ay0, by0, ...allCells.map((c) => c.y)) - pad;
-  const maxY = Math.max(ay1, by1, ...allCells.map((c) => c.y)) + pad;
-  const w = maxX - minX;
-  const h = maxY - minY;
-
-  // Same per-center signature coloring and bowed tube-line style as the
-  // main bodygraph, so a channel page's diagram reads as a focused crop of
-  // that same chart rather than a separate, flatter-looking diagram.
-  const shapes = [[nameA, posA], [nameB, posB]]
-    .map(([name, pos]) => {
-      const fill = chart.centers[name] ? CENTER_COLORS[name].defined : CENTER_COLORS[name].undefined;
-      return `<path d="${shapePath(pos)}" fill="${fill}" stroke="#fff9ef" stroke-width="2" />`;
-    })
-    .join('\n');
-  const chartCenter = { x: 346, y: 510 };
-  const mx = (endA.x + endB.x) / 2;
-  const my = (endA.y + endB.y) / 2;
-  const outX = mx - chartCenter.x;
-  const outY = my - chartCenter.y;
-  const outLen = Math.hypot(outX, outY) || 1;
-  const bow = Math.min(70, 24 + outLen * 0.18);
-  const cx = mx + (outX / outLen) * bow;
-  const cy = my + (outY / outLen) * bow;
-  const linePath = `M ${endA.x},${endA.y} Q ${cx},${cy} ${endB.x},${endB.y}`;
-  const line = `<path d="${linePath}" stroke="#c99c8a" stroke-width="10" opacity="0.65" fill="none" stroke-linecap="round" />
-    <path d="${linePath}" stroke="#945d70" stroke-width="8" fill="none" stroke-linecap="round" />`;
-  // If an unrelated activated gate happens to sit right on the connecting
-  // line's path, its black circle marker reads as if it were part of this
-  // channel. Drop just the circle (show it as a plain number instead) for
-  // any gate other than the two real endpoints that the line passes through.
-  const onLinePath = (x, y) => pointToSegmentDistance(x, y, endA.x, endA.y, endB.x, endB.y) < 13;
-  const labels = allCells.map(({ gate, x, y }) => {
-    const isEndpoint = gate === gA || gate === gB;
-    const sides = (!isEndpoint && onLinePath(x, y)) ? undefined : activeGateSides[gate];
-    return gateLabel(gate, x, y, sides);
-  }).join('\n');
-
-  // Some channel pairs (e.g. Throat-Sacral) sit far apart vertically on the
-  // full chart, which would otherwise stretch this crop into a very tall
-  // image and push the page footer onto a second physical PDF page. Fit the
-  // crop inside a fixed box instead of scaling a fixed width by aspect ratio.
-  const maxW = 230;
-  const maxH = 260;
-  const scale = Math.min(maxW / w, maxH / h);
-  return `<svg viewBox="${minX} ${minY} ${w} ${h}" width="${Math.round(w * scale)}" height="${Math.round(h * scale)}">
-    ${line}
-    ${shapes}
-    ${labels}
-  </svg>`;
+  return buildBodygraphCrop(chart, structure, ch.centers);
 }
 
 function buildChannelPage(ch, content, chart, structure) {

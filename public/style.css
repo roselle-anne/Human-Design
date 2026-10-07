@@ -78,15 +78,37 @@ input, select {
   font-family: var(--font-body);
 }
 
-select#place-select {
+.place-autocomplete { position: relative; }
+.place-options {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 4px);
   left: 0;
   right: 0;
   z-index: 10;
-  max-height: 160px;
+  max-height: 220px;
+  overflow-y: auto;
   background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(34, 34, 34, 0.12);
+  margin: 0;
+  padding: 4px;
+  list-style: none;
 }
+.place-option {
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1.35;
+  /* Generous min-height keeps the tap target comfortable on touch screens
+     even for a short place name. */
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+}
+.place-option:hover, .place-option.active { background: var(--panel-2); }
+.place-option-status { padding: 10px 12px; color: var(--muted); font-size: 14px; }
 
 button, .btn {
   font-family: var(--font-heading);
@@ -620,6 +642,22 @@ p { line-height: 1.6; }
 .planet-icon-lg svg { width: 17px; height: 17px; }
 .planet-icon-lg.personality { background: #E6B1A1; }
 .planet-icon-lg.design { background: #000000; }
+
+/* On a narrow screen the chart-layout row (bodygraph + two planet columns,
+   together wider than any phone) no longer fits side by side — the chart
+   was overflowing off both edges instead of resizing. Forcing the chart to
+   fill its own line (it always starts a fresh row on its own when told to
+   be 100% wide) wraps the two planet columns onto the row underneath it,
+   and shrinking the SVG itself to the viewport width keeps it from
+   clipping, so the full chart is reachable by scrolling vertically only. */
+@media (max-width: 640px) {
+  .chart-layout { flex-wrap: wrap; row-gap: 12px; }
+  .chart-center { order: -1; width: 100%; display: flex; justify-content: center; }
+  .chart-center svg { max-width: 100%; width: 100%; height: auto; }
+  .planet-icon-lg { width: 22px; height: 22px; }
+  .planet-icon-lg svg { width: 14px; height: 14px; }
+  .planet-degree-lg { font-size: 12px; }
+}
 .planet-degree-lg {
   font-family: var(--font-heading);
   font-size: 14px;
@@ -676,7 +714,7 @@ p { line-height: 1.6; }
 
 /* Centers location map page: gold bodygraph outline with labels only */
 .centers-map-page .report-title { margin-bottom: 4px; }
-.centers-map-svg { margin-top: 20px; }
+.centers-map-page svg { margin-top: 20px; max-width: 100%; height: auto; }
 
 /* Center page hero banner: gradient strip with a mini shape icon + title,
    echoing the Type hero page's badge treatment. */

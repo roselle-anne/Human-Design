@@ -4,6 +4,8 @@ let placeMatches = [];
 let chosenPlace = null; // { displayName, lat, lon, timeZone }
 let placeSearchController = null;
 let placeSearchDebounce = null;
+let placeSearchLoading = false;
+let placeActiveIndex = -1;
 // Tracked explicitly rather than checked via `document.activeElement` at
 // render time — on mobile, the async fetch in searchPlaces can complete
 // after the input has briefly lost focus (keyboard/viewport adjustments),
@@ -18,6 +20,8 @@ let placeDropdownOpen = false;
 async function searchPlaces(query) {
   if (placeSearchController) placeSearchController.abort();
   placeSearchController = new AbortController();
+  placeSearchLoading = true;
+  renderPlaceOptions();
   try {
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=8&addressdetails=1`;
     const res = await fetch(url, { signal: placeSearchController.signal });
@@ -27,40 +31,36 @@ async function searchPlaces(query) {
     if (err.name !== 'AbortError') placeMatches = [];
     else return;
   }
+  placeSearchLoading = false;
+  placeActiveIndex = -1;
   renderPlaceOptions();
 }
 
+// A plain <ul>/<li> listbox instead of a native <select> — a multi-row
+// <select> renders and behaves inconsistently on mobile (its own popover
+// styling, awkward tap targets), where a styled list is both easier to hit
+// and easier to keep visually consistent with the rest of the form.
 function renderPlaceOptions() {
-  placeSelect.innerHTML = placeMatches
-    .map((p, i) => `<option value="${i}">${p.displayName}</option>`)
-    .join('');
-  // A <select size="1"> renders as a closed native combobox that needs its
-  // own extra click to open — with exactly one match that silently broke
-  // selecting it. Forcing a minimum of 2 keeps this an always-open inline
-  // listbox regardless of match count.
-  placeSelect.size = Math.max(2, Math.min(placeMatches.length, 6));
-  placeSelect.style.display = placeMatches.length && placeDropdownOpen ? 'block' : 'none';
-}
-
-placeSearch.addEventListener('input', () => {
-  chosenPlace = null;
-  placeDropdownOpen = true;
-  clearTimeout(placeSearchDebounce);
-  const query = placeSearch.value.trim();
-  if (query.length < 2) {
-    placeMatches = [];
-    renderPlaceOptions();
+  const show = placeDropdownOpen && (placeSearchLoading || placeMatches.length > 0);
+  if (!show) {
+    placeSelect.hidden = true;
+    placeSelect.innerHTML = '';
     return;
   }
-  // Debounced so we don't hammer the free geocoding service on every
-  // keystroke — Nominatim's usage policy expects modest request rates.
-  placeSearchDebounce = setTimeout(() => searchPlaces(query), 400);
-});
-placeSelect.addEventListener('change', async () => {
-  const picked = placeMatches[Number(placeSelect.value)] || null;
+  placeSelect.hidden = false;
+  if (placeSearchLoading) {
+    placeSelect.innerHTML = `<li class="place-option-status">Searching…</li>`;
+    return;
+  }
+  placeSelect.innerHTML = placeMatches
+    .map((p, i) => `<li class="place-option${i === placeActiveIndex ? ' active' : ''}" data-index="${i}" role="option">${p.displayName}</li>`)
+    .join('');
+}
+
+async function choosePlace(picked) {
   placeDropdownOpen = false;
-  placeSelect.style.display = 'none';
   chosenPlace = null;
+  renderPlaceOptions();
   if (!picked) return;
   placeSearch.value = picked.displayName;
 
@@ -75,6 +75,48 @@ placeSelect.addEventListener('change', async () => {
   } catch (err) {
     status.textContent = 'Error: ' + err.message;
   }
+}
+
+placeSearch.addEventListener('input', () => {
+  chosenPlace = null;
+  placeDropdownOpen = true;
+  placeActiveIndex = -1;
+  clearTimeout(placeSearchDebounce);
+  const query = placeSearch.value.trim();
+  if (query.length < 2) {
+    placeMatches = [];
+    placeSearchLoading = false;
+    renderPlaceOptions();
+    return;
+  }
+  // Debounced so we don't hammer the free geocoding service on every
+  // keystroke — Nominatim's usage policy expects modest request rates.
+  placeSearchDebounce = setTimeout(() => searchPlaces(query), 300);
+});
+// Tap/click selection — works the same on mobile and desktop, unlike a
+// native <select>'s change event.
+placeSelect.addEventListener('click', (e) => {
+  const li = e.target.closest('.place-option');
+  if (!li) return;
+  choosePlace(placeMatches[Number(li.dataset.index)] || null);
+});
+placeSearch.addEventListener('keydown', (e) => {
+  if (!placeDropdownOpen || !placeMatches.length) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    placeActiveIndex = Math.min(placeActiveIndex + 1, placeMatches.length - 1);
+    renderPlaceOptions();
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    placeActiveIndex = Math.max(placeActiveIndex - 1, 0);
+    renderPlaceOptions();
+  } else if (e.key === 'Enter' && placeActiveIndex >= 0) {
+    e.preventDefault();
+    choosePlace(placeMatches[placeActiveIndex] || null);
+  } else if (e.key === 'Escape') {
+    placeDropdownOpen = false;
+    renderPlaceOptions();
+  }
 });
 placeSearch.addEventListener('focus', () => {
   if (placeMatches.length) {
@@ -83,12 +125,12 @@ placeSearch.addEventListener('focus', () => {
   }
 });
 document.addEventListener('click', (e) => {
-  // .contains (not strict equality) so a click on an <option> — a
-  // descendant of placeSelect, not placeSelect itself — doesn't get
-  // treated as "clicked outside" and hide the list before it can register.
+  // .contains (not strict equality) so a click on an option — a descendant
+  // of placeSelect, not placeSelect itself — doesn't get treated as
+  // "clicked outside" and hide the list before it can register.
   if (!placeSearch.contains(e.target) && !placeSelect.contains(e.target)) {
     placeDropdownOpen = false;
-    placeSelect.style.display = 'none';
+    renderPlaceOptions();
   }
 });
 
