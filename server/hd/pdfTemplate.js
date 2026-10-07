@@ -479,7 +479,7 @@ function sparkleIcon(size = 18) {
 // two centers this channel connects — same gradient-filled shapes, same
 // routed ribbon, same white-on-color gate circles, just cropped in.
 function miniChannelDiagram(ch, chart, structure) {
-  return buildBodygraphCrop(chart, structure, ch.centers);
+  return buildBodygraphCrop(chart, structure, ch.centers, ch.gates);
 }
 
 function buildChannelPage(ch, content, chart, structure) {

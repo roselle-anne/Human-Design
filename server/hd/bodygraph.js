@@ -105,17 +105,21 @@ function channelPaths(a,b,c) {
 
 // Shared by the full chart and by a cropped single-channel/center excerpt,
 // so every rendering of the graph — the main chart or a small page icon —
-// draws centers, channels and gate labels the exact same way.
-function chartElements(chart, structure) {
+// draws centers, channels and gate labels the exact same way. Pass
+// `onlyChannelGates` (a [gateA, gateB] pair) to isolate just that one
+// channel — its own line and its own two gate numbers — with every other
+// channel and gate omitted entirely, for a focused single-channel crop.
+function chartElements(chart, structure, onlyChannelGates) {
   const active=Object.fromEntries(chart.activeGates.map(g=>[g.gate,g.sides]));
   // Reject a stale route table instead of silently displaying a wrong graph.
   const expected=new Set(structure.channels.map(c=>c.gates.slice().sort((a,b)=>a-b).join('-')));
   if(ROUTES.length!==expected.size || ROUTES.some(([a,b])=>!expected.has([a,b].sort((a,b)=>a-b).join('-')))) throw new Error('Bodygraph channel routes do not match structural data');
+  const onlyKey = onlyChannelGates && onlyChannelGates.slice().sort((a,b)=>a-b).join('-');
   const gradients=Object.entries(CENTERS).map(([name,p])=>{
     const color=chart.centers[name]?p[5]:tint(p[5],0.2);
     return '<linearGradient id="bodygraph-v2-'+name+'" x1="0" y1="0" x2="1" y2="1"><stop stop-color="'+color+'"/><stop offset="1" stop-color="'+tint(color,0.12)+'"/></linearGradient>';
   }).join('');
-  const channels=ROUTES.map(([a,b,c])=>{
+  const channels=ROUTES.filter(([a,b])=>!onlyKey || [a,b].sort((a,b)=>a-b).join('-')===onlyKey).map(([a,b,c])=>{
     const [d,first,last]=channelPaths(a,b,c);
     const path=(d,color,width)=>'<path d="'+d+'" fill="none" stroke-linecap="butt" stroke="'+color+'" stroke-width="'+width+'"/>';
     return '<g data-channel="'+[a,b].sort((a,b)=>a-b).join('-')+'">'+path(d,'#f0ccbb',16)+path(d,PALETTE.inactive,13)+
@@ -125,7 +129,7 @@ function chartElements(chart, structure) {
   const centers=Object.entries(CENTERS).map(([name,p])=>'<path data-center="'+name+'" data-defined="'+Boolean(chart.centers[name])+'" d="'+centerPath(p)+'" fill="url(#bodygraph-v2-'+name+')" stroke="'+p[6]+'" stroke-width="2.5"/>').join('');
   const labels=Object.entries(GATES).map(([center,gates])=>{
     if(gates.some(([gate])=>!structure.centers[center].gates.includes(gate))) throw new Error('Incorrect bodygraph gate placement');
-    return gates.map(([g,x,y])=>{
+    return gates.filter(([g])=>!onlyChannelGates || onlyChannelGates.includes(g)).map(([g,x,y])=>{
       const color=activationColor(active[g]);
       // Only a gate that's actually on an active (personality/design)
       // channel keeps the white-on-color treatment; every other gate's
@@ -150,8 +154,8 @@ export function buildBodygraph(chart, structure) {
 // inlining it again on every one of dozens of channel pages would bloat
 // the PDF response by tens of megabytes for no visible benefit at this
 // crop size.
-export function buildBodygraphCrop(chart, structure, centerNames, { maxWidth = 230, maxHeight = 260, pad = 55 } = {}) {
-  const { gradients, channels, centers, labels } = chartElements(chart, structure);
+export function buildBodygraphCrop(chart, structure, centerNames, channelGates, { maxWidth = 230, maxHeight = 260, pad = 55 } = {}) {
+  const { gradients, channels, centers, labels } = chartElements(chart, structure, channelGates);
   const boxes = centerNames.map((name) => {
     const [x, y, w, h] = CENTERS[name];
     return [x - w / 2 - pad, y - h / 2 - pad, x + w / 2 + pad, y + h / 2 + pad];
@@ -169,6 +173,10 @@ export function buildBodygraphCrop(chart, structure, centerNames, { maxWidth = 2
 // silhouette — no chart data, no gates, no channel activations — used once
 // as a "where things sit" page before the report walks through centers
 // individually.
+// No background photo here — this is a plain, transparent orientation
+// graphic (it sits directly on the page's own sky-photo background), so
+// each center shape gets a white outline instead of its own subtle tan
+// one, which would otherwise disappear against a busy photo background.
 export function buildBodygraphMap() {
   const gradients=Object.entries(CENTERS).map(([name,p])=>
     '<linearGradient id="bodygraph-map-'+name+'" x1="0" y1="0" x2="1" y2="1"><stop stop-color="'+p[5]+'"/><stop offset="1" stop-color="'+tint(p[5],0.12)+'"/></linearGradient>'
@@ -181,8 +189,10 @@ export function buildBodygraphMap() {
   const centers=Object.entries(CENTERS).map(([name,p])=>{
     const [x,y]=[p[0],p[1]];
     const label=MAP_LABELS[name];
-    return '<path d="'+centerPath(p)+'" fill="url(#bodygraph-map-'+name+')" stroke="'+p[6]+'" stroke-width="2.5"/>'
+    return '<path d="'+centerPath(p)+'" fill="url(#bodygraph-map-'+name+')" stroke="#fff" stroke-width="3"/>'
       + '<text x="'+x+'" y="'+y+'" fill="#4a362f" font-size="22" font-weight="600" text-anchor="middle" dominant-baseline="central">'+label+'</text>';
   }).join('');
-  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="75 70 875 1400" width="340" height="544" role="img" aria-label="Map of the nine Human Design centers" style="font-family:Arial,sans-serif"><defs>'+gradients+'</defs><image href="'+figure+'" x="0" y="0" width="1024" height="1536"/>'+channels+centers+'</svg>';
+  // Cropped tight to just the centers/channels (no silhouette to size the
+  // canvas around anymore), with modest padding on every side.
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="112 116 802 1345" width="340" height="570" role="img" aria-label="Map of the nine Human Design centers" style="font-family:Arial,sans-serif"><defs>'+gradients+'</defs>'+channels+centers+'</svg>';
 }
