@@ -115,9 +115,12 @@ function chartElements(chart, structure, onlyChannelGates) {
   const expected=new Set(structure.channels.map(c=>c.gates.slice().sort((a,b)=>a-b).join('-')));
   if(ROUTES.length!==expected.size || ROUTES.some(([a,b])=>!expected.has([a,b].sort((a,b)=>a-b).join('-')))) throw new Error('Bodygraph channel routes do not match structural data');
   const onlyKey = onlyChannelGates && onlyChannelGates.slice().sort((a,b)=>a-b).join('-');
+  // Defined centers keep their own signature color; undefined centers are
+  // plain white so the two states read as unmistakably different shapes,
+  // not just a slightly lighter version of the same color.
   const gradients=Object.entries(CENTERS).map(([name,p])=>{
-    const color=chart.centers[name]?p[5]:tint(p[5],0.2);
-    return '<linearGradient id="bodygraph-v2-'+name+'" x1="0" y1="0" x2="1" y2="1"><stop stop-color="'+color+'"/><stop offset="1" stop-color="'+tint(color,0.12)+'"/></linearGradient>';
+    if(!chart.centers[name]) return '<linearGradient id="bodygraph-v2-'+name+'" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#ffffff"/></linearGradient>';
+    return '<linearGradient id="bodygraph-v2-'+name+'" x1="0" y1="0" x2="1" y2="1"><stop stop-color="'+p[5]+'"/><stop offset="1" stop-color="'+tint(p[5],0.12)+'"/></linearGradient>';
   }).join('');
   const channels=ROUTES.filter(([a,b])=>!onlyKey || [a,b].sort((a,b)=>a-b).join('-')===onlyKey).map(([a,b,c])=>{
     const [d,first,last]=channelPaths(a,b,c);
@@ -126,7 +129,7 @@ function chartElements(chart, structure, onlyChannelGates) {
       (active[a]?path(first,activationColor(active[a]),13):'')+
       (active[b]?path(last,activationColor(active[b]),13):'')+'</g>';
   }).join('');
-  const centers=Object.entries(CENTERS).map(([name,p])=>'<path data-center="'+name+'" data-defined="'+Boolean(chart.centers[name])+'" d="'+centerPath(p)+'" fill="url(#bodygraph-v2-'+name+')" stroke="'+p[6]+'" stroke-width="2.5"/>').join('');
+  const centers=Object.entries(CENTERS).map(([name,p])=>'<path data-center="'+name+'" data-defined="'+Boolean(chart.centers[name])+'" d="'+centerPath(p)+'" fill="url(#bodygraph-v2-'+name+')" stroke="'+p[6]+'" stroke-width="3"/>').join('');
   const labels=Object.entries(GATES).map(([center,gates])=>{
     if(gates.some(([gate])=>!structure.centers[center].gates.includes(gate))) throw new Error('Incorrect bodygraph gate placement');
     return gates.filter(([g])=>!onlyChannelGates || onlyChannelGates.includes(g)).map(([g,x,y])=>{
